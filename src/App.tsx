@@ -5,7 +5,7 @@ import Sidebar from './components/layout/Sidebar';
 import NotePanel from './components/notes/NotePanel';
 
 const App: React.FC = () => {
-  const { edgePosition, setEdgePosition } = useAppStore();
+  const { setEdgePosition } = useAppStore();
 
   useEffect(() => {
     console.log('React checking window.api:', window.api);

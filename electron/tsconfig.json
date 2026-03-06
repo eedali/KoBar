@@ -15,6 +15,7 @@
         "noImplicitAny": true
     },
     "include": [
-        "**/*.ts"
+        "**/*.ts",
+        "**/*.mts"
     ]
 }

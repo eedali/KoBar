@@ -17,12 +17,12 @@ const App: React.FC = () => {
   }, [setEdgePosition]);
 
   return (
-    <div
-      className={`relative w-full h-full bg-[#1e1b17] border border-[#3f362b] shadow-2xl flex overflow-hidden z-10 transition-all duration-300 ${edgePosition === 'right' ? 'flex-row' : 'flex-row-reverse'
-        }`}
-    >
-      <NotePanel />
-      <Sidebar />
+    <div className="w-full h-full bg-transparent flex items-center justify-center overflow-hidden">
+      {/* Anchor container for the Sidebar. NotePanel will absolutely position itself relative to this anchor. */}
+      <div className="relative w-24 h-full z-10 flex">
+        <NotePanel />
+        <Sidebar />
+      </div>
     </div>
   );
 };

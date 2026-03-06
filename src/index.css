@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #f4a125;
+  --color-bg-dark: #1a1612;
+  --color-bg-light: #f8f7f5;
+}
+
+@layer utilities {
+  .drag-region {
+    -webkit-app-region: drag;
+  }
+  .no-drag-region {
+    -webkit-app-region: no-drag;
+  }
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: transparent !important;
+  overflow: hidden;
+}

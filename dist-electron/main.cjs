@@ -68,17 +68,12 @@ function createWindow() {
 function handleWindowMove() {
     if (!mainWindow)
         return;
-    const point = electron_1.screen.getCursorScreenPoint();
-    const display = electron_1.screen.getDisplayNearestPoint(point);
-    const screenWidth = display.workAreaSize.width;
     const [x] = mainWindow.getPosition();
-    // Center of the screen check
-    if (x > screenWidth / 2) {
-        mainWindow.webContents.send('edge-changed', 'right');
-    }
-    else {
-        mainWindow.webContents.send('edge-changed', 'left');
-    }
+    const [width] = mainWindow.getSize();
+    const windowCenter = x + (width / 2);
+    const { workAreaSize } = electron_1.screen.getPrimaryDisplay();
+    const edgeState = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
+    mainWindow.webContents.send('edge-changed', edgeState);
 }
 function createTray() {
     // Use a blank native image as a placeholder for the icon

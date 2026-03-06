@@ -17,7 +17,7 @@ const App: React.FC = () => {
   }, [setEdgePosition]);
 
   return (
-    <div className="w-full h-full bg-transparent flex items-center justify-center overflow-hidden">
+    <div className="w-full h-screen bg-transparent flex items-center justify-center overflow-hidden">
       <div className="relative w-24 h-full z-10">
         <Sidebar />
         <NotePanel />

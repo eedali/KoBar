@@ -39,18 +39,14 @@ function createWindow() {
 function handleWindowMove() {
     if (!mainWindow) return;
 
-    const point = screen.getCursorScreenPoint();
-    const display = screen.getDisplayNearestPoint(point);
-    const screenWidth = display.workAreaSize.width;
-
     const [x] = mainWindow.getPosition();
+    const [width] = mainWindow.getSize();
+    const windowCenter = x + (width / 2);
 
-    // Center of the screen check
-    if (x > screenWidth / 2) {
-        mainWindow.webContents.send('edge-changed', 'right');
-    } else {
-        mainWindow.webContents.send('edge-changed', 'left');
-    }
+    const { workAreaSize } = screen.getPrimaryDisplay();
+    const edgeState = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
+
+    mainWindow.webContents.send('edge-changed', edgeState);
 }
 
 function createTray() {

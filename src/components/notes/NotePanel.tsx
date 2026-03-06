@@ -1,24 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import NoteEditor from './NoteEditor';
 import ResizerHandle from './ResizerHandle';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
+import type { EmojiClickData } from 'emoji-picker-react';
 
 interface Tab {
     id: number;
     title: string;
     icon: string;
+    emoji: string | null;
     active: boolean;
 }
 
 const NotePanel: React.FC = () => {
     const { isNotePanelOpen, notePanelWidth, edgePosition } = useAppStore();
 
-    // Quick mock state for tabs
     const [tabs, setTabs] = useState<Tab[]>([
-        { id: 1, title: 'Project Ideas', icon: 'lightbulb', active: true },
-        { id: 2, title: 'Meeting Notes', icon: 'groups', active: false },
-        { id: 3, title: 'Daily Tasks', icon: 'checklist', active: false },
+        { id: 1, title: 'Project Ideas', icon: 'lightbulb', emoji: null, active: true },
+        { id: 2, title: 'Meeting Notes', icon: 'groups', emoji: null, active: false },
+        { id: 3, title: 'Daily Tasks', icon: 'checklist', emoji: null, active: false },
     ]);
+
+    const [emojiPickerTabId, setEmojiPickerTabId] = useState<number | null>(null);
+    const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+    // Close emoji picker on outside click
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target as Node)) {
+                setEmojiPickerTabId(null);
+            }
+        };
+        if (emojiPickerTabId !== null) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [emojiPickerTabId]);
 
     if (!isNotePanelOpen) return null;
 
@@ -33,6 +51,19 @@ const NotePanel: React.FC = () => {
         setTabs(tabs.map(tab => ({ ...tab, active: tab.id === id })));
     };
 
+    const handleEmojiSelect = (emojiData: EmojiClickData) => {
+        if (emojiPickerTabId === null) return;
+        setTabs(tabs.map(tab =>
+            tab.id === emojiPickerTabId ? { ...tab, emoji: emojiData.emoji } : tab
+        ));
+        setEmojiPickerTabId(null);
+    };
+
+    const toggleEmojiPicker = (e: React.MouseEvent, tabId: number) => {
+        e.stopPropagation();
+        setEmojiPickerTabId(prev => prev === tabId ? null : tabId);
+    };
+
     return (
         <div
             className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 transition-[width] duration-0 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
@@ -42,7 +73,7 @@ const NotePanel: React.FC = () => {
             <ResizerHandle />
 
             {/* Tabs Header */}
-            <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0">
+            <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0 relative">
                 <div className="flex gap-2 overflow-x-auto custom-scrollbar">
                     {tabs.map((tab) => (
                         <button
@@ -53,7 +84,18 @@ const NotePanel: React.FC = () => {
                                 : 'text-slate-400 hover:text-slate-200'
                                 }`}
                         >
-                            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                            {/* Icon: emoji or Material icon */}
+                            <span
+                                onClick={(e) => toggleEmojiPicker(e, tab.id)}
+                                className="cursor-pointer hover:scale-110 transition-transform"
+                                title="Click to change icon"
+                            >
+                                {tab.emoji ? (
+                                    <span className="text-[18px]">{tab.emoji}</span>
+                                ) : (
+                                    <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                                )}
+                            </span>
                             {tab.title}
                             {tab.active && (
                                 <span
@@ -73,6 +115,23 @@ const NotePanel: React.FC = () => {
                         <span className="material-symbols-outlined text-[18px]">add</span>
                     </button>
                 </div>
+
+                {/* Emoji Picker Popover */}
+                {emojiPickerTabId !== null && (
+                    <div
+                        ref={emojiPickerRef}
+                        className="absolute top-full left-4 mt-2 z-50 no-drag-region shadow-2xl rounded-xl overflow-hidden"
+                    >
+                        <EmojiPicker
+                            onEmojiClick={handleEmojiSelect}
+                            theme={Theme.DARK}
+                            width={320}
+                            height={400}
+                            searchPlaceholder="Search emoji..."
+                            lazyLoadEmojis
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Note Editor Area */}

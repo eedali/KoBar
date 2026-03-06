@@ -40,7 +40,7 @@ let tray = null;
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
-        width: 1200,
+        width: 2000,
         height: 800,
         frame: false,
         transparent: true,

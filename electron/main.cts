@@ -8,7 +8,7 @@ const isDev = !app.isPackaged;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1200,
+        width: 2000,
         height: 800,
         frame: false,
         transparent: true,

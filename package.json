@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"tsc -w -p electron/tsconfig.json\" \"wait-on tcp:5173 && wait-on dist-electron/main.js && electron .\"",
+    "dev": "concurrently \"vite\" \"tsc -w -p electron/tsconfig.json\" \"wait-on tcp:5173 && wait-on dist-electron/main.js && wait-on dist-electron/preload.mjs && electron .\"",
     "build": "tsc -b && vite build && tsc -p electron/tsconfig.json",
     "lint": "eslint .",
     "preview": "vite preview"

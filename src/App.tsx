@@ -5,6 +5,7 @@ const App: React.FC = () => {
   const [edgePosition, setEdgePosition] = useState<'left' | 'right'>('right');
 
   useEffect(() => {
+    console.log('React checking window.api:', window.api);
     // Listen to edge changes from Electron Main Process
     if (window.api && window.api.onEdgeChanged) {
       window.api.onEdgeChanged((edge) => {

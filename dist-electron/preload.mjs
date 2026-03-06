@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+console.log('Preload loaded successfully');
 contextBridge.exposeInMainWorld('api', {
     hideApp: () => ipcRenderer.send('hide-app'),
     onEdgeChanged: (callback) => {

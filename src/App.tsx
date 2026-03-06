@@ -18,10 +18,9 @@ const App: React.FC = () => {
 
   return (
     <div className="w-full h-full bg-transparent flex items-center justify-center overflow-hidden">
-      {/* Anchor container for the Sidebar. NotePanel will absolutely position itself relative to this anchor. */}
-      <div className="relative w-24 h-full z-10 flex">
-        <NotePanel />
+      <div className="relative w-24 h-full z-10">
         <Sidebar />
+        <NotePanel />
       </div>
     </div>
   );

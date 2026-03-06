@@ -35,7 +35,7 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 transition-[width] duration-0 overflow-hidden shadow-2xl ${edgePosition === 'right' ? 'right-full' : 'left-full'
+            className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 transition-[width] duration-0 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
                 }`}
             style={{ width: `${notePanelWidth}px` }}
         >
@@ -49,8 +49,8 @@ const NotePanel: React.FC = () => {
                             key={tab.id}
                             onClick={() => setActive(tab.id)}
                             className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${tab.active
-                                    ? 'bg-[#1e1b17] text-slate-200 border border-[#3f362b] border-b-0 relative top-[1px]'
-                                    : 'text-slate-400 hover:text-slate-200'
+                                ? 'bg-[#1e1b17] text-slate-200 border border-[#3f362b] border-b-0 relative top-[1px]'
+                                : 'text-slate-400 hover:text-slate-200'
                                 }`}
                         >
                             <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>

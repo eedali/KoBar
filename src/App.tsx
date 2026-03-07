@@ -18,7 +18,11 @@ const App: React.FC = () => {
 
   return (
     <div className="w-full h-screen bg-transparent flex items-center justify-center overflow-hidden pointer-events-none">
-      <div className="relative w-24 h-full z-10 pointer-events-auto">
+      <div
+        className="relative w-24 h-full z-10 pointer-events-auto"
+        onMouseEnter={() => window.api?.setIgnoreMouseEvents(false)}
+        onMouseLeave={() => window.api?.setIgnoreMouseEvents(true)}
+      >
         <Sidebar />
         <NotePanel />
       </div>

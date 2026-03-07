@@ -11,8 +11,8 @@ const isDev = !app.isPackaged;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 3000,
-        height: 800,
+        width: 4000,
+        height: 2000,
         frame: false,
         transparent: true,
         alwaysOnTop: true,
@@ -26,6 +26,7 @@ function createWindow() {
     });
 
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
+    mainWindow.setIgnoreMouseEvents(true, { forward: true });
 
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
@@ -174,5 +175,12 @@ ipcMain.on('write-to-clipboard', (_event, data: { type: string; content: string 
     } else if (data.type === 'image') {
         const img = nativeImage.createFromDataURL(data.content);
         clipboard.writeImage(img);
+    }
+});
+
+ipcMain.on('set-ignore-mouse-events', (event, ignore: boolean) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+        win.setIgnoreMouseEvents(ignore, { forward: true });
     }
 });

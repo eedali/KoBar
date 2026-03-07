@@ -43,8 +43,8 @@ let lastClipboardImageDataUrl = '';
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
-        width: 3000,
-        height: 800,
+        width: 4000,
+        height: 2000,
         frame: false,
         transparent: true,
         alwaysOnTop: true,
@@ -57,6 +57,7 @@ function createWindow() {
         }
     });
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
+    mainWindow.setIgnoreMouseEvents(true, { forward: true });
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -182,5 +183,11 @@ electron_1.ipcMain.on('write-to-clipboard', (_event, data) => {
     else if (data.type === 'image') {
         const img = electron_1.nativeImage.createFromDataURL(data.content);
         electron_1.clipboard.writeImage(img);
+    }
+});
+electron_1.ipcMain.on('set-ignore-mouse-events', (event, ignore) => {
+    const win = electron_1.BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+        win.setIgnoreMouseEvents(ignore, { forward: true });
     }
 });

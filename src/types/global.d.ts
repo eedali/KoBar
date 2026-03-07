@@ -10,6 +10,8 @@ declare global {
             stopClipboardListener: () => void;
             onClipboardUpdate: (callback: (data: { type: string; content: string }) => void) => (() => void);
             writeToClipboard: (data: { type: string; content: string }) => void;
+            // Mouse click-through
+            setIgnoreMouseEvents: (ignore: boolean) => void;
         };
     }
 }

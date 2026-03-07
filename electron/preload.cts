@@ -20,4 +20,6 @@ contextBridge.exposeInMainWorld('api', {
     writeToClipboard: (data: { type: string; content: string }) => {
         ipcRenderer.send('write-to-clipboard', data);
     },
+    // Mouse click-through for transparent window
+    setIgnoreMouseEvents: (ignore: boolean) => ipcRenderer.send('set-ignore-mouse-events', ignore),
 });

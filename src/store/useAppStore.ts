@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface Note {
     id: number;
@@ -19,6 +20,7 @@ interface AppState {
     // Note management
     notes: Note[];
     activeNoteId: number;
+    nextNoteId: number;
     setActiveNoteId: (id: number) => void;
     addNote: () => void;
     deleteNote: (id: number) => void;
@@ -57,47 +59,63 @@ const defaultNotes: Note[] = [
     },
 ];
 
-let nextNoteId = 4;
-
-export const useAppStore = create<AppState>((set) => ({
-    edgePosition: 'right',
-    setEdgePosition: (edge) => set({ edgePosition: edge }),
-    isNotePanelOpen: true,
-    setNotePanelOpen: (isOpen) => set({ isNotePanelOpen: isOpen }),
-    toggleNotePanel: () => set((state) => ({ isNotePanelOpen: !state.isNotePanelOpen })),
-    notePanelWidth: 400,
-    setNotePanelWidth: (width) => set((state) => ({
-        notePanelWidth: typeof width === 'function' ? width(state.notePanelWidth) : width
-    })),
-    // Note management
-    notes: defaultNotes,
-    activeNoteId: 1,
-    setActiveNoteId: (id) => set({ activeNoteId: id }),
-    addNote: () => set((state) => {
-        const newNote: Note = {
-            id: nextNoteId++,
-            title: 'New Note',
-            icon: 'note',
-            emoji: null,
-            content: '',
-        };
-        return { notes: [...state.notes, newNote], activeNoteId: newNote.id };
-    }),
-    deleteNote: (id) => set((state) => {
-        const filtered = state.notes.filter(n => n.id !== id);
-        if (filtered.length === 0) return state; // Don't delete the last note
-        const newActiveId = state.activeNoteId === id
-            ? filtered[0].id
-            : state.activeNoteId;
-        return { notes: filtered, activeNoteId: newActiveId };
-    }),
-    updateNoteContent: (id, content) => set((state) => ({
-        notes: state.notes.map(n => n.id === id ? { ...n, content } : n),
-    })),
-    updateNoteTitle: (id, title) => set((state) => ({
-        notes: state.notes.map(n => n.id === id ? { ...n, title } : n),
-    })),
-    updateNoteEmoji: (id, emoji) => set((state) => ({
-        notes: state.notes.map(n => n.id === id ? { ...n, emoji } : n),
-    })),
-}));
+export const useAppStore = create<AppState>()(
+    persist(
+        (set) => ({
+            edgePosition: 'right',
+            setEdgePosition: (edge) => set({ edgePosition: edge }),
+            isNotePanelOpen: true,
+            setNotePanelOpen: (isOpen) => set({ isNotePanelOpen: isOpen }),
+            toggleNotePanel: () => set((state) => ({ isNotePanelOpen: !state.isNotePanelOpen })),
+            notePanelWidth: 400,
+            setNotePanelWidth: (width) => set((state) => ({
+                notePanelWidth: typeof width === 'function' ? width(state.notePanelWidth) : width
+            })),
+            // Note management
+            notes: defaultNotes,
+            activeNoteId: 1,
+            nextNoteId: 4,
+            setActiveNoteId: (id) => set({ activeNoteId: id }),
+            addNote: () => set((state) => {
+                const newNote: Note = {
+                    id: state.nextNoteId,
+                    title: 'New Note',
+                    icon: 'note',
+                    emoji: null,
+                    content: '',
+                };
+                return {
+                    notes: [...state.notes, newNote],
+                    activeNoteId: newNote.id,
+                    nextNoteId: state.nextNoteId + 1,
+                };
+            }),
+            deleteNote: (id) => set((state) => {
+                const filtered = state.notes.filter(n => n.id !== id);
+                if (filtered.length === 0) return state;
+                const newActiveId = state.activeNoteId === id
+                    ? filtered[0].id
+                    : state.activeNoteId;
+                return { notes: filtered, activeNoteId: newActiveId };
+            }),
+            updateNoteContent: (id, content) => set((state) => ({
+                notes: state.notes.map(n => n.id === id ? { ...n, content } : n),
+            })),
+            updateNoteTitle: (id, title) => set((state) => ({
+                notes: state.notes.map(n => n.id === id ? { ...n, title } : n),
+            })),
+            updateNoteEmoji: (id, emoji) => set((state) => ({
+                notes: state.notes.map(n => n.id === id ? { ...n, emoji } : n),
+            })),
+        }),
+        {
+            name: 'kobar-storage',
+            partialize: (state) => ({
+                notes: state.notes,
+                activeNoteId: state.activeNoteId,
+                nextNoteId: state.nextNoteId,
+                notePanelWidth: state.notePanelWidth,
+            }),
+        }
+    )
+);

@@ -19,9 +19,9 @@ const ResizerHandle: React.FC = () => {
         if (!isResizing) return;
 
         if (edgePosition === 'right') {
-            setNotePanelWidth((prev) => Math.min(Math.max(prev - e.movementX, 250), 800));
+            setNotePanelWidth((prev) => Math.min(Math.max(prev - e.movementX, 250), 1600));
         } else {
-            setNotePanelWidth((prev) => Math.min(Math.max(prev + e.movementX, 250), 800));
+            setNotePanelWidth((prev) => Math.min(Math.max(prev + e.movementX, 250), 1600));
         }
     }, [isResizing, edgePosition, setNotePanelWidth]);
 

@@ -79,6 +79,15 @@
     background-color: #3f362b;
     border-radius: 4px;
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 html,

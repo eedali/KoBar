@@ -47,6 +47,10 @@ const NotePanel: React.FC = () => {
         setEmojiPickerTabId(prev => prev === tabId ? null : tabId);
     };
 
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        e.currentTarget.scrollLeft += e.deltaY;
+    };
+
     return (
         <div
             className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 transition-[width] duration-0 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
@@ -57,12 +61,12 @@ const NotePanel: React.FC = () => {
 
             {/* Tabs Header */}
             <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0 relative">
-                <div className="flex gap-2 overflow-x-auto custom-scrollbar">
+                <div onWheel={handleWheel} className="flex gap-2 overflow-x-auto scrollbar-hide snap-x">
                     {notes.map((note) => (
                         <button
                             key={note.id}
                             onClick={() => setActiveNoteId(note.id)}
-                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${note.id === activeNoteId
+                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer shrink-0 snap-start ${note.id === activeNoteId
                                 ? 'bg-[#1e1b17] text-slate-200 border border-[#3f362b] border-b-0 relative top-[1px]'
                                 : 'text-slate-400 hover:text-slate-200'
                                 }`}

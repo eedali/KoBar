@@ -19,8 +19,7 @@ function createEmptySlots(): ClipboardSlot[] {
 }
 
 interface ClipboardState {
-    copySlots: ClipboardSlot[];
-    pasteSlots: ClipboardSlot[];
+    slots: ClipboardSlot[];
     isCopyModeActive: boolean;
     isPasteModeActive: boolean;
 
@@ -37,45 +36,41 @@ interface ClipboardState {
 }
 
 export const useClipboardStore = create<ClipboardState>((set, get) => ({
-    copySlots: createEmptySlots(),
-    pasteSlots: createEmptySlots(),
+    slots: createEmptySlots(),
     isCopyModeActive: false,
     isPasteModeActive: false,
 
     toggleCopyMode: () => {
-        const { isCopyModeActive, copySlots, pasteSlots } = get();
+        const { isCopyModeActive, slots } = get();
 
         if (isCopyModeActive) {
             // Deactivate: revert the current Listening slot back to Empty
-            const updatedCopySlots = copySlots.map(slot =>
+            const updated = slots.map(slot =>
                 slot.state === 'listening' ? { ...slot, state: 'empty' as SlotState } : slot
             );
-            set({ isCopyModeActive: false, copySlots: updatedCopySlots });
+            set({ isCopyModeActive: false, slots: updated });
 
-            // Tell Electron to stop polling
             if (window.api?.stopClipboardListener) {
                 window.api.stopClipboardListener();
             }
         } else {
-            // Activate: find the first empty slot and make it Listening
-            const updatedCopySlots = [...copySlots];
-            const updatedPasteSlots = [...pasteSlots];
-            const firstEmptyIndex = updatedCopySlots.findIndex(s => s.state === 'empty');
+            // Activate Copy → forcefully deactivate Paste (mutual exclusivity)
+            let updated = slots.map(slot =>
+                slot.state === 'selected' ? { ...slot, state: 'filled' as SlotState } : slot
+            );
 
-            if (firstEmptyIndex === -1) {
-                // All slots are filled, no room to listen
-                return;
-            }
+            const firstEmptyIndex = updated.findIndex(s => s.state === 'empty');
+            if (firstEmptyIndex === -1) return; // All slots filled
 
-            updatedCopySlots[firstEmptyIndex] = { ...updatedCopySlots[firstEmptyIndex], state: 'listening' };
+            updated = [...updated];
+            updated[firstEmptyIndex] = { ...updated[firstEmptyIndex], state: 'listening' };
 
             set({
                 isCopyModeActive: true,
-                copySlots: updatedCopySlots,
-                pasteSlots: updatedPasteSlots,
+                isPasteModeActive: false,
+                slots: updated,
             });
 
-            // Tell Electron to start polling
             if (window.api?.startClipboardListener) {
                 window.api.startClipboardListener();
             }
@@ -83,33 +78,27 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
     },
 
     addClipboardItem: (type, content) => {
-        const { copySlots, pasteSlots, isCopyModeActive } = get();
+        const { slots, isCopyModeActive } = get();
         if (!isCopyModeActive) return;
 
-        const updatedCopySlots = [...copySlots];
-        const updatedPasteSlots = [...pasteSlots];
+        const updated = [...slots];
 
         // Find the current Listening slot
-        const listeningIndex = updatedCopySlots.findIndex(s => s.state === 'listening');
+        const listeningIndex = updated.findIndex(s => s.state === 'listening');
         if (listeningIndex === -1) return;
 
         // Fill the Listening slot
-        updatedCopySlots[listeningIndex] = { state: 'filled', type, content };
-        updatedPasteSlots[listeningIndex] = { state: 'filled', type, content };
+        updated[listeningIndex] = { state: 'filled', type, content };
 
         // Find the next empty slot to make Listening
-        const nextEmptyIndex = updatedCopySlots.findIndex((s, i) => i > listeningIndex && s.state === 'empty');
+        const nextEmptyIndex = updated.findIndex((s, i) => i > listeningIndex && s.state === 'empty');
 
         if (nextEmptyIndex !== -1) {
-            updatedCopySlots[nextEmptyIndex] = { ...updatedCopySlots[nextEmptyIndex], state: 'listening' };
-            set({ copySlots: updatedCopySlots, pasteSlots: updatedPasteSlots });
+            updated[nextEmptyIndex] = { ...updated[nextEmptyIndex], state: 'listening' };
+            set({ slots: updated });
         } else {
             // No more empty slots — auto-deactivate copy mode
-            set({
-                copySlots: updatedCopySlots,
-                pasteSlots: updatedPasteSlots,
-                isCopyModeActive: false,
-            });
+            set({ slots: updated, isCopyModeActive: false });
             if (window.api?.stopClipboardListener) {
                 window.api.stopClipboardListener();
             }
@@ -117,57 +106,62 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
     },
 
     togglePasteMode: () => {
-        const { isPasteModeActive, pasteSlots } = get();
+        const { isPasteModeActive, slots, isCopyModeActive } = get();
 
         if (isPasteModeActive) {
             // Deactivate: remove the Red Stroke from the selected slot
-            const updatedPasteSlots = pasteSlots.map(slot =>
+            const updated = slots.map(slot =>
                 slot.state === 'selected' ? { ...slot, state: 'filled' as SlotState } : slot
             );
-            set({ isPasteModeActive: false, pasteSlots: updatedPasteSlots });
+            set({ isPasteModeActive: false, slots: updated });
         } else {
-            // Activate: find the first Filled slot and mark it as Selected (Red Stroke)
-            const updatedPasteSlots = [...pasteSlots];
-            const firstFilledIndex = updatedPasteSlots.findIndex(s => s.state === 'filled');
+            // Activate Paste → forcefully deactivate Copy (mutual exclusivity)
+            let updated = slots.map(slot =>
+                slot.state === 'listening' ? { ...slot, state: 'empty' as SlotState } : slot
+            );
 
-            if (firstFilledIndex === -1) {
-                // No filled slots to paste
-                return;
+            const firstFilledIndex = updated.findIndex(s => s.state === 'filled');
+            if (firstFilledIndex === -1) return; // No filled slots
+
+            updated = [...updated];
+            updated[firstFilledIndex] = { ...updated[firstFilledIndex], state: 'selected' };
+
+            set({ isPasteModeActive: true, isCopyModeActive: false, slots: updated });
+
+            // Stop clipboard polling if it was running
+            if (isCopyModeActive && window.api?.stopClipboardListener) {
+                window.api.stopClipboardListener();
             }
-
-            updatedPasteSlots[firstFilledIndex] = { ...updatedPasteSlots[firstFilledIndex], state: 'selected' };
-            set({ isPasteModeActive: true, pasteSlots: updatedPasteSlots });
         }
     },
 
     pasteNextItem: () => {
-        const { pasteSlots, isPasteModeActive } = get();
+        const { slots, isPasteModeActive } = get();
         if (!isPasteModeActive) return null;
 
-        const updatedPasteSlots = [...pasteSlots];
-        const selectedIndex = updatedPasteSlots.findIndex(s => s.state === 'selected');
-
+        const updated = [...slots];
+        const selectedIndex = updated.findIndex(s => s.state === 'selected');
         if (selectedIndex === -1) return null;
 
-        const item = { ...updatedPasteSlots[selectedIndex] };
+        const item = { ...updated[selectedIndex] };
 
         // Write to OS clipboard
         if (item.type && item.content && window.api?.writeToClipboard) {
             window.api.writeToClipboard({ type: item.type, content: item.content });
         }
 
-        // Clear the pasted slot
-        updatedPasteSlots[selectedIndex] = createEmptySlot();
+        // Clear the pasted slot → back to empty
+        updated[selectedIndex] = createEmptySlot();
 
         // Find the next filled slot
-        const nextFilledIndex = updatedPasteSlots.findIndex((s, i) => i > selectedIndex && s.state === 'filled');
+        const nextFilledIndex = updated.findIndex((s, i) => i > selectedIndex && s.state === 'filled');
 
         if (nextFilledIndex !== -1) {
-            updatedPasteSlots[nextFilledIndex] = { ...updatedPasteSlots[nextFilledIndex], state: 'selected' };
-            set({ pasteSlots: updatedPasteSlots });
+            updated[nextFilledIndex] = { ...updated[nextFilledIndex], state: 'selected' };
+            set({ slots: updated });
         } else {
             // No more items — auto-deactivate paste mode
-            set({ pasteSlots: updatedPasteSlots, isPasteModeActive: false });
+            set({ slots: updated, isPasteModeActive: false });
         }
 
         return item;
@@ -175,8 +169,7 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
 
     resetAll: () => {
         set({
-            copySlots: createEmptySlots(),
-            pasteSlots: createEmptySlots(),
+            slots: createEmptySlots(),
             isCopyModeActive: false,
             isPasteModeActive: false,
         });

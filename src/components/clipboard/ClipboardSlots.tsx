@@ -19,8 +19,7 @@ function getSlotColorClass(state: SlotState): string {
 
 const ClipboardSlots: React.FC = () => {
     const {
-        copySlots,
-        pasteSlots,
+        slots,
         isCopyModeActive,
         isPasteModeActive,
         toggleCopyMode,
@@ -55,65 +54,48 @@ const ClipboardSlots: React.FC = () => {
     }, [isPasteModeActive, pasteNextItem]);
 
     return (
-        <>
-            {/* Copy Section */}
-            <div className="flex flex-col items-center gap-2 w-full px-2 no-drag-region">
-                <button
-                    onClick={toggleCopyMode}
-                    onDoubleClick={resetAll}
-                    className={`p-1.5 transition-colors cursor-pointer ${isCopyModeActive
+        <div className="flex flex-col items-center gap-2 w-full px-2 no-drag-region">
+            {/* Copy Button */}
+            <button
+                onClick={toggleCopyMode}
+                onDoubleClick={resetAll}
+                className={`p-1.5 transition-colors cursor-pointer ${isCopyModeActive
                         ? 'text-blue-400 hover:text-blue-300'
                         : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                    title={isCopyModeActive ? 'Stop Copy Mode (Double-click to reset)' : 'Start Copy Mode (Double-click to reset)'}
-                >
-                    <span className="material-symbols-outlined text-[20px]">content_copy</span>
-                </button>
-                <div className="flex flex-row flex-wrap justify-center gap-1.5 relative px-2">
-                    {copySlots.map((slot, index) => (
-                        <label key={`copy-${index}`} className="relative flex items-center justify-center cursor-pointer group">
-                            <input
-                                readOnly
-                                checked={slot.state !== 'empty'}
-                                className={`custom-radio ${getSlotColorClass(slot.state)}`}
-                                type="radio"
-                                name={`copy_slot_${index}`}
-                            />
-                        </label>
-                    ))}
-                </div>
+                    }`}
+                title={isCopyModeActive ? 'Stop Copy Mode (Double-click to reset)' : 'Start Copy Mode (Double-click to reset)'}
+            >
+                <span className="material-symbols-outlined text-[20px]">content_copy</span>
+            </button>
+
+            {/* Unified Slot Circles */}
+            <div className="flex flex-row flex-wrap justify-center gap-1.5 relative px-2">
+                {slots.map((slot, index) => (
+                    <label key={`slot-${index}`} className="relative flex items-center justify-center cursor-pointer group">
+                        <input
+                            readOnly
+                            checked={slot.state !== 'empty'}
+                            className={`custom-radio ${getSlotColorClass(slot.state)}`}
+                            type="radio"
+                            name={`slot_${index}`}
+                        />
+                    </label>
+                ))}
             </div>
 
-            <div className="w-12 h-px bg-[#3f362b] my-4"></div>
-
-            {/* Paste Section */}
-            <div className="flex flex-col items-center gap-2 w-full px-2 no-drag-region">
-                <button
-                    onClick={togglePasteMode}
-                    onDoubleClick={resetAll}
-                    className={`p-1.5 transition-colors cursor-pointer ${isPasteModeActive
+            {/* Paste Button */}
+            <button
+                onClick={togglePasteMode}
+                onDoubleClick={resetAll}
+                className={`p-1.5 transition-colors cursor-pointer ${isPasteModeActive
                         ? 'text-red-400 hover:text-red-300'
                         : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                    title={isPasteModeActive ? 'Stop Paste Mode (Double-click to reset)' : 'Start Paste Mode (Double-click to reset)'}
-                >
-                    <span className="material-symbols-outlined text-[20px]">content_paste</span>
-                </button>
-                <div className="flex flex-row flex-wrap justify-center gap-1.5 relative px-2">
-                    {pasteSlots.map((slot, index) => (
-                        <label key={`paste-${index}`} className="relative flex items-center justify-center cursor-pointer group">
-                            <input
-                                readOnly
-                                checked={slot.state !== 'empty'}
-                                className={`custom-radio ${getSlotColorClass(slot.state)}`}
-                                type="radio"
-                                name={`paste_slot_${index}`}
-                            />
-                        </label>
-                    ))}
-                </div>
-            </div>
-        </>
+                    }`}
+                title={isPasteModeActive ? 'Stop Paste Mode (Double-click to reset)' : 'Start Paste Mode (Double-click to reset)'}
+            >
+                <span className="material-symbols-outlined text-[20px]">content_paste</span>
+            </button>
+        </div>
     );
 };
 

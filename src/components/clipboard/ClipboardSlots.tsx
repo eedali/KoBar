@@ -27,15 +27,20 @@ const ClipboardSlots: React.FC = () => {
         togglePasteMode,
         addClipboardItem,
         pasteNextItem,
+        resetAll,
     } = useClipboardStore();
 
     // Listen for clipboard updates from Electron backend
     useEffect(() => {
+        let cleanup: (() => void) | undefined;
         if (window.api?.onClipboardUpdate) {
-            window.api.onClipboardUpdate((data) => {
+            cleanup = window.api.onClipboardUpdate((data) => {
                 addClipboardItem(data.type as 'text' | 'image', data.content);
             });
         }
+        return () => {
+            if (cleanup) cleanup();
+        };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Listen for Ctrl+V globally to trigger sequential paste
@@ -55,11 +60,12 @@ const ClipboardSlots: React.FC = () => {
             <div className="flex flex-col items-center gap-2 w-full px-2 no-drag-region">
                 <button
                     onClick={toggleCopyMode}
+                    onDoubleClick={resetAll}
                     className={`p-1.5 transition-colors cursor-pointer ${isCopyModeActive
-                            ? 'text-blue-400 hover:text-blue-300'
-                            : 'text-slate-400 hover:text-slate-200'
+                        ? 'text-blue-400 hover:text-blue-300'
+                        : 'text-slate-400 hover:text-slate-200'
                         }`}
-                    title={isCopyModeActive ? 'Stop Copy Mode' : 'Start Copy Mode'}
+                    title={isCopyModeActive ? 'Stop Copy Mode (Double-click to reset)' : 'Start Copy Mode (Double-click to reset)'}
                 >
                     <span className="material-symbols-outlined text-[20px]">content_copy</span>
                 </button>
@@ -84,11 +90,12 @@ const ClipboardSlots: React.FC = () => {
             <div className="flex flex-col items-center gap-2 w-full px-2 no-drag-region">
                 <button
                     onClick={togglePasteMode}
+                    onDoubleClick={resetAll}
                     className={`p-1.5 transition-colors cursor-pointer ${isPasteModeActive
-                            ? 'text-red-400 hover:text-red-300'
-                            : 'text-slate-400 hover:text-slate-200'
+                        ? 'text-red-400 hover:text-red-300'
+                        : 'text-slate-400 hover:text-slate-200'
                         }`}
-                    title={isPasteModeActive ? 'Stop Paste Mode' : 'Start Paste Mode'}
+                    title={isPasteModeActive ? 'Stop Paste Mode (Double-click to reset)' : 'Start Paste Mode (Double-click to reset)'}
                 >
                     <span className="material-symbols-outlined text-[20px]">content_paste</span>
                 </button>

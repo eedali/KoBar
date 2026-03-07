@@ -8,7 +8,7 @@ declare global {
             // Clipboard Manager
             startClipboardListener: () => void;
             stopClipboardListener: () => void;
-            onClipboardUpdate: (callback: (data: { type: string; content: string }) => void) => void;
+            onClipboardUpdate: (callback: (data: { type: string; content: string }) => void) => (() => void);
             writeToClipboard: (data: { type: string; content: string }) => void;
         };
     }

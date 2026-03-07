@@ -63,7 +63,7 @@ const NotePanel: React.FC = () => {
         <div
             className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 transition-[width] duration-0 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
                 }`}
-            style={{ width: `${notePanelWidth}px` }}
+            style={{ width: `${notePanelWidth}px`, maxWidth: 'calc(100vw - 120px)' }}
         >
             <ResizerHandle />
 

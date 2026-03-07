@@ -11,7 +11,12 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     startClipboardListener: () => electron_1.ipcRenderer.send('start-clipboard-listener'),
     stopClipboardListener: () => electron_1.ipcRenderer.send('stop-clipboard-listener'),
     onClipboardUpdate: (callback) => {
-        electron_1.ipcRenderer.on('clipboard-updated', (_event, data) => callback(data));
+        const handler = (_event, data) => callback(data);
+        electron_1.ipcRenderer.on('clipboard-updated', handler);
+        // Return cleanup function
+        return () => {
+            electron_1.ipcRenderer.removeListener('clipboard-updated', handler);
+        };
     },
     writeToClipboard: (data) => {
         electron_1.ipcRenderer.send('write-to-clipboard', data);

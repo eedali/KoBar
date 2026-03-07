@@ -35,8 +35,6 @@ const NotePanel: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [emojiPickerTabId]);
 
-    if (!isNotePanelOpen) return null;
-
     const handleDelete = (e: React.MouseEvent, id: number) => {
         e.stopPropagation();
         if (window.confirm("Are you sure you want to delete this note?")) {
@@ -61,9 +59,9 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 transition-[width] duration-0 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
-                }`}
-            style={{ width: `${notePanelWidth}px`, maxWidth: 'calc(100vw - 120px)' }}
+            className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border-y border-[#3f362b] z-10 transition-all duration-300 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full border-l' : 'left-full border-r'
+                } ${isNotePanelOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
+            style={{ width: isNotePanelOpen ? `${notePanelWidth}px` : '0px', maxWidth: 'calc(100vw - 120px)' }}
         >
             <ResizerHandle />
 

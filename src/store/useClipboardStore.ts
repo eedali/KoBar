@@ -33,6 +33,11 @@ interface ClipboardState {
 
     // Reset
     resetAll: () => void;
+    clearSlot: (index: number) => void;
+
+    // Manual Targeting
+    setListeningSlot: (index: number) => void;
+    setSelectedSlot: (index: number) => void;
 }
 
 export const useClipboardStore = create<ClipboardState>((set, get) => ({
@@ -176,5 +181,38 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
         if (window.api?.stopClipboardListener) {
             window.api.stopClipboardListener();
         }
+    },
+
+    clearSlot: (index: number) => {
+        const { slots } = get();
+        if (slots[index].state === 'filled') {
+            const updated = [...slots];
+            updated[index] = createEmptySlot();
+            set({ slots: updated });
+        }
+    },
+
+    setListeningSlot: (index: number) => {
+        const { slots, isCopyModeActive } = get();
+        if (!isCopyModeActive || slots[index].state !== 'empty') return;
+
+        let updated = slots.map(slot =>
+            slot.state === 'listening' ? { ...slot, state: 'empty' as SlotState } : slot
+        );
+        updated = [...updated];
+        updated[index] = { ...updated[index], state: 'listening' };
+        set({ slots: updated });
+    },
+
+    setSelectedSlot: (index: number) => {
+        const { slots, isPasteModeActive } = get();
+        if (!isPasteModeActive || slots[index].state !== 'filled') return;
+
+        let updated = slots.map(slot =>
+            slot.state === 'selected' ? { ...slot, state: 'filled' as SlotState } : slot
+        );
+        updated = [...updated];
+        updated[index] = { ...updated[index], state: 'selected' };
+        set({ slots: updated });
     },
 }));

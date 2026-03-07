@@ -27,6 +27,9 @@ const ClipboardSlots: React.FC = () => {
         addClipboardItem,
         pasteNextItem,
         resetAll,
+        clearSlot,
+        setListeningSlot,
+        setSelectedSlot,
     } = useClipboardStore();
 
     // Listen for clipboard updates from Electron backend
@@ -53,6 +56,15 @@ const ClipboardSlots: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isPasteModeActive, pasteNextItem]);
 
+    const handleSlotClick = (e: React.MouseEvent, index: number, state: SlotState) => {
+        e.preventDefault();
+        if (isCopyModeActive && state === 'empty') {
+            setListeningSlot(index);
+        } else if (isPasteModeActive && state === 'filled') {
+            setSelectedSlot(index);
+        }
+    };
+
     return (
         <div className="flex flex-col items-center gap-2 w-full px-2 no-drag-region">
             {/* Copy Button */}
@@ -60,8 +72,8 @@ const ClipboardSlots: React.FC = () => {
                 onClick={toggleCopyMode}
                 onDoubleClick={resetAll}
                 className={`p-1.5 transition-colors cursor-pointer ${isCopyModeActive
-                        ? 'text-blue-400 hover:text-blue-300'
-                        : 'text-slate-400 hover:text-slate-200'
+                    ? 'text-blue-400 hover:text-blue-300'
+                    : 'text-slate-400 hover:text-slate-200'
                     }`}
                 title={isCopyModeActive ? 'Stop Copy Mode (Double-click to reset)' : 'Start Copy Mode (Double-click to reset)'}
             >
@@ -71,11 +83,19 @@ const ClipboardSlots: React.FC = () => {
             {/* Unified Slot Circles */}
             <div className="flex flex-row flex-wrap justify-center gap-1.5 relative px-2">
                 {slots.map((slot, index) => (
-                    <label key={`slot-${index}`} className="relative flex items-center justify-center cursor-pointer group">
+                    <label
+                        key={`slot-${index}`}
+                        className="relative flex items-center justify-center cursor-pointer group"
+                        onClick={(e) => handleSlotClick(e, index, slot.state)}
+                        onDoubleClick={(e) => {
+                            e.preventDefault();
+                            clearSlot(index);
+                        }}
+                    >
                         <input
                             readOnly
                             checked={slot.state !== 'empty'}
-                            className={`custom-radio ${getSlotColorClass(slot.state)}`}
+                            className={`custom-radio ${getSlotColorClass(slot.state)} pointer-events-none`}
                             type="radio"
                             name={`slot_${index}`}
                         />
@@ -88,8 +108,8 @@ const ClipboardSlots: React.FC = () => {
                 onClick={togglePasteMode}
                 onDoubleClick={resetAll}
                 className={`p-1.5 transition-colors cursor-pointer ${isPasteModeActive
-                        ? 'text-red-400 hover:text-red-300'
-                        : 'text-slate-400 hover:text-slate-200'
+                    ? 'text-red-400 hover:text-red-300'
+                    : 'text-slate-400 hover:text-slate-200'
                     }`}
                 title={isPasteModeActive ? 'Stop Paste Mode (Double-click to reset)' : 'Start Paste Mode (Double-click to reset)'}
             >

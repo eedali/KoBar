@@ -1,8 +1,11 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard } from 'electron';
 import * as path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
+let clipboardPollingInterval: ReturnType<typeof setInterval> | null = null;
+let lastClipboardText: string = '';
+let lastClipboardImageDataUrl: string = '';
 
 const isDev = !app.isPackaged;
 
@@ -47,6 +50,53 @@ function handleWindowMove() {
     const edgeState = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
 
     mainWindow.webContents.send('edge-changed', edgeState);
+}
+
+// --- Clipboard Polling ---
+function startClipboardPolling() {
+    if (clipboardPollingInterval) return; // Already polling
+
+    // Snapshot current clipboard so we don't immediately capture stale content
+    lastClipboardText = clipboard.readText() || '';
+    const img = clipboard.readImage();
+    lastClipboardImageDataUrl = img.isEmpty() ? '' : img.toDataURL();
+
+    clipboardPollingInterval = setInterval(() => {
+        if (!mainWindow) return;
+
+        // Check for new text
+        const currentText = clipboard.readText() || '';
+        if (currentText && currentText !== lastClipboardText) {
+            lastClipboardText = currentText;
+            lastClipboardImageDataUrl = ''; // Reset image tracking
+            mainWindow.webContents.send('clipboard-updated', {
+                type: 'text',
+                content: currentText,
+            });
+            return;
+        }
+
+        // Check for new image
+        const currentImage = clipboard.readImage();
+        if (!currentImage.isEmpty()) {
+            const currentDataUrl = currentImage.toDataURL();
+            if (currentDataUrl !== lastClipboardImageDataUrl) {
+                lastClipboardImageDataUrl = currentDataUrl;
+                lastClipboardText = ''; // Reset text tracking
+                mainWindow.webContents.send('clipboard-updated', {
+                    type: 'image',
+                    content: currentDataUrl,
+                });
+            }
+        }
+    }, 500);
+}
+
+function stopClipboardPolling() {
+    if (clipboardPollingInterval) {
+        clearInterval(clipboardPollingInterval);
+        clipboardPollingInterval = null;
+    }
 }
 
 function createTray() {
@@ -107,5 +157,22 @@ app.on('window-all-closed', () => {
 ipcMain.on('hide-app', () => {
     if (mainWindow) {
         mainWindow.hide();
+    }
+});
+
+ipcMain.on('start-clipboard-listener', () => {
+    startClipboardPolling();
+});
+
+ipcMain.on('stop-clipboard-listener', () => {
+    stopClipboardPolling();
+});
+
+ipcMain.on('write-to-clipboard', (_event, data: { type: string; content: string }) => {
+    if (data.type === 'text') {
+        clipboard.writeText(data.content);
+    } else if (data.type === 'image') {
+        const img = nativeImage.createFromDataURL(data.content);
+        clipboard.writeImage(img);
     }
 });

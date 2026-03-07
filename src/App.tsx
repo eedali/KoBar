@@ -4,6 +4,11 @@ import { useAppStore } from './store/useAppStore';
 import Sidebar from './components/layout/Sidebar';
 import NotePanel from './components/notes/NotePanel';
 
+// Global flag: when true, the ghost-window logic won't steal focus
+// Exported so ResizerHandle can set it during drags
+export let isResizingGlobal = false;
+export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
+
 const App: React.FC = () => {
   const { setEdgePosition } = useAppStore();
 
@@ -19,6 +24,9 @@ const App: React.FC = () => {
   // transparent background or actual UI elements
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      // Never steal focus while user is resizing
+      if (isResizingGlobal) return;
+
       const target = e.target as HTMLElement;
       const isTransparent =
         target.tagName === 'HTML' ||

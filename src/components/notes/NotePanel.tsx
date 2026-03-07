@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import NoteEditor from './NoteEditor';
 import ResizerHandle from './ResizerHandle';
@@ -7,25 +7,31 @@ import type { EmojiClickData } from 'emoji-picker-react';
 
 const NotePanel: React.FC = () => {
     const {
-        isNotePanelOpen, notePanelWidth, edgePosition, setNotePanelWidth,
+        isNotePanelOpen, notePanelWidth, notePanelHeight, edgePosition, setNotePanelWidth, setNotePanelHeight,
         notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
     } = useAppStore();
 
-    // Local width for lag-free resizing (avoids Tiptap re-renders)
+    // Local dimensions for lag-free resizing (avoids Tiptap re-renders)
     const [localWidth, setLocalWidth] = useState(notePanelWidth);
+    const [localHeight, setLocalHeight] = useState(notePanelHeight);
 
-    // Sync local width when store changes externally (double-click reset, etc.)
-    useEffect(() => {
-        setLocalWidth(notePanelWidth);
-    }, [notePanelWidth]);
+    // Sync local dimensions when store changes externally (double-click reset, etc.)
+    useEffect(() => { setLocalWidth(notePanelWidth); }, [notePanelWidth]);
+    useEffect(() => { setLocalHeight(notePanelHeight); }, [notePanelHeight]);
 
-    // Startup sanity check: reset width if persisted value exceeds physical screen
+    // Startup sanity check
     useEffect(() => {
-        const safeMax = window.screen.availWidth - 120;
-        if (notePanelWidth > safeMax) {
-            setNotePanelWidth(400);
-        }
+        const safeMaxW = window.screen.availWidth - 120;
+        const safeMaxH = window.screen.availHeight - 100;
+        if (notePanelWidth > safeMaxW) setNotePanelWidth(400);
+        if (notePanelHeight > safeMaxH) setNotePanelHeight(600);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Callback for resizer handles to update local dimensions
+    const handleResizeTemp = useCallback((w: number, h: number) => {
+        setLocalWidth(w);
+        setLocalHeight(h);
+    }, []);
 
     const [emojiPickerTabId, setEmojiPickerTabId] = useState<number | null>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
@@ -67,11 +73,20 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border-y border-[#3f362b] z-10 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full border-l' : 'left-full border-r'
+            className={`absolute top-0 flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
                 } ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
-            style={{ width: isNotePanelOpen ? `${localWidth}px` : '0px', maxWidth: 'calc(100vw - 120px)' }}
+            style={{
+                width: isNotePanelOpen ? `${localWidth}px` : '0px',
+                height: isNotePanelOpen ? `${localHeight}px` : '0px',
+                maxWidth: 'calc(100vw - 120px)',
+            }}
         >
-            <ResizerHandle onResizeTemp={setLocalWidth} />
+            {/* Side Resizer */}
+            <ResizerHandle direction="side" onResizeTemp={handleResizeTemp} />
+            {/* Bottom Resizer */}
+            <ResizerHandle direction="bottom" onResizeTemp={handleResizeTemp} />
+            {/* Corner Resizer */}
+            <ResizerHandle direction="corner" onResizeTemp={handleResizeTemp} />
 
             {/* Tabs Header */}
             <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0 relative">
@@ -143,3 +158,4 @@ const NotePanel: React.FC = () => {
 };
 
 export default NotePanel;
+

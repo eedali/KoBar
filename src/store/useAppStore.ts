@@ -17,6 +17,8 @@ interface AppState {
     toggleNotePanel: () => void;
     notePanelWidth: number;
     setNotePanelWidth: (width: number | ((prev: number) => number)) => void;
+    notePanelHeight: number;
+    setNotePanelHeight: (height: number | ((prev: number) => number)) => void;
     // Note management
     notes: Note[];
     activeNoteId: number;
@@ -71,6 +73,10 @@ export const useAppStore = create<AppState>()(
             setNotePanelWidth: (width) => set((state) => ({
                 notePanelWidth: typeof width === 'function' ? width(state.notePanelWidth) : width
             })),
+            notePanelHeight: 600,
+            setNotePanelHeight: (height) => set((state) => ({
+                notePanelHeight: typeof height === 'function' ? height(state.notePanelHeight) : height
+            })),
             // Note management
             notes: defaultNotes,
             activeNoteId: 1,
@@ -115,6 +121,7 @@ export const useAppStore = create<AppState>()(
                 activeNoteId: state.activeNoteId,
                 nextNoteId: state.nextNoteId,
                 notePanelWidth: state.notePanelWidth,
+                notePanelHeight: state.notePanelHeight,
             }),
         }
     )

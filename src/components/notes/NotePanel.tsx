@@ -5,22 +5,11 @@ import ResizerHandle from './ResizerHandle';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import type { EmojiClickData } from 'emoji-picker-react';
 
-interface Tab {
-    id: number;
-    title: string;
-    icon: string;
-    emoji: string | null;
-    active: boolean;
-}
-
 const NotePanel: React.FC = () => {
-    const { isNotePanelOpen, notePanelWidth, edgePosition } = useAppStore();
-
-    const [tabs, setTabs] = useState<Tab[]>([
-        { id: 1, title: 'Project Ideas', icon: 'lightbulb', emoji: null, active: true },
-        { id: 2, title: 'Meeting Notes', icon: 'groups', emoji: null, active: false },
-        { id: 3, title: 'Daily Tasks', icon: 'checklist', emoji: null, active: false },
-    ]);
+    const {
+        isNotePanelOpen, notePanelWidth, edgePosition,
+        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
+    } = useAppStore();
 
     const [emojiPickerTabId, setEmojiPickerTabId] = useState<number | null>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
@@ -43,19 +32,13 @@ const NotePanel: React.FC = () => {
     const handleDelete = (e: React.MouseEvent, id: number) => {
         e.stopPropagation();
         if (window.confirm("Are you sure you want to delete this note?")) {
-            setTabs(tabs.filter(tab => tab.id !== id));
+            deleteNote(id);
         }
-    };
-
-    const setActive = (id: number) => {
-        setTabs(tabs.map(tab => ({ ...tab, active: tab.id === id })));
     };
 
     const handleEmojiSelect = (emojiData: EmojiClickData) => {
         if (emojiPickerTabId === null) return;
-        setTabs(tabs.map(tab =>
-            tab.id === emojiPickerTabId ? { ...tab, emoji: emojiData.emoji } : tab
-        ));
+        updateNoteEmoji(emojiPickerTabId, emojiData.emoji);
         setEmojiPickerTabId(null);
     };
 
@@ -75,31 +58,31 @@ const NotePanel: React.FC = () => {
             {/* Tabs Header */}
             <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0 relative">
                 <div className="flex gap-2 overflow-x-auto custom-scrollbar">
-                    {tabs.map((tab) => (
+                    {notes.map((note) => (
                         <button
-                            key={tab.id}
-                            onClick={() => setActive(tab.id)}
-                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${tab.active
+                            key={note.id}
+                            onClick={() => setActiveNoteId(note.id)}
+                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${note.id === activeNoteId
                                 ? 'bg-[#1e1b17] text-slate-200 border border-[#3f362b] border-b-0 relative top-[1px]'
                                 : 'text-slate-400 hover:text-slate-200'
                                 }`}
                         >
                             {/* Icon: emoji or Material icon */}
                             <span
-                                onClick={(e) => toggleEmojiPicker(e, tab.id)}
+                                onClick={(e) => toggleEmojiPicker(e, note.id)}
                                 className="cursor-pointer hover:scale-110 transition-transform"
                                 title="Click to change icon"
                             >
-                                {tab.emoji ? (
-                                    <span className="text-[18px]">{tab.emoji}</span>
+                                {note.emoji ? (
+                                    <span className="text-[18px]">{note.emoji}</span>
                                 ) : (
-                                    <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                                    <span className="material-symbols-outlined text-[18px]">{note.icon}</span>
                                 )}
                             </span>
-                            {tab.title}
-                            {tab.active && (
+                            {note.title}
+                            {note.id === activeNoteId && (
                                 <span
-                                    onClick={(e) => handleDelete(e, tab.id)}
+                                    onClick={(e) => handleDelete(e, note.id)}
                                     className="material-symbols-outlined text-[16px] ml-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-sm transition-all p-0.5"
                                     title="Close tab"
                                 >
@@ -109,6 +92,7 @@ const NotePanel: React.FC = () => {
                         </button>
                     ))}
                     <button
+                        onClick={() => addNote()}
                         className="px-3 py-2.5 text-slate-400 hover:text-slate-200 text-sm font-medium rounded-t-lg transition-colors flex items-center justify-center shrink-0 cursor-pointer"
                         title="Add new note"
                     >

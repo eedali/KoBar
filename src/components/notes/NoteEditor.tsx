@@ -1,11 +1,17 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import { useAppStore } from '../../store/useAppStore';
 
 const NoteEditor: React.FC = () => {
+    const { notes, activeNoteId, updateNoteContent, updateNoteTitle } = useAppStore();
+    const activeNote = notes.find(n => n.id === activeNoteId);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const isUpdatingFromStore = useRef(false);
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -13,46 +19,73 @@ const NoteEditor: React.FC = () => {
                 orderedList: { keepMarks: true },
             }),
             Underline,
-            Image.configure({ inline: true }),
+            Image.configure({ inline: false }),
             Placeholder.configure({
                 placeholder: 'Start writing your note…',
             }),
         ],
-        content: `
-            <p>Here are some initial thoughts for the upcoming quarter:</p>
-            <ul>
-                <li><strong>Revamp the Dashboard:</strong> Focus on user-customizable widgets. We need to allow users to drag and drop their most used metrics.</li>
-                <li><strong>Integrate new API:</strong> The third-party data needs to be pulled in real-time. Discuss with the backend team regarding rate limits.</li>
-                <li><strong>Performance optimization:</strong> Investigate the slow load times on the reporting module. Could be a database indexing issue.</li>
-            </ul>
-            <p>Next steps are to schedule a sync with design to review wireframes by next Tuesday.</p>
-        `,
+        content: activeNote?.content || '',
         editorProps: {
             attributes: {
-                class: 'flex-1 text-slate-300 text-lg leading-relaxed outline-none no-drag-region overflow-y-auto prose prose-invert max-w-none',
+                class: 'flex-1 text-slate-300 text-lg leading-relaxed outline-none no-drag-region overflow-y-auto max-w-none',
             },
+        },
+        onUpdate: ({ editor: ed }) => {
+            if (isUpdatingFromStore.current) return;
+            if (activeNote) {
+                updateNoteContent(activeNote.id, ed.getHTML());
+            }
         },
     });
 
-    const handleImageInsert = useCallback(() => {
-        if (!editor) return;
-        const url = window.prompt('Enter image URL:');
-        if (url) {
-            editor.chain().focus().setImage({ src: url }).run();
+    // Sync editor content when active tab changes
+    useEffect(() => {
+        if (editor && activeNote) {
+            isUpdatingFromStore.current = true;
+            editor.commands.setContent(activeNote.content || '');
+            isUpdatingFromStore.current = false;
         }
+    }, [activeNoteId, editor]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Handle local image file selection
+    const handleImageFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!editor || !e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result as string;
+            editor.chain().focus().setImage({ src: base64 }).run();
+        };
+        reader.readAsDataURL(file);
+        // Reset input so the same file can be re-selected
+        e.target.value = '';
     }, [editor]);
 
-    if (!editor) return null;
+    const triggerImagePicker = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
+
+    if (!editor || !activeNote) return null;
 
     return (
         <div className="flex-1 p-8 flex flex-col overflow-y-auto w-full max-w-full">
+            {/* Hidden file input for image selection */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageFileSelect}
+            />
+
             {/* Title area */}
             <div className="flex items-center gap-4 mb-6 no-drag-region">
                 <input
                     className="bg-transparent text-4xl font-bold text-slate-100 border-none outline-none w-full focus:ring-0 placeholder-slate-700"
                     placeholder="Note Title..."
                     type="text"
-                    defaultValue="Project Ideas: Q3 Roadmap"
+                    value={activeNote.title}
+                    onChange={(e) => updateNoteTitle(activeNote.id, e.target.value)}
                 />
             </div>
 
@@ -96,7 +129,7 @@ const NoteEditor: React.FC = () => {
                 </button>
                 <div className="w-px h-5 bg-[#3f362b]"></div>
                 <button
-                    onClick={handleImageInsert}
+                    onClick={triggerImagePicker}
                     className="hover:text-slate-200 transition-colors cursor-pointer"
                     title="Insert Image"
                 >

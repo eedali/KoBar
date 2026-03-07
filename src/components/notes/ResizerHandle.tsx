@@ -17,11 +17,12 @@ const ResizerHandle: React.FC = () => {
 
     const handleMouseMove = useCallback((e: MouseEvent) => {
         if (!isResizing) return;
+        const maxWidth = Math.min(1600, window.innerWidth - 120);
 
         if (edgePosition === 'right') {
-            setNotePanelWidth((prev) => Math.min(Math.max(prev - e.movementX, 250), 1600));
+            setNotePanelWidth((prev) => Math.min(Math.max(prev - e.movementX, 250), maxWidth));
         } else {
-            setNotePanelWidth((prev) => Math.min(Math.max(prev + e.movementX, 250), 1600));
+            setNotePanelWidth((prev) => Math.min(Math.max(prev + e.movementX, 250), maxWidth));
         }
     }, [isResizing, edgePosition, setNotePanelWidth]);
 
@@ -41,9 +42,14 @@ const ResizerHandle: React.FC = () => {
         };
     }, [isResizing, handleMouseMove, handleMouseUp]);
 
+    const handleDoubleClick = () => {
+        setNotePanelWidth(400);
+    };
+
     return (
         <div
             onMouseDown={handleMouseDown}
+            onDoubleClick={handleDoubleClick}
             className={`absolute top-0 bottom-0 w-2 cursor-ew-resize hover:bg-primary/50 transition-colors z-50 no-drag-region ${edgePosition === 'right' ? 'left-0' : 'right-0'
                 } ${isResizing ? 'bg-primary/50' : 'bg-transparent'}`}
         />

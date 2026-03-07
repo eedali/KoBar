@@ -3,7 +3,7 @@ import ClipboardSlots from '../clipboard/ClipboardSlots';
 import { useAppStore } from '../../store/useAppStore';
 
 const Sidebar: React.FC = () => {
-    const { toggleNotePanel } = useAppStore();
+    const { toggleNotePanel, setNotePanelWidth } = useAppStore();
 
     const handleHide = () => {
         if (window.api && window.api.hideApp) {
@@ -22,8 +22,8 @@ const Sidebar: React.FC = () => {
                 <span className="material-symbols-outlined text-[18px]">chevron_right</span>
             </button>
 
-            {/* Drag Handle */}
-            <div className="flex flex-col items-center gap-4 mb-4 drag-region w-full">
+            {/* Drag Handle - double click resets note panel width */}
+            <div className="flex flex-col items-center gap-4 mb-4 drag-region w-full" onDoubleClick={() => setNotePanelWidth(400)}>
                 <div className="p-2 text-slate-500 hover:text-slate-300 transition-colors cursor-grab active:cursor-grabbing flex justify-center w-full">
                     <span className="material-symbols-outlined text-[24px]">drag_indicator</span>
                 </div>

@@ -7,9 +7,17 @@ import type { EmojiClickData } from 'emoji-picker-react';
 
 const NotePanel: React.FC = () => {
     const {
-        isNotePanelOpen, notePanelWidth, edgePosition,
+        isNotePanelOpen, notePanelWidth, edgePosition, setNotePanelWidth,
         notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
     } = useAppStore();
+
+    // Startup sanity check: reset width if persisted value exceeds physical screen
+    useEffect(() => {
+        const safeMax = window.screen.availWidth - 120;
+        if (notePanelWidth > safeMax) {
+            setNotePanelWidth(400);
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const [emojiPickerTabId, setEmojiPickerTabId] = useState<number | null>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);

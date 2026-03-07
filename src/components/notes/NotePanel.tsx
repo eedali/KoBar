@@ -11,6 +11,14 @@ const NotePanel: React.FC = () => {
         notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
     } = useAppStore();
 
+    // Local width for lag-free resizing (avoids Tiptap re-renders)
+    const [localWidth, setLocalWidth] = useState(notePanelWidth);
+
+    // Sync local width when store changes externally (double-click reset, etc.)
+    useEffect(() => {
+        setLocalWidth(notePanelWidth);
+    }, [notePanelWidth]);
+
     // Startup sanity check: reset width if persisted value exceeds physical screen
     useEffect(() => {
         const safeMax = window.screen.availWidth - 120;
@@ -60,10 +68,10 @@ const NotePanel: React.FC = () => {
     return (
         <div
             className={`absolute top-0 h-full flex flex-col bg-[#1e1b17] border-y border-[#3f362b] z-10 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full border-l' : 'left-full border-r'
-                } ${isNotePanelOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
-            style={{ width: isNotePanelOpen ? `${notePanelWidth}px` : '0px', maxWidth: 'calc(100vw - 120px)' }}
+                } ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
+            style={{ width: isNotePanelOpen ? `${localWidth}px` : '0px', maxWidth: 'calc(100vw - 120px)' }}
         >
-            <ResizerHandle />
+            <ResizerHandle onResizeTemp={setLocalWidth} />
 
             {/* Tabs Header */}
             <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0 relative">

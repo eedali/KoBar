@@ -8,21 +8,32 @@ const App: React.FC = () => {
   const { setEdgePosition } = useAppStore();
 
   useEffect(() => {
-    console.log('React checking window.api:', window.api);
-    if (window.api && window.api.onEdgeChanged) {
+    if (window.api?.onEdgeChanged) {
       window.api.onEdgeChanged((edge) => {
         setEdgePosition(edge);
       });
     }
   }, [setEdgePosition]);
 
+  // Bulletproof click-through: detect whether the mouse is over
+  // transparent background or actual UI elements
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const isTransparent =
+        target.tagName === 'HTML' ||
+        target.tagName === 'BODY' ||
+        target.id === 'root' ||
+        target.classList.contains('bg-transparent');
+      window.api?.setIgnoreMouseEvents(isTransparent);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
-    <div className="w-full h-screen bg-transparent flex items-center justify-center overflow-hidden pointer-events-none">
-      <div
-        className="relative w-24 h-full z-10 pointer-events-auto"
-        onMouseEnter={() => window.api?.setIgnoreMouseEvents(false)}
-        onMouseLeave={() => window.api?.setIgnoreMouseEvents(true)}
-      >
+    <div className="w-full h-screen bg-transparent flex items-center justify-center overflow-hidden">
+      <div className="relative w-24 h-full z-10">
         <Sidebar />
         <NotePanel />
       </div>

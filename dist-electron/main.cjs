@@ -43,8 +43,8 @@ let lastClipboardImageDataUrl = '';
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
-        width: 4000,
-        height: 2000,
+        width: 2000,
+        height: 1200,
         frame: false,
         transparent: true,
         alwaysOnTop: true,

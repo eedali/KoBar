@@ -1,17 +1,25 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 
-const ResizerHandle: React.FC = () => {
-    const { edgePosition, setNotePanelWidth } = useAppStore();
-    const [isResizing, setIsResizing] = useState(false);
+interface ResizerHandleProps {
+    onResizeTemp: (width: number) => void;
+}
 
-    // If Sidebar is on the right, NotePanel is on the left. Resizer is on FAR LEFT.
-    // Dragging left (negative movementX) uncovers more width: newWidth = oldWidth - movementX
-    // If Sidebar is on the left, NotePanel is on the right. Resizer is on FAR RIGHT.
-    // Dragging right (positive movementX) uncovers more width: newWidth = oldWidth + movementX
+const ResizerHandle: React.FC<ResizerHandleProps> = ({ onResizeTemp }) => {
+    const { edgePosition, notePanelWidth, setNotePanelWidth } = useAppStore();
+    const [isResizing, setIsResizing] = useState(false);
+    const currentWidthRef = useRef(notePanelWidth);
+
+    // Keep ref in sync with store when not resizing
+    useEffect(() => {
+        if (!isResizing) {
+            currentWidthRef.current = notePanelWidth;
+        }
+    }, [notePanelWidth, isResizing]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault();
+        currentWidthRef.current = notePanelWidth;
         setIsResizing(true);
     };
 
@@ -19,16 +27,22 @@ const ResizerHandle: React.FC = () => {
         if (!isResizing) return;
         const maxWidth = Math.min(1600, window.screen.availWidth - 120);
 
+        let newWidth: number;
         if (edgePosition === 'right') {
-            setNotePanelWidth((prev) => Math.min(Math.max(prev - e.movementX, 250), maxWidth));
+            newWidth = Math.min(Math.max(currentWidthRef.current - e.movementX, 250), maxWidth);
         } else {
-            setNotePanelWidth((prev) => Math.min(Math.max(prev + e.movementX, 250), maxWidth));
+            newWidth = Math.min(Math.max(currentWidthRef.current + e.movementX, 250), maxWidth);
         }
-    }, [isResizing, edgePosition, setNotePanelWidth]);
+        currentWidthRef.current = newWidth;
+        onResizeTemp(newWidth); // Update local state only — no Zustand/Tiptap re-render
+    }, [isResizing, edgePosition, onResizeTemp]);
 
     const handleMouseUp = useCallback(() => {
+        if (isResizing) {
+            setNotePanelWidth(currentWidthRef.current); // Commit to Zustand + localStorage
+        }
         setIsResizing(false);
-    }, []);
+    }, [isResizing, setNotePanelWidth]);
 
     useEffect(() => {
         if (isResizing) {
@@ -44,6 +58,7 @@ const ResizerHandle: React.FC = () => {
 
     const handleDoubleClick = () => {
         setNotePanelWidth(400);
+        onResizeTemp(400);
     };
 
     return (

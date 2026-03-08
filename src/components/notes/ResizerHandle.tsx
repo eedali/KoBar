@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
 
@@ -26,53 +26,53 @@ const ResizerHandle: React.FC<ResizerHandleProps> = ({ direction, onResizeTemp }
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        widthRef.current = notePanelWidth;
-        heightRef.current = notePanelHeight;
-        setIsResizing(true);
+
         setIsResizingGlobal(true);
+        setIsResizing(true);
         // Keep window focused during drag
         window.api?.setIgnoreMouseEvents(false);
-    };
 
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (!isResizing) return;
-        const maxWidth = Math.min(1600, window.screen.availWidth - 120);
-        const maxHeight = Math.min(1200, window.screen.availHeight - 100);
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startWidth = widthRef.current;
+        const startHeight = heightRef.current;
 
-        if (direction === 'side' || direction === 'corner') {
-            if (edgePosition === 'right') {
-                widthRef.current = Math.min(Math.max(widthRef.current - e.movementX, 250), maxWidth);
-            } else {
-                widthRef.current = Math.min(Math.max(widthRef.current + e.movementX, 250), maxWidth);
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+            const maxWidth = Math.min(1600, window.screen.availWidth - 120);
+            const maxHeight = Math.min(1200, window.screen.availHeight - 100);
+
+            if (direction === 'side' || direction === 'corner') {
+                const deltaX = moveEvent.clientX - startX;
+                if (edgePosition === 'right') {
+                    // Right edge layout: dragging left (negative deltaX) increases width
+                    widthRef.current = Math.min(Math.max(startWidth - deltaX, 250), maxWidth);
+                } else {
+                    // Left edge layout: dragging right (positive deltaX) increases width
+                    widthRef.current = Math.min(Math.max(startWidth + deltaX, 250), maxWidth);
+                }
             }
-        }
 
-        if (direction === 'bottom' || direction === 'corner') {
-            heightRef.current = Math.min(Math.max(heightRef.current + e.movementY, 200), maxHeight);
-        }
+            if (direction === 'bottom' || direction === 'corner') {
+                const deltaY = moveEvent.clientY - startY;
+                heightRef.current = Math.min(Math.max(startHeight + deltaY, 200), maxHeight);
+            }
 
-        onResizeTemp(widthRef.current, heightRef.current);
-    }, [isResizing, edgePosition, direction, onResizeTemp]);
+            onResizeTemp(widthRef.current, heightRef.current);
+        };
 
-    const handleMouseUp = useCallback(() => {
-        if (isResizing) {
+        const handleMouseUp = () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+
             setNotePanelWidth(widthRef.current);
             setNotePanelHeight(heightRef.current);
             setIsResizingGlobal(false);
-        }
-        setIsResizing(false);
-    }, [isResizing, setNotePanelWidth, setNotePanelHeight]);
-
-    useEffect(() => {
-        if (isResizing) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        }
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
+            setIsResizing(false);
         };
-    }, [isResizing, handleMouseMove, handleMouseUp]);
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+    };
 
     const handleDoubleClick = () => {
         if (direction === 'side' || direction === 'corner') {
@@ -87,7 +87,7 @@ const ResizerHandle: React.FC<ResizerHandleProps> = ({ direction, onResizeTemp }
         );
     };
 
-    // Direction-specific classes
+    // Direction-specific classes. Ensure the cursor utility is on the outermost wrapper.
     const directionClasses = (() => {
         switch (direction) {
             case 'side':
@@ -103,7 +103,7 @@ const ResizerHandle: React.FC<ResizerHandleProps> = ({ direction, onResizeTemp }
         <div
             onMouseDown={handleMouseDown}
             onDoubleClick={handleDoubleClick}
-            className={`${directionClasses} hover:bg-primary/30 transition-colors z-50 no-drag-region ${isResizing ? 'bg-primary/30' : 'bg-transparent'}`}
+            className={`${directionClasses} resizer-handle hover:bg-primary/30 transition-colors z-50 [-webkit-app-region:no-drag] ${isResizing ? 'bg-primary/30' : 'bg-black/1'}`}
         />
     );
 };

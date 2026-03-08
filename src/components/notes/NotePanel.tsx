@@ -73,7 +73,7 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`absolute top-0 flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 overflow-hidden shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
+            className={`absolute top-0 flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
                 } ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
             style={{
                 width: isNotePanelOpen ? `${localWidth}px` : '0px',

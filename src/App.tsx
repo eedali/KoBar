@@ -28,6 +28,13 @@ const App: React.FC = () => {
       if (isResizingGlobal) return;
 
       const target = e.target as HTMLElement;
+
+      // Explicitly protect the resizer handles from becoming ghosts!
+      if (target.closest('.resizer-handle')) {
+        window.api?.setIgnoreMouseEvents(false);
+        return;
+      }
+
       const isTransparent =
         target.tagName === 'HTML' ||
         target.tagName === 'BODY' ||

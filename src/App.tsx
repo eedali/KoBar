@@ -10,7 +10,7 @@ export let isResizingGlobal = false;
 export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
 
 const App: React.FC = () => {
-  const { setEdgePosition } = useAppStore();
+  const { edgePosition, setEdgePosition, isNotePanelOpen } = useAppStore();
 
   useEffect(() => {
     if (window.api?.onEdgeChanged) {
@@ -47,11 +47,18 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen bg-transparent flex items-center justify-center overflow-hidden">
-      <div className="relative w-24 h-full z-10">
+    <div className="relative w-full h-full pointer-events-none">
+      {/* Sidebar gets h-full because it should span the monitor vertically */}
+      <div className={`absolute top-0 h-full pointer-events-auto ${edgePosition === 'left' ? 'left-0' : 'right-0'}`}>
         <Sidebar />
-        <NotePanel />
       </div>
+
+      {/* NotePanel wrapper MUST NOT have h-full. It must tightly hug the NotePanel's inline height. */}
+      {isNotePanelOpen && (
+        <div className={`absolute top-0 pointer-events-auto ${edgePosition === 'left' ? 'left-[80px]' : 'right-[80px]'}`}>
+          <NotePanel />
+        </div>
+      )}
     </div>
   );
 };

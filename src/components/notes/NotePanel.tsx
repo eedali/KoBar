@@ -7,7 +7,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 
 const NotePanel: React.FC = () => {
     const {
-        isNotePanelOpen, notePanelWidth, notePanelHeight, edgePosition, setNotePanelWidth, setNotePanelHeight,
+        isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelWidth, setNotePanelHeight,
         notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
     } = useAppStore();
 
@@ -73,12 +73,10 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`absolute top-0 flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 shadow-2xl shrink-0 ${edgePosition === 'right' ? 'right-full' : 'left-full'
-                } ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
+            className={`relative flex flex-col bg-[#1e1b17] border border-[#3f362b] z-10 shadow-2xl shrink-0 ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
             style={{
-                width: isNotePanelOpen ? `${localWidth}px` : '0px',
-                height: isNotePanelOpen ? `${localHeight}px` : '0px',
-                maxWidth: 'calc(100vw - 120px)',
+                width: `${localWidth}px`,
+                height: `${localHeight}px`,
             }}
         >
             {/* Side Resizer */}

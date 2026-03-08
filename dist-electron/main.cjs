@@ -40,22 +40,25 @@ let tray = null;
 let clipboardPollingInterval = null;
 let lastClipboardText = '';
 let lastClipboardImageDataUrl = '';
+let currentEdge = 'left';
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
-        width: 2000,
-        height: 1200,
+        width: 3400,
+        height: 2200,
         frame: false,
         transparent: true,
         alwaysOnTop: true,
         skipTaskbar: true,
-        resizable: false,
+        resizable: true,
+        enableLargerThanScreen: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         }
     });
+    mainWindow.setMaximumSize(10000, 10000);
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setIgnoreMouseEvents(true, { forward: true });
     if (isDev) {
@@ -65,19 +68,27 @@ function createWindow() {
     else {
         mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
     }
-    // Edge detection
+    // Edge detection — ONLY fires on drop to prevent Aero Snap bugs
     mainWindow.on('moved', handleWindowMove);
-    mainWindow.on('move', handleWindowMove);
 }
 function handleWindowMove() {
-    if (!mainWindow)
-        return;
-    const [x] = mainWindow.getPosition();
-    const [width] = mainWindow.getSize();
-    const windowCenter = x + (width / 2);
-    const { workAreaSize } = electron_1.screen.getPrimaryDisplay();
-    const edgeState = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
-    mainWindow.webContents.send('edge-changed', edgeState);
+    // 50ms delay bypasses the Windows Aero Snap bug
+    setTimeout(() => {
+        if (!mainWindow)
+            return;
+        const bounds = mainWindow.getBounds();
+        const windowCenter = bounds.x + (bounds.width / 2);
+        const { workAreaSize } = electron_1.screen.getPrimaryDisplay();
+        const newEdge = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
+        if (newEdge !== currentEdge) {
+            // Sidebar is 80px. Exact jump distance is window width minus 80.
+            const jumpDistance = bounds.width - 80;
+            const newX = newEdge === 'right' ? bounds.x - jumpDistance : bounds.x + jumpDistance;
+            mainWindow.setBounds({ x: newX, y: bounds.y, width: bounds.width, height: bounds.height });
+            currentEdge = newEdge;
+            mainWindow.webContents.send('edge-changed', newEdge);
+        }
+    }, 50);
 }
 // --- Clipboard Polling ---
 function startClipboardPolling() {

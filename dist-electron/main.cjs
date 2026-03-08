@@ -260,3 +260,13 @@ if (-not $isDown) { [K]::keybd_event(0x11, 0, 2, 0) }
         }
     }, 100);
 });
+electron_1.ipcMain.on('trigger-screenshot', () => {
+    if (psProcess && psProcess.stdin) {
+        // VK_SNAPSHOT = 0x2C (PrintScreen)
+        const psScreenshot = `
+[K]::keybd_event(0x2C, 0, 0, 0)
+[K]::keybd_event(0x2C, 0, 2, 0)
+`;
+        psProcess.stdin.write(psScreenshot + '\n');
+    }
+});

@@ -16,6 +16,7 @@ declare global {
             setGlobalPasteMode: (isActive: boolean) => void;
             onRequestNextPaste: (callback: () => void) => (() => void);
             executeGlobalPaste: (data: { type: string; content: string }) => void;
+            triggerScreenshot: () => void;
         };
     }
 }

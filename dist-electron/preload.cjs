@@ -32,5 +32,6 @@ electron_1.contextBridge.exposeInMainWorld('api', {
             electron_1.ipcRenderer.removeListener('request-next-paste', handler);
         };
     },
-    executeGlobalPaste: (data) => electron_1.ipcRenderer.send('execute-global-paste', data)
+    executeGlobalPaste: (data) => electron_1.ipcRenderer.send('execute-global-paste', data),
+    triggerScreenshot: () => electron_1.ipcRenderer.send('trigger-screenshot')
 });

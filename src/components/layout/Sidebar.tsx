@@ -49,7 +49,11 @@ const Sidebar: React.FC = () => {
             <div className="w-12 h-px bg-[#3f362b] my-4"></div>
 
             <div className="flex flex-col items-center gap-4 mb-6 mt-2 no-drag-region">
-                <button className="p-2 text-slate-400 hover:text-slate-200 transition-colors" title="Screenshot">
+                <button
+                    className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                    title="Screenshot"
+                    onClick={() => window.api?.triggerScreenshot()}
+                >
                     <span className="material-symbols-outlined text-[24px]">photo_camera</span>
                 </button>
             </div>

@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const child_process_1 = require("child_process");
+electron_1.app.disableHardwareAcceleration();
 let mainWindow = null;
 let tray = null;
 let clipboardPollingInterval = null;
@@ -43,6 +44,7 @@ let lastClipboardText = '';
 let lastClipboardImageDataUrl = '';
 let currentEdge = 'left';
 let psProcess = null;
+let isGlobalPasteModeActive = false;
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
@@ -132,6 +134,8 @@ function stopClipboardPolling() {
         clearInterval(clipboardPollingInterval);
         clipboardPollingInterval = null;
     }
+    lastClipboardText = '';
+    lastClipboardImageDataUrl = '';
 }
 function createTray() {
     // Use a blank native image as a placeholder for the icon
@@ -212,6 +216,7 @@ electron_1.ipcMain.on('set-ignore-mouse-events', (event, ignore) => {
     }
 });
 electron_1.ipcMain.on('set-global-paste-mode', (event, isActive) => {
+    isGlobalPasteModeActive = isActive;
     if (isActive) {
         electron_1.globalShortcut.register('CommandOrControl+V', () => {
             if (mainWindow)
@@ -220,6 +225,9 @@ electron_1.ipcMain.on('set-global-paste-mode', (event, isActive) => {
     }
     else {
         electron_1.globalShortcut.unregister('CommandOrControl+V');
+        if (psProcess && psProcess.stdin) {
+            psProcess.stdin.write('[K]::keybd_event(0x11, 0, 2, 0)\n[K]::keybd_event(0x10, 0, 2, 0)\n[K]::keybd_event(0x12, 0, 2, 0)\n');
+        }
     }
 });
 electron_1.ipcMain.on('execute-global-paste', (event, data) => {
@@ -244,9 +252,11 @@ if (-not $isDown) { [K]::keybd_event(0x11, 0, 2, 0) }
         psProcess.stdin.write(psPaste + '\n');
     }
     setTimeout(() => {
-        electron_1.globalShortcut.register('CommandOrControl+V', () => {
-            if (mainWindow)
-                mainWindow.webContents.send('request-next-paste');
-        });
+        if (isGlobalPasteModeActive) {
+            electron_1.globalShortcut.register('CommandOrControl+V', () => {
+                if (mainWindow)
+                    mainWindow.webContents.send('request-next-paste');
+            });
+        }
     }, 100);
 });

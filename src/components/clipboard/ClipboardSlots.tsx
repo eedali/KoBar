@@ -45,7 +45,6 @@ const ClipboardSlots: React.FC = () => {
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Control the OS-level clipboard listener based on Copy Mode
     useEffect(() => {
         if (isCopyModeActive) {
             window.api?.startClipboardListener();
@@ -66,11 +65,17 @@ const ClipboardSlots: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isPasteModeActive, pasteNextItem]);
 
+    const hasPasteableItems = slots.some(s => s.state === 'filled' || s.state === 'selected');
+
     // Sync global paste mode to backend
     useEffect(() => {
-        window.api?.setGlobalPasteMode(isPasteModeActive);
+        if (isPasteModeActive && hasPasteableItems) {
+            window.api?.setGlobalPasteMode(true);
+        } else {
+            window.api?.setGlobalPasteMode(false);
+        }
         return () => window.api?.setGlobalPasteMode(false);
-    }, [isPasteModeActive]);
+    }, [isPasteModeActive, hasPasteableItems]);
 
     // Listen for global OS paste trigger
     useEffect(() => {

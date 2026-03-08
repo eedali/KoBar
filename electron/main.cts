@@ -2,6 +2,8 @@ import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 
+app.disableHardwareAcceleration();
+
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let clipboardPollingInterval: ReturnType<typeof setInterval> | null = null;
@@ -9,6 +11,7 @@ let lastClipboardText: string = '';
 let lastClipboardImageDataUrl: string = '';
 let currentEdge: string = 'left';
 let psProcess: ChildProcess | null = null;
+let isGlobalPasteModeActive = false;
 
 const isDev = !app.isPackaged;
 
@@ -107,6 +110,8 @@ function stopClipboardPolling() {
         clearInterval(clipboardPollingInterval);
         clipboardPollingInterval = null;
     }
+    lastClipboardText = '';
+    lastClipboardImageDataUrl = '';
 }
 
 function createTray() {
@@ -205,12 +210,16 @@ ipcMain.on('set-ignore-mouse-events', (event, ignore: boolean) => {
 });
 
 ipcMain.on('set-global-paste-mode', (event, isActive) => {
+    isGlobalPasteModeActive = isActive;
     if (isActive) {
         globalShortcut.register('CommandOrControl+V', () => {
             if (mainWindow) mainWindow.webContents.send('request-next-paste');
         });
     } else {
         globalShortcut.unregister('CommandOrControl+V');
+        if (psProcess && psProcess.stdin) {
+            psProcess.stdin.write('[K]::keybd_event(0x11, 0, 2, 0)\n[K]::keybd_event(0x10, 0, 2, 0)\n[K]::keybd_event(0x12, 0, 2, 0)\n');
+        }
     }
 });
 
@@ -238,8 +247,10 @@ if (-not $isDown) { [K]::keybd_event(0x11, 0, 2, 0) }
     }
 
     setTimeout(() => {
-        globalShortcut.register('CommandOrControl+V', () => {
-            if (mainWindow) mainWindow.webContents.send('request-next-paste');
-        });
+        if (isGlobalPasteModeActive) {
+            globalShortcut.register('CommandOrControl+V', () => {
+                if (mainWindow) mainWindow.webContents.send('request-next-paste');
+            });
+        }
     }, 100);
 });

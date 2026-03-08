@@ -45,6 +45,16 @@ const ClipboardSlots: React.FC = () => {
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // Control the OS-level clipboard listener based on Copy Mode
+    useEffect(() => {
+        if (isCopyModeActive) {
+            window.api?.startClipboardListener();
+        } else {
+            window.api?.stopClipboardListener();
+        }
+        return () => window.api?.stopClipboardListener();
+    }, [isCopyModeActive]);
+
     // Listen for Ctrl+V globally to trigger sequential paste inside the app
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

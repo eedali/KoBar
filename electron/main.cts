@@ -1,7 +1,6 @@
 import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut } from 'electron';
 import * as path from 'path';
-import { exec } from 'child_process';
-import * as fs from 'fs';
+import { spawn, ChildProcess } from 'child_process';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -9,7 +8,7 @@ let clipboardPollingInterval: ReturnType<typeof setInterval> | null = null;
 let lastClipboardText: string = '';
 let lastClipboardImageDataUrl: string = '';
 let currentEdge: string = 'left';
-let vbsPath = '';
+let psProcess: ChildProcess | null = null;
 
 const isDev = !app.isPackaged;
 
@@ -150,8 +149,8 @@ function createTray() {
 }
 
 app.whenReady().then(() => {
-    vbsPath = path.join(app.getPath('temp'), 'kobar_paste.vbs');
-    fs.writeFileSync(vbsPath, 'Set WshShell = WScript.CreateObject("WScript.Shell")\nWshShell.SendKeys "^v"');
+    psProcess = spawn('powershell', ['-NoProfile', '-Command', '-']);
+    psProcess.stdin?.write(`Add-Type -TypeDefinition ' using System.Runtime.InteropServices; public class K { [DllImport("user32.dll")] public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo); [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey); } '\n`);
 
     createWindow();
     createTray();
@@ -160,7 +159,10 @@ app.whenReady().then(() => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 
-    app.on('will-quit', () => { globalShortcut.unregisterAll(); });
+    app.on('will-quit', () => {
+        globalShortcut.unregisterAll();
+        if (psProcess) psProcess.kill();
+    });
 });
 
 app.on('window-all-closed', () => {
@@ -223,11 +225,21 @@ ipcMain.on('execute-global-paste', (event, data) => {
     }
 
     globalShortcut.unregister('CommandOrControl+V');
-    exec(`cscript //nologo "${vbsPath}"`, () => {
-        setTimeout(() => {
-            globalShortcut.register('CommandOrControl+V', () => {
-                if (mainWindow) mainWindow.webContents.send('request-next-paste');
-            });
-        }, 50);
-    });
+
+    const psPaste = `
+$isDown = ([K]::GetAsyncKeyState(0x11) -band 0x8000) -ne 0
+if (-not $isDown) { [K]::keybd_event(0x11, 0, 0, 0) }
+[K]::keybd_event(0x56, 0, 0, 0)
+[K]::keybd_event(0x56, 0, 2, 0)
+if (-not $isDown) { [K]::keybd_event(0x11, 0, 2, 0) }
+`;
+    if (psProcess && psProcess.stdin) {
+        psProcess.stdin.write(psPaste + '\n');
+    }
+
+    setTimeout(() => {
+        globalShortcut.register('CommandOrControl+V', () => {
+            if (mainWindow) mainWindow.webContents.send('request-next-paste');
+        });
+    }, 100);
 });

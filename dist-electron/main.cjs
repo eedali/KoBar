@@ -36,14 +36,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const child_process_1 = require("child_process");
-const fs = __importStar(require("fs"));
 let mainWindow = null;
 let tray = null;
 let clipboardPollingInterval = null;
 let lastClipboardText = '';
 let lastClipboardImageDataUrl = '';
 let currentEdge = 'left';
-let vbsPath = '';
+let psProcess = null;
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
@@ -164,15 +163,19 @@ function createTray() {
     });
 }
 electron_1.app.whenReady().then(() => {
-    vbsPath = path.join(electron_1.app.getPath('temp'), 'kobar_paste.vbs');
-    fs.writeFileSync(vbsPath, 'Set WshShell = WScript.CreateObject("WScript.Shell")\nWshShell.SendKeys "^v"');
+    psProcess = (0, child_process_1.spawn)('powershell', ['-NoProfile', '-Command', '-']);
+    psProcess.stdin?.write(`Add-Type -TypeDefinition ' using System.Runtime.InteropServices; public class K { [DllImport("user32.dll")] public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo); [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey); } '\n`);
     createWindow();
     createTray();
     electron_1.app.on('activate', () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createWindow();
     });
-    electron_1.app.on('will-quit', () => { electron_1.globalShortcut.unregisterAll(); });
+    electron_1.app.on('will-quit', () => {
+        electron_1.globalShortcut.unregisterAll();
+        if (psProcess)
+            psProcess.kill();
+    });
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -230,12 +233,20 @@ electron_1.ipcMain.on('execute-global-paste', (event, data) => {
         lastClipboardImageDataUrl = data.content;
     }
     electron_1.globalShortcut.unregister('CommandOrControl+V');
-    (0, child_process_1.exec)(`cscript //nologo "${vbsPath}"`, () => {
-        setTimeout(() => {
-            electron_1.globalShortcut.register('CommandOrControl+V', () => {
-                if (mainWindow)
-                    mainWindow.webContents.send('request-next-paste');
-            });
-        }, 50);
-    });
+    const psPaste = `
+$isDown = ([K]::GetAsyncKeyState(0x11) -band 0x8000) -ne 0
+if (-not $isDown) { [K]::keybd_event(0x11, 0, 0, 0) }
+[K]::keybd_event(0x56, 0, 0, 0)
+[K]::keybd_event(0x56, 0, 2, 0)
+if (-not $isDown) { [K]::keybd_event(0x11, 0, 2, 0) }
+`;
+    if (psProcess && psProcess.stdin) {
+        psProcess.stdin.write(psPaste + '\n');
+    }
+    setTimeout(() => {
+        electron_1.globalShortcut.register('CommandOrControl+V', () => {
+            if (mainWindow)
+                mainWindow.webContents.send('request-next-paste');
+        });
+    }, 100);
 });

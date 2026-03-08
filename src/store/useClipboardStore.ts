@@ -75,10 +75,6 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
                 isPasteModeActive: false,
                 slots: updated,
             });
-
-            if (window.api?.startClipboardListener) {
-                window.api.startClipboardListener();
-            }
         }
     },
 

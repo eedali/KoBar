@@ -69,6 +69,11 @@ const NotePanel: React.FC = () => {
 
     const handleDelete = (e: React.MouseEvent, id: number) => {
         e.stopPropagation();
+        const noteToDelete = notes.find(n => n.id === id);
+        if (noteToDelete?.isSettings) {
+            deleteNote(id);
+            return;
+        }
         setDeleteConfirm({ id, x: e.clientX, y: e.clientY });
     };
 

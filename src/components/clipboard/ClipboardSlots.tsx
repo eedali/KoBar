@@ -119,7 +119,7 @@ const ClipboardSlots: React.FC = () => {
             </button>
 
             {/* Unified Slot Circles */}
-            <div className="grid grid-cols-5 gap-2 relative w-[80%] mx-auto justify-items-center">
+            <div className="grid grid-cols-4 gap-2 relative w-[80%] mx-auto justify-items-center">
                 {slots.map((slot, index) => (
                     <label
                         key={`slot-${index}`}

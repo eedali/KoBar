@@ -7,7 +7,7 @@ const SettingsPanel: React.FC = () => {
     const handleSlotCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = parseInt(e.target.value, 10);
         if (!isNaN(val)) {
-            setSlotCount(Math.min(20, Math.max(3, val)));
+            setSlotCount(Math.min(20, Math.max(4, val)));
         }
     };
 
@@ -30,13 +30,13 @@ const SettingsPanel: React.FC = () => {
                         </div>
                         <input
                             type="range"
-                            min="3"
+                            min="4"
                             max="20"
                             value={slotCount}
                             onChange={handleSlotCountChange}
                             className="w-full accent-primary h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
                         />
-                        <p className="text-xs text-slate-500 mt-1">Changes are applied immediately. Max: 20 slots.</p>
+                        <p className="text-xs text-slate-500 mt-1">Changes are applied immediately. Min: 4, Max: 20 slots.</p>
                     </div>
                 </div>
 

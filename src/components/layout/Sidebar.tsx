@@ -3,12 +3,10 @@ import ClipboardSlots from '../clipboard/ClipboardSlots';
 import { useAppStore } from '../../store/useAppStore';
 
 const Sidebar: React.FC = () => {
-    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen } = useAppStore();
+    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode } = useAppStore();
 
     const handleHide = () => {
-        if (window.api && window.api.hideApp) {
-            window.api.hideApp();
-        }
+        setMiniMode(true);
     };
 
     return (
@@ -71,8 +69,8 @@ const Sidebar: React.FC = () => {
                 >
                     <span className="material-symbols-outlined text-[20px]">visibility</span>
                 </button>
-                <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-[#2a241c] border border-primary/50 rounded-lg py-1.5 px-3 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50 pointer-events-auto hidden md:block">
-                    <span className="text-xs font-semibold text-primary">Focus Mode: ON</span>
+                <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-[#2a241c] border border-primary/50 rounded-lg py-1.5 px-3 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50 pointer-events-auto hidden md:block mt-0 mb-0">
+                    <span className="text-xs font-semibold text-primary">Mini Mode</span>
                     <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-0 h-0 border-t-[4px] border-t-transparent border-l-[6px] border-l-primary/50 border-b-[4px] border-b-transparent"></div>
                 </div>
             </div>

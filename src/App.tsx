@@ -3,6 +3,7 @@ import './index.css';
 import { useAppStore } from './store/useAppStore';
 import Sidebar from './components/layout/Sidebar';
 import NotePanel from './components/notes/NotePanel';
+import FloatingEye from './components/layout/FloatingEye';
 
 // Global flag: when true, the ghost-window logic won't steal focus
 // Exported so ResizerHandle can set it during drags
@@ -10,7 +11,7 @@ export let isResizingGlobal = false;
 export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
 
 const App: React.FC = () => {
-  const { edgePosition, setEdgePosition, isNotePanelOpen } = useAppStore();
+  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode } = useAppStore();
 
   useEffect(() => {
     let unsubs: (() => void)[] = [];
@@ -56,23 +57,29 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-full pointer-events-none flex justify-center">
-      <div className="relative h-full pointer-events-auto shrink-0" style={{ width: '64px' }}>
-        <div className="absolute inset-0">
-          <Sidebar />
-        </div>
-        {isNotePanelOpen && edgePosition === 'left' && (
-          <div className="absolute top-0 left-[64px]">
-            <NotePanel />
-          </div>
-        )}
-        {isNotePanelOpen && edgePosition === 'right' && (
-          <div className="absolute top-0 right-[64px]">
-            <NotePanel />
+    <>
+      <div className={`relative w-full h-full pointer-events-none flex justify-center transition-opacity duration-300 ${isMiniMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        {!isMiniMode && (
+          <div className="relative h-full pointer-events-auto shrink-0" style={{ width: '64px' }}>
+            <div className="absolute inset-0">
+              <Sidebar />
+            </div>
+            {isNotePanelOpen && edgePosition === 'left' && (
+              <div className="absolute top-0 left-[64px]">
+                <NotePanel />
+              </div>
+            )}
+            {isNotePanelOpen && edgePosition === 'right' && (
+              <div className="absolute top-0 right-[64px]">
+                <NotePanel />
+              </div>
+            )}
           </div>
         )}
       </div>
-    </div>
+
+      {isMiniMode && <FloatingEye />}
+    </>
   );
 };
 

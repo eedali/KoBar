@@ -35,6 +35,21 @@ const NotePanel: React.FC = () => {
 
     const [emojiPickerTabId, setEmojiPickerTabId] = useState<number | null>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ id: number, x: number, y: number } | null>(null);
+    const deleteConfirmRef = useRef<HTMLDivElement>(null);
+
+    // Close on outside click for delete confirm
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (deleteConfirmRef.current && !deleteConfirmRef.current.contains(e.target as Node)) {
+                setDeleteConfirm(null);
+            }
+        };
+        if (deleteConfirm !== null) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [deleteConfirm]);
 
     // Close emoji picker on outside click
     useEffect(() => {
@@ -51,9 +66,18 @@ const NotePanel: React.FC = () => {
 
     const handleDelete = (e: React.MouseEvent, id: number) => {
         e.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this note?")) {
-            deleteNote(id);
+        setDeleteConfirm({ id, x: e.clientX, y: e.clientY });
+    };
+
+    const confirmDelete = () => {
+        if (deleteConfirm) {
+            deleteNote(deleteConfirm.id);
+            setDeleteConfirm(null);
         }
+    };
+
+    const cancelDelete = () => {
+        setDeleteConfirm(null);
     };
 
     const handleEmojiSelect = (emojiData: EmojiClickData) => {
@@ -145,6 +169,34 @@ const NotePanel: React.FC = () => {
                             searchPlaceholder="Search emoji..."
                             lazyLoadEmojis
                         />
+                    </div>
+                )}
+
+                {/* Delete Confirm Popup */}
+                {deleteConfirm !== null && (
+                    <div
+                        ref={deleteConfirmRef}
+                        className="fixed z-[100] bg-[#1a1612] border border-[#3f362b] rounded-lg shadow-2xl flex flex-col p-4 pointer-events-auto"
+                        style={{
+                            top: `${deleteConfirm.y + 10}px`,
+                            left: `${deleteConfirm.x - 60}px`,
+                        }}
+                    >
+                        <span className="text-slate-200 text-sm mb-4">Are you sure you want to delete this note?</span>
+                        <div className="flex gap-2 justify-end items-center">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); cancelDelete(); }}
+                                className="px-4 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-[#2a241c] hover:bg-[#3f362b] transition-colors rounded-md"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); confirmDelete(); }}
+                                className="px-4 py-1.5 text-xs font-medium text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 transition-colors border border-red-500/30 rounded-md"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

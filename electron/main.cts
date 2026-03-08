@@ -1,5 +1,7 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut } from 'electron';
 import * as path from 'path';
+import { exec } from 'child_process';
+import * as fs from 'fs';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -7,6 +9,7 @@ let clipboardPollingInterval: ReturnType<typeof setInterval> | null = null;
 let lastClipboardText: string = '';
 let lastClipboardImageDataUrl: string = '';
 let currentEdge: string = 'left';
+let vbsPath = '';
 
 const isDev = !app.isPackaged;
 
@@ -147,12 +150,17 @@ function createTray() {
 }
 
 app.whenReady().then(() => {
+    vbsPath = path.join(app.getPath('temp'), 'kobar_paste.vbs');
+    fs.writeFileSync(vbsPath, 'Set WshShell = WScript.CreateObject("WScript.Shell")\nWshShell.SendKeys "^v"');
+
     createWindow();
     createTray();
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+
+    app.on('will-quit', () => { globalShortcut.unregisterAll(); });
 });
 
 app.on('window-all-closed', () => {
@@ -192,4 +200,34 @@ ipcMain.on('set-ignore-mouse-events', (event, ignore: boolean) => {
     if (win) {
         win.setIgnoreMouseEvents(ignore, { forward: true });
     }
+});
+
+ipcMain.on('set-global-paste-mode', (event, isActive) => {
+    if (isActive) {
+        globalShortcut.register('CommandOrControl+V', () => {
+            if (mainWindow) mainWindow.webContents.send('request-next-paste');
+        });
+    } else {
+        globalShortcut.unregister('CommandOrControl+V');
+    }
+});
+
+ipcMain.on('execute-global-paste', (event, data) => {
+    if (data.type === 'text') {
+        clipboard.writeText(data.content);
+        lastClipboardText = data.content;
+    } else if (data.type === 'image') {
+        const img = nativeImage.createFromDataURL(data.content);
+        clipboard.writeImage(img);
+        lastClipboardImageDataUrl = data.content;
+    }
+
+    globalShortcut.unregister('CommandOrControl+V');
+    exec(`cscript //nologo "${vbsPath}"`, () => {
+        setTimeout(() => {
+            globalShortcut.register('CommandOrControl+V', () => {
+                if (mainWindow) mainWindow.webContents.send('request-next-paste');
+            });
+        }, 50);
+    });
 });

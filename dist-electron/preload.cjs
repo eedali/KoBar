@@ -23,4 +23,14 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     },
     // Mouse click-through for transparent window
     setIgnoreMouseEvents: (ignore) => electron_1.ipcRenderer.send('set-ignore-mouse-events', ignore),
+    // Global Paste Support
+    setGlobalPasteMode: (isActive) => electron_1.ipcRenderer.send('set-global-paste-mode', isActive),
+    onRequestNextPaste: (callback) => {
+        const handler = () => callback();
+        electron_1.ipcRenderer.on('request-next-paste', handler);
+        return () => {
+            electron_1.ipcRenderer.removeListener('request-next-paste', handler);
+        };
+    },
+    executeGlobalPaste: (data) => electron_1.ipcRenderer.send('execute-global-paste', data)
 });

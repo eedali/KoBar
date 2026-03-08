@@ -35,12 +35,15 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
+const child_process_1 = require("child_process");
+const fs = __importStar(require("fs"));
 let mainWindow = null;
 let tray = null;
 let clipboardPollingInterval = null;
 let lastClipboardText = '';
 let lastClipboardImageDataUrl = '';
 let currentEdge = 'left';
+let vbsPath = '';
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
@@ -161,12 +164,15 @@ function createTray() {
     });
 }
 electron_1.app.whenReady().then(() => {
+    vbsPath = path.join(electron_1.app.getPath('temp'), 'kobar_paste.vbs');
+    fs.writeFileSync(vbsPath, 'Set WshShell = WScript.CreateObject("WScript.Shell")\nWshShell.SendKeys "^v"');
     createWindow();
     createTray();
     electron_1.app.on('activate', () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createWindow();
     });
+    electron_1.app.on('will-quit', () => { electron_1.globalShortcut.unregisterAll(); });
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -201,4 +207,35 @@ electron_1.ipcMain.on('set-ignore-mouse-events', (event, ignore) => {
     if (win) {
         win.setIgnoreMouseEvents(ignore, { forward: true });
     }
+});
+electron_1.ipcMain.on('set-global-paste-mode', (event, isActive) => {
+    if (isActive) {
+        electron_1.globalShortcut.register('CommandOrControl+V', () => {
+            if (mainWindow)
+                mainWindow.webContents.send('request-next-paste');
+        });
+    }
+    else {
+        electron_1.globalShortcut.unregister('CommandOrControl+V');
+    }
+});
+electron_1.ipcMain.on('execute-global-paste', (event, data) => {
+    if (data.type === 'text') {
+        electron_1.clipboard.writeText(data.content);
+        lastClipboardText = data.content;
+    }
+    else if (data.type === 'image') {
+        const img = electron_1.nativeImage.createFromDataURL(data.content);
+        electron_1.clipboard.writeImage(img);
+        lastClipboardImageDataUrl = data.content;
+    }
+    electron_1.globalShortcut.unregister('CommandOrControl+V');
+    (0, child_process_1.exec)(`cscript //nologo "${vbsPath}"`, () => {
+        setTimeout(() => {
+            electron_1.globalShortcut.register('CommandOrControl+V', () => {
+                if (mainWindow)
+                    mainWindow.webContents.send('request-next-paste');
+            });
+        }, 50);
+    });
 });

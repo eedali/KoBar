@@ -45,7 +45,7 @@ const ClipboardSlots: React.FC = () => {
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Listen for Ctrl+V globally to trigger sequential paste
+    // Listen for Ctrl+V globally to trigger sequential paste inside the app
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (isPasteModeActive && e.ctrlKey && e.key === 'v') {
@@ -55,6 +55,25 @@ const ClipboardSlots: React.FC = () => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isPasteModeActive, pasteNextItem]);
+
+    // Sync global paste mode to backend
+    useEffect(() => {
+        window.api?.setGlobalPasteMode(isPasteModeActive);
+        return () => window.api?.setGlobalPasteMode(false);
+    }, [isPasteModeActive]);
+
+    // Listen for global OS paste trigger
+    useEffect(() => {
+        if (!isPasteModeActive) return;
+        const cleanup = window.api?.onRequestNextPaste(() => {
+            const targetSlot = slots.find(s => s.state === 'selected') || slots.find(s => s.state === 'filled');
+            if (targetSlot && targetSlot.content && targetSlot.type) {
+                window.api?.executeGlobalPaste({ type: targetSlot.type, content: targetSlot.content });
+                pasteNextItem();
+            }
+        });
+        return cleanup;
+    }, [isPasteModeActive, slots, pasteNextItem]);
 
     const handleSlotClick = (e: React.MouseEvent, index: number, state: SlotState) => {
         e.preventDefault();

@@ -22,4 +22,14 @@ contextBridge.exposeInMainWorld('api', {
     },
     // Mouse click-through for transparent window
     setIgnoreMouseEvents: (ignore: boolean) => ipcRenderer.send('set-ignore-mouse-events', ignore),
+    // Global Paste Support
+    setGlobalPasteMode: (isActive: boolean) => ipcRenderer.send('set-global-paste-mode', isActive),
+    onRequestNextPaste: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on('request-next-paste', handler);
+        return () => {
+            ipcRenderer.removeListener('request-next-paste', handler);
+        };
+    },
+    executeGlobalPaste: (data: { type: string; content: string }) => ipcRenderer.send('execute-global-paste', data)
 });

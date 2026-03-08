@@ -12,6 +12,10 @@ declare global {
             writeToClipboard: (data: { type: string; content: string }) => void;
             // Mouse click-through
             setIgnoreMouseEvents: (ignore: boolean) => void;
+            // Global Paste Support
+            setGlobalPasteMode: (isActive: boolean) => void;
+            onRequestNextPaste: (callback: () => void) => (() => void);
+            executeGlobalPaste: (data: { type: string; content: string }) => void;
         };
     }
 }

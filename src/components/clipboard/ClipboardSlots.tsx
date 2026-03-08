@@ -115,11 +115,11 @@ const ClipboardSlots: React.FC = () => {
                     }`}
                 title={isCopyModeActive ? 'Stop Copy Mode (Double-click to reset)' : 'Start Copy Mode (Double-click to reset)'}
             >
-                <span className="material-symbols-outlined text-[20px]">content_copy</span>
+                <span className="material-symbols-outlined text-[18px]">content_copy</span>
             </button>
 
             {/* Unified Slot Circles */}
-            <div className="flex flex-row flex-wrap justify-center gap-1.5 relative px-2">
+            <div className="grid grid-cols-5 gap-2 relative w-[80%] mx-auto justify-items-center">
                 {slots.map((slot, index) => (
                     <label
                         key={`slot-${index}`}
@@ -151,7 +151,7 @@ const ClipboardSlots: React.FC = () => {
                     }`}
                 title={isPasteModeActive ? 'Stop Paste Mode (Double-click to reset)' : 'Start Paste Mode (Double-click to reset)'}
             >
-                <span className="material-symbols-outlined text-[20px]">content_paste</span>
+                <span className="material-symbols-outlined text-[18px]">content_paste</span>
             </button>
         </div>
     );

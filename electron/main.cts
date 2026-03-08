@@ -136,6 +136,15 @@ function createTray() {
                 }
             }
         },
+        {
+            label: 'Settings',
+            click: () => {
+                if (mainWindow) {
+                    if (!mainWindow.isVisible()) mainWindow.show();
+                    mainWindow.webContents.send('open-settings');
+                }
+            }
+        },
         { type: 'separator' },
         {
             label: 'Quit',

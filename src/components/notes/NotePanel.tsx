@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import NoteEditor from './NoteEditor';
+import SettingsPanel from './SettingsPanel';
 import ResizerHandle from './ResizerHandle';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import type { EmojiClickData } from 'emoji-picker-react';
@@ -10,6 +11,8 @@ const NotePanel: React.FC = () => {
         isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelWidth, setNotePanelHeight,
         notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
     } = useAppStore();
+
+    const activeNote = notes.find(n => n.id === activeNoteId);
 
     // Local dimensions for lag-free resizing (avoids Tiptap re-renders)
     const [localWidth, setLocalWidth] = useState(notePanelWidth);
@@ -201,8 +204,12 @@ const NotePanel: React.FC = () => {
                 )}
             </div>
 
-            {/* Note Editor Area */}
-            <NoteEditor />
+            {/* Editor or Settings Area */}
+            {activeNote?.isSettings ? (
+                <SettingsPanel />
+            ) : (
+                <NoteEditor />
+            )}
         </div>
     );
 };

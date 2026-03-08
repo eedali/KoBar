@@ -22,8 +22,8 @@
 
   .custom-radio {
     appearance: none;
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     border: 2px solid #3f362b;
     outline: none;
@@ -38,8 +38,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 0.375rem;
-    height: 0.375rem;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background-color: currentColor;
   }

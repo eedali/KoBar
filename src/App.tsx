@@ -13,11 +13,20 @@ const App: React.FC = () => {
   const { edgePosition, setEdgePosition, isNotePanelOpen } = useAppStore();
 
   useEffect(() => {
+    let unsubs: (() => void)[] = [];
     if (window.api?.onEdgeChanged) {
       window.api.onEdgeChanged((edge) => {
         setEdgePosition(edge);
       });
     }
+    if (window.api?.onOpenSettings) {
+      unsubs.push(window.api.onOpenSettings(() => {
+        useAppStore.getState().openSettingsTab();
+      }));
+    }
+    return () => {
+      unsubs.forEach(unsub => unsub());
+    };
   }, [setEdgePosition]);
 
   // Bulletproof click-through: detect whether the mouse is over
@@ -48,17 +57,17 @@ const App: React.FC = () => {
 
   return (
     <div className="relative w-full h-full pointer-events-none flex justify-center">
-      <div className="relative h-full pointer-events-auto shrink-0" style={{ width: '80px' }}>
+      <div className="relative h-full pointer-events-auto shrink-0" style={{ width: '64px' }}>
         <div className="absolute inset-0">
           <Sidebar />
         </div>
         {isNotePanelOpen && edgePosition === 'left' && (
-          <div className="absolute top-0 left-[80px]">
+          <div className="absolute top-0 left-[64px]">
             <NotePanel />
           </div>
         )}
         {isNotePanelOpen && edgePosition === 'right' && (
-          <div className="absolute top-0 right-[80px]">
+          <div className="absolute top-0 right-[64px]">
             <NotePanel />
           </div>
         )}

@@ -8,20 +8,22 @@ export interface ClipboardSlot {
     content: string | null;
 }
 
-const SLOT_COUNT = 6;
-
 function createEmptySlot(): ClipboardSlot {
     return { state: 'empty', type: null, content: null };
 }
 
-function createEmptySlots(): ClipboardSlot[] {
-    return Array.from({ length: SLOT_COUNT }, () => createEmptySlot());
+function createEmptySlots(count: number): ClipboardSlot[] {
+    return Array.from({ length: count }, () => createEmptySlot());
 }
 
 interface ClipboardState {
     slots: ClipboardSlot[];
+    slotCount: number;
     isCopyModeActive: boolean;
     isPasteModeActive: boolean;
+
+    // Settings
+    setSlotCount: (count: number) => void;
 
     // Copy Mode actions
     toggleCopyMode: () => void;
@@ -41,9 +43,23 @@ interface ClipboardState {
 }
 
 export const useClipboardStore = create<ClipboardState>((set, get) => ({
-    slots: createEmptySlots(),
+    slots: createEmptySlots(10),
+    slotCount: 10,
     isCopyModeActive: false,
     isPasteModeActive: false,
+
+    setSlotCount: (count: number) => {
+        const currentSlots = get().slots;
+        if (count > currentSlots.length) {
+            const addedSlots = Array.from({ length: count - currentSlots.length }, () => createEmptySlot());
+            set({ slotCount: count, slots: [...currentSlots, ...addedSlots] });
+        } else if (count < currentSlots.length) {
+            set({ slotCount: count, slots: currentSlots.slice(0, count) });
+        } else {
+            set({ slotCount: count });
+        }
+    },
+
 
     toggleCopyMode: () => {
         const { isCopyModeActive, slots } = get();
@@ -169,11 +185,11 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
     },
 
     resetAll: () => {
-        set({
-            slots: createEmptySlots(),
+        set((state) => ({
+            slots: createEmptySlots(state.slotCount),
             isCopyModeActive: false,
             isPasteModeActive: false,
-        });
+        }));
         if (window.api?.stopClipboardListener) {
             window.api.stopClipboardListener();
         }

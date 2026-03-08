@@ -7,6 +7,7 @@ export interface Note {
     icon: string;
     emoji: string | null;
     content: string;
+    isSettings?: boolean;
 }
 
 interface AppState {
@@ -29,6 +30,7 @@ interface AppState {
     updateNoteContent: (id: number, content: string) => void;
     updateNoteTitle: (id: number, title: string) => void;
     updateNoteEmoji: (id: number, emoji: string) => void;
+    openSettingsTab: () => void;
 }
 
 const defaultNotes: Note[] = [
@@ -113,6 +115,31 @@ export const useAppStore = create<AppState>()(
             updateNoteEmoji: (id, emoji) => set((state) => ({
                 notes: state.notes.map(n => n.id === id ? { ...n, emoji } : n),
             })),
+            openSettingsTab: () => set((state) => {
+                let settingsNote = state.notes.find(n => n.isSettings);
+                let nextNotes = state.notes;
+                let nextId = state.nextNoteId;
+
+                if (!settingsNote) {
+                    settingsNote = {
+                        id: state.nextNoteId,
+                        title: 'Settings',
+                        icon: 'settings',
+                        emoji: null,
+                        content: '',
+                        isSettings: true,
+                    };
+                    nextNotes = [...state.notes, settingsNote];
+                    nextId++;
+                }
+
+                return {
+                    isNotePanelOpen: true,
+                    notes: nextNotes,
+                    activeNoteId: settingsNote.id,
+                    nextNoteId: nextId,
+                };
+            }),
         }),
         {
             name: 'kobar-storage',

@@ -48,6 +48,7 @@ let isGlobalPasteModeActive = false;
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
+        center: true,
         width: 3400,
         height: 2200,
         minWidth: 3400,
@@ -64,6 +65,7 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.cjs')
         }
     });
+    currentEdge = 'right'; // Set default edge
     mainWindow.setMinimumSize(3400, 2200);
     mainWindow.setMaximumSize(10000, 10000);
     mainWindow.setSize(3400, 2200);

@@ -46,16 +46,9 @@ const App: React.FC = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Use physical screen width to position sidebar at actual screen edge
-  const screenWidth = window.screen.width;
-  const sidebarLeft = edgePosition === 'left' ? 0 : screenWidth - 80;
-
   return (
-    <div className="relative w-full h-full pointer-events-none">
-      <div
-        className="absolute top-0 h-full pointer-events-auto shrink-0"
-        style={{ width: '80px', left: `${sidebarLeft}px` }}
-      >
+    <div className="relative w-full h-full pointer-events-none flex justify-center">
+      <div className="relative h-full pointer-events-auto shrink-0" style={{ width: '80px' }}>
         <div className="absolute inset-0">
           <Sidebar />
         </div>

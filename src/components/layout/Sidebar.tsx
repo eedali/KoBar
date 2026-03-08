@@ -3,7 +3,7 @@ import ClipboardSlots from '../clipboard/ClipboardSlots';
 import { useAppStore } from '../../store/useAppStore';
 
 const Sidebar: React.FC = () => {
-    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight } = useAppStore();
+    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen } = useAppStore();
 
     const handleHide = () => {
         if (window.api && window.api.hideApp) {
@@ -15,11 +15,16 @@ const Sidebar: React.FC = () => {
         <div className="w-24 bg-[#14110e] border-[#3f362b] flex flex-col items-center py-4 relative z-20 overflow-y-auto overflow-x-hidden border-x">
             {/* Toggle Note Panel Button */}
             <button
-                className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-[#14110e] border border-[#3f362b] rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg no-drag-region"
+                className={`absolute ${edgePosition === 'left' ? '-right-3' : '-left-3'} top-1/2 -translate-y-1/2 w-6 h-12 bg-[#14110e] border border-[#3f362b] rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg no-drag-region`}
                 title="Toggle Notes Section"
                 onClick={toggleNotePanel}
             >
-                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[18px]">
+                    {edgePosition === 'left'
+                        ? (isNotePanelOpen ? 'chevron_left' : 'chevron_right')
+                        : (isNotePanelOpen ? 'chevron_right' : 'chevron_left')
+                    }
+                </span>
             </button>
 
             {/* Drag Handle - double click resets note panel size */}

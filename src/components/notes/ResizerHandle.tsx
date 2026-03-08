@@ -38,26 +38,33 @@ const ResizerHandle: React.FC<ResizerHandleProps> = ({ direction, onResizeTemp }
         const startHeight = heightRef.current;
 
         const handleMouseMove = (moveEvent: MouseEvent) => {
-            const maxWidth = Math.min(1600, window.screen.availWidth - 120);
-            const maxHeight = Math.min(1200, window.screen.availHeight - 100);
+            let newWidth = widthRef.current;
+            let newHeight = heightRef.current;
 
             if (direction === 'side' || direction === 'corner') {
                 const deltaX = moveEvent.clientX - startX;
                 if (edgePosition === 'right') {
-                    // Right edge layout: dragging left (negative deltaX) increases width
-                    widthRef.current = Math.min(Math.max(startWidth - deltaX, 250), maxWidth);
+                    newWidth = startWidth - deltaX;
                 } else {
-                    // Left edge layout: dragging right (positive deltaX) increases width
-                    widthRef.current = Math.min(Math.max(startWidth + deltaX, 250), maxWidth);
+                    newWidth = startWidth + deltaX;
                 }
             }
 
             if (direction === 'bottom' || direction === 'corner') {
                 const deltaY = moveEvent.clientY - startY;
-                heightRef.current = Math.min(Math.max(startHeight + deltaY, 200), maxHeight);
+                newHeight = startHeight + deltaY;
             }
 
-            onResizeTemp(widthRef.current, heightRef.current);
+            const maxAllowedWidth = Math.min(window.screen.availWidth - 120, (window.innerWidth / 2) - 80);
+            const clampedWidth = Math.min(Math.max(newWidth, 250), maxAllowedWidth);
+
+            const maxAllowedHeight = Math.min(window.screen.availHeight - 100, (window.innerHeight / 2) - 80);
+            const clampedHeight = Math.min(Math.max(newHeight, 200), maxAllowedHeight);
+
+            widthRef.current = clampedWidth;
+            heightRef.current = clampedHeight;
+
+            onResizeTemp(clampedWidth, clampedHeight);
         };
 
         const handleMouseUp = () => {

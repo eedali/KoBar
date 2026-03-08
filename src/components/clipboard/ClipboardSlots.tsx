@@ -62,6 +62,10 @@ const ClipboardSlots: React.FC = () => {
             setListeningSlot(index);
         } else if (isPasteModeActive && state === 'filled') {
             setSelectedSlot(index);
+            const slotData = slots[index];
+            if (slotData && slotData.content && slotData.type) {
+                window.api?.writeToClipboard({ type: slotData.type, content: slotData.content });
+            }
         }
     };
 

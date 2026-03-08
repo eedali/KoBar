@@ -47,18 +47,22 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-full pointer-events-none">
-      {/* Sidebar gets h-full because it should span the monitor vertically */}
-      <div className={`absolute top-0 h-full pointer-events-auto ${edgePosition === 'left' ? 'left-0' : 'right-0'}`}>
-        <Sidebar />
-      </div>
-
-      {/* NotePanel wrapper MUST NOT have h-full. It must tightly hug the NotePanel's inline height. */}
-      {isNotePanelOpen && (
-        <div className={`absolute top-0 pointer-events-auto ${edgePosition === 'left' ? 'left-[80px]' : 'right-[80px]'}`}>
-          <NotePanel />
+    <div className="relative w-full h-full pointer-events-none flex justify-center">
+      <div className="relative h-full pointer-events-auto shrink-0" style={{ width: '80px' }}>
+        <div className="absolute inset-0">
+          <Sidebar />
         </div>
-      )}
+        {isNotePanelOpen && edgePosition === 'left' && (
+          <div className="absolute top-0 left-[80px]">
+            <NotePanel />
+          </div>
+        )}
+        {isNotePanelOpen && edgePosition === 'right' && (
+          <div className="absolute top-0 right-[80px]">
+            <NotePanel />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

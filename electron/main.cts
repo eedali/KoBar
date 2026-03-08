@@ -14,6 +14,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 3400,
         height: 2200,
+        minWidth: 3400,
+        minHeight: 2200,
         frame: false,
         transparent: true,
         alwaysOnTop: true,
@@ -27,7 +29,9 @@ function createWindow() {
         }
     });
 
+    mainWindow.setMinimumSize(3400, 2200);
     mainWindow.setMaximumSize(10000, 10000);
+    mainWindow.setSize(3400, 2200);
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setIgnoreMouseEvents(true, { forward: true });
 
@@ -38,29 +42,22 @@ function createWindow() {
         mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
     }
 
-    // Edge detection — ONLY fires on drop to prevent Aero Snap bugs
-    mainWindow.on('moved', handleWindowMove);
+    // Edge detection — fires during drag for smooth real-time updates
+    mainWindow.on('move', handleWindowMove);
 }
 
 function handleWindowMove() {
-    // 50ms delay bypasses the Windows Aero Snap bug
-    setTimeout(() => {
-        if (!mainWindow) return;
-        const bounds = mainWindow.getBounds();
-        const windowCenter = bounds.x + (bounds.width / 2);
-        const { workAreaSize } = screen.getPrimaryDisplay();
-        const newEdge = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
+    if (!mainWindow) return;
+    const [x] = mainWindow.getPosition();
+    const [width] = mainWindow.getSize();
+    const windowCenter = x + (width / 2);
+    const { workAreaSize } = screen.getPrimaryDisplay();
+    const newEdge = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
 
-        if (newEdge !== currentEdge) {
-            // Sidebar is 80px. Exact jump distance is window width minus 80.
-            const jumpDistance = bounds.width - 80;
-            const newX = newEdge === 'right' ? bounds.x - jumpDistance : bounds.x + jumpDistance;
-
-            mainWindow.setBounds({ x: newX, y: bounds.y, width: bounds.width, height: bounds.height });
-            currentEdge = newEdge;
-            mainWindow.webContents.send('edge-changed', newEdge);
-        }
-    }, 50);
+    if (newEdge !== currentEdge) {
+        currentEdge = newEdge;
+        mainWindow.webContents.send('edge-changed', newEdge);
+    }
 }
 
 // --- Clipboard Polling ---
@@ -182,9 +179,11 @@ ipcMain.on('stop-clipboard-listener', () => {
 ipcMain.on('write-to-clipboard', (_event, data: { type: string; content: string }) => {
     if (data.type === 'text') {
         clipboard.writeText(data.content);
+        lastClipboardText = data.content; // Prevent recursive copy!
     } else if (data.type === 'image') {
         const img = nativeImage.createFromDataURL(data.content);
         clipboard.writeImage(img);
+        lastClipboardImageDataUrl = data.content; // Prevent recursive copy!
     }
 });
 

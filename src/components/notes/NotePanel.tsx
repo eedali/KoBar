@@ -105,8 +105,48 @@ const NotePanel: React.FC = () => {
         setEmojiPickerTabId(prev => prev === tabId ? null : tabId);
     };
 
+    const tabsRef = useRef<HTMLDivElement>(null);
+    const [isDraggingTabs, setIsDraggingTabs] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeftState, setScrollLeftState] = useState(0);
+    const [dragDistance, setDragDistance] = useState(0);
+
+    const handleTabsMouseDown = (e: React.MouseEvent) => {
+        if (!tabsRef.current) return;
+        setIsDraggingTabs(true);
+        setStartX(e.pageX - tabsRef.current.offsetLeft);
+        setScrollLeftState(tabsRef.current.scrollLeft);
+        setDragDistance(0);
+    };
+
+    const handleTabsMouseLeave = () => {
+        setIsDraggingTabs(false);
+    };
+
+    const handleTabsMouseUp = () => {
+        setIsDraggingTabs(false);
+    };
+
+    const handleTabsMouseMove = (e: React.MouseEvent) => {
+        if (!isDraggingTabs || !tabsRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - tabsRef.current.offsetLeft;
+        const walk = (x - startX) * 1.5; // Scroll speed multiplier
+        tabsRef.current.scrollLeft = scrollLeftState - walk;
+        setDragDistance(Math.abs(walk));
+    };
+
+    const handleTabClick = (noteId: number) => {
+        // Only switch tabs if we didn't drag much
+        if (dragDistance < 5) {
+            setActiveNoteId(noteId);
+        }
+    };
+
     const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-        e.currentTarget.scrollLeft += e.deltaY;
+        if (e.currentTarget) {
+            e.currentTarget.scrollLeft += e.deltaY;
+        }
     };
 
     return (
@@ -126,12 +166,20 @@ const NotePanel: React.FC = () => {
 
             {/* Tabs Header */}
             <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0 relative">
-                <div onWheel={handleWheel} className="flex gap-2 overflow-x-auto scrollbar-hide snap-x">
+                <div
+                    ref={tabsRef}
+                    onWheel={handleWheel}
+                    onMouseDown={handleTabsMouseDown}
+                    onMouseLeave={handleTabsMouseLeave}
+                    onMouseUp={handleTabsMouseUp}
+                    onMouseMove={handleTabsMouseMove}
+                    className={`flex gap-2 overflow-x-auto scrollbar-hide snap-x select-none ${isDraggingTabs ? 'cursor-grabbing' : 'cursor-grab'}`}
+                >
                     {notes.map((note) => (
                         <button
                             key={note.id}
-                            onClick={() => setActiveNoteId(note.id)}
-                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer shrink-0 snap-start ${note.id === activeNoteId
+                            onClick={() => handleTabClick(note.id)}
+                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 snap-start ${note.id === activeNoteId
                                 ? 'bg-[#1e1b17] text-slate-200 border border-[#3f362b] border-b-0 relative top-[1px]'
                                 : 'text-slate-400 hover:text-slate-200'
                                 }`}

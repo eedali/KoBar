@@ -41,5 +41,9 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     },
     executeGlobalPaste: (data) => electron_1.ipcRenderer.send('execute-global-paste', data),
     triggerScreenshot: () => electron_1.ipcRenderer.send('trigger-screenshot'),
-    moveWindow: (dx, dy) => electron_1.ipcRenderer.send('move-window', { dx, dy })
+    moveWindow: (dx, dy) => electron_1.ipcRenderer.send('move-window', { dx, dy }),
+    // App Launcher Native
+    getFileIcon: (path) => electron_1.ipcRenderer.invoke('get-file-icon', path),
+    launchFile: (path) => electron_1.ipcRenderer.send('launch-file', path),
+    getFilePath: (file) => electron_1.webUtils.getPathForFile(file)
 });

@@ -4,9 +4,19 @@ import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
 
 const Sidebar: React.FC = () => {
-    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode } = useAppStore();
+    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp } = useAppStore();
     const [isDragging, setIsDragging] = React.useState(false);
     const dragRef = React.useRef({ startX: 0, startY: 0, dragged: false });
+
+    // Launcher Delete State
+    const [deletingId, setDeletingId] = React.useState<string | null>(null);
+    const deleteTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    React.useEffect(() => {
+        const handleDocClick = () => setDeletingId(null);
+        document.addEventListener('mousedown', handleDocClick);
+        return () => document.removeEventListener('mousedown', handleDocClick);
+    }, []);
 
     // Handle Window Drag via JS for the Eye Button
     React.useEffect(() => {
@@ -75,11 +85,82 @@ const Sidebar: React.FC = () => {
 
             <div className="flex-grow drag-region w-full"></div>
 
-            {/* Note Tabs Add Button Placeholder */}
-            <div className="flex flex-col items-center gap-2 mb-2 no-drag-region">
-                <button className="w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-white hover:bg-slate-700 transition-colors">
-                    <span className="material-symbols-outlined text-[16px]">add</span>
-                </button>
+            {/* Drag & Drop App Launcher */}
+            <div className="flex flex-col items-center gap-2 mb-2 no-drag-region w-full px-2">
+                <div
+                    className="w-10 h-10 rounded-xl border-2 border-dashed border-[#3f362b] hover:border-primary/50 flex items-center justify-center text-slate-500 hover:text-primary transition-colors cursor-pointer"
+                    title="Drag and drop shortcuts here"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={async (e) => {
+                        e.preventDefault();
+                        if (pinnedApps.length >= 5) return;
+                        const file = e.dataTransfer.files[0];
+                        if (!file) return;
+                        // Use webUtils exposed via preload to safely get file path in modern Electron 
+                        const filePath = window.api?.getFilePath(file) || (file as any).path as string;
+                        if (!filePath) {
+                            console.error('Cannot resolve file path for dropped file.', file);
+                            return;
+                        }
+                        const iconDataUrl = await window.api?.getFileIcon(filePath);
+                        const name = file.name.replace(/\.[^/.]+$/, "");
+                        pinApp({ id: Date.now().toString(), name, path: filePath, icon: iconDataUrl || '' });
+                    }}
+                >
+                    <span className="material-symbols-outlined text-[20px]">add_to_home_screen</span>
+                </div>
+
+                {/* Pinned Apps List */}
+                {pinnedApps.map(app => (
+                    <div key={app.id} className="relative w-10 h-10 group mt-1 flex justify-center items-center">
+                        <button
+                            className="w-10 h-10 rounded-xl bg-[#1e1a16] border border-[#3f362b] hover:border-primary/40 flex items-center justify-center overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-sm"
+                            title={app.name}
+                            onMouseDown={() => {
+                                deleteTimeoutRef.current = setTimeout(() => {
+                                    setDeletingId(app.id);
+                                }, 600);
+                            }}
+                            onMouseUp={() => {
+                                if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+                            }}
+                            onMouseLeave={() => {
+                                if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+                            }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (deletingId !== app.id) {
+                                    if (app.path) {
+                                        window.api?.launchFile(app.path);
+                                    } else {
+                                        console.error('Cannot launch: app.path is missing!', app);
+                                    }
+                                }
+                            }}
+                        >
+                            {app.icon ? (
+                                <img src={app.icon} className="w-6 h-6 object-contain" alt={app.name} draggable={false} />
+                            ) : (
+                                <span className="text-xs text-slate-300 font-medium">{app.name.substring(0, 2).toUpperCase()}</span>
+                            )}
+                        </button>
+
+                        {/* Delete Badge */}
+                        {deletingId === app.id && (
+                            <button
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    unpinApp(app.id);
+                                    setDeletingId(null);
+                                }}
+                                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors border border-black/20 z-10 animate-in fade-in zoom-in duration-200"
+                            >
+                                <span className="material-symbols-outlined text-[14px] font-bold">close</span>
+                            </button>
+                        )}
+                    </div>
+                ))}
             </div>
 
             <div className="w-8 h-px bg-[#3f362b]"></div>

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 
 console.log('Preload loaded successfully');
 contextBridge.exposeInMainWorld('api', {
@@ -40,5 +40,10 @@ contextBridge.exposeInMainWorld('api', {
     },
     executeGlobalPaste: (data: { type: string; content: string }) => ipcRenderer.send('execute-global-paste', data),
     triggerScreenshot: () => ipcRenderer.send('trigger-screenshot'),
-    moveWindow: (dx: number, dy: number) => ipcRenderer.send('move-window', { dx, dy })
+    moveWindow: (dx: number, dy: number) => ipcRenderer.send('move-window', { dx, dy }),
+
+    // App Launcher Native
+    getFileIcon: (path: string) => ipcRenderer.invoke('get-file-icon', path),
+    launchFile: (path: string) => ipcRenderer.send('launch-file', path),
+    getFilePath: (file: File) => webUtils.getPathForFile(file)
 });

@@ -19,6 +19,10 @@ declare global {
             executeGlobalPaste: (data: { type: string; content: string }) => void;
             triggerScreenshot: () => void;
             moveWindow: (dx: number, dy: number) => void;
+            // Native App Launcher
+            getFileIcon: (path: string) => Promise<string | null>;
+            launchFile: (path: string) => void;
+            getFilePath: (file: File) => string;
         };
     }
 }

@@ -298,3 +298,27 @@ electron_1.ipcMain.on('move-window', (event, { dx, dy }) => {
         win.setPosition(Math.round(x + dx), Math.round(y + dy));
     }
 });
+electron_1.ipcMain.handle('get-file-icon', async (event, filePath) => {
+    try {
+        const icon = await electron_1.app.getFileIcon(filePath, { size: 'normal' });
+        return icon.toDataURL();
+    }
+    catch (e) {
+        return null;
+    }
+});
+electron_1.ipcMain.on('launch-file', async (event, filePath) => {
+    if (!filePath || typeof filePath !== 'string') {
+        console.error('Launch failed: Invalid or undefined file path received.');
+        return;
+    }
+    try {
+        const errorMessage = await electron_1.shell.openPath(filePath);
+        if (errorMessage) {
+            console.error('Shell error opening path:', errorMessage);
+        }
+    }
+    catch (e) {
+        console.error('Failed to launch application:', e);
+    }
+});

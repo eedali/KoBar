@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut, shell } from 'electron';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 
@@ -295,5 +295,29 @@ ipcMain.on('move-window', (event, { dx, dy }) => {
     if (win) {
         const [x, y] = win.getPosition();
         win.setPosition(Math.round(x + dx), Math.round(y + dy));
+    }
+});
+
+ipcMain.handle('get-file-icon', async (event, filePath) => {
+    try {
+        const icon = await app.getFileIcon(filePath, { size: 'normal' });
+        return icon.toDataURL();
+    } catch (e) {
+        return null;
+    }
+});
+
+ipcMain.on('launch-file', async (event, filePath) => {
+    if (!filePath || typeof filePath !== 'string') {
+        console.error('Launch failed: Invalid or undefined file path received.');
+        return;
+    }
+    try {
+        const errorMessage = await shell.openPath(filePath);
+        if (errorMessage) {
+            console.error('Shell error opening path:', errorMessage);
+        }
+    } catch (e) {
+        console.error('Failed to launch application:', e);
     }
 });

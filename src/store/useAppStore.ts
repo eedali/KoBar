@@ -10,6 +10,13 @@ export interface Note {
     isSettings?: boolean;
 }
 
+export interface PinnedApp {
+    id: string;
+    name: string;
+    path: string;
+    icon: string;
+}
+
 interface AppState {
     edgePosition: 'left' | 'right';
     setEdgePosition: (edge: 'left' | 'right') => void;
@@ -35,6 +42,10 @@ interface AppState {
     updateNoteTitle: (id: number, title: string) => void;
     updateNoteEmoji: (id: number, emoji: string) => void;
     openSettingsTab: () => void;
+    // App Launcher
+    pinnedApps: PinnedApp[];
+    pinApp: (app: PinnedApp) => void;
+    unpinApp: (id: string) => void;
 }
 
 const defaultNotes: Note[] = [
@@ -72,17 +83,25 @@ export const useAppStore = create<AppState>()(
         (set) => ({
             edgePosition: 'right',
             setEdgePosition: (edge) => set({ edgePosition: edge }),
-            isNotePanelOpen: true,
+            isNotePanelOpen: false,
             setNotePanelOpen: (isOpen) => set({ isNotePanelOpen: isOpen }),
             toggleNotePanel: () => set((state) => ({ isNotePanelOpen: !state.isNotePanelOpen })),
             notePanelWidth: 400,
-            setNotePanelWidth: (width) => set((state) => ({
-                notePanelWidth: typeof width === 'function' ? width(state.notePanelWidth) : width
-            })),
+            setNotePanelWidth: (width) => set((state) => ({ notePanelWidth: typeof width === 'function' ? width(state.notePanelWidth) : width })),
             notePanelHeight: 600,
-            setNotePanelHeight: (height) => set((state) => ({
-                notePanelHeight: typeof height === 'function' ? height(state.notePanelHeight) : height
+            setNotePanelHeight: (height) => set((state) => ({ notePanelHeight: typeof height === 'function' ? height(state.notePanelHeight) : height })),
+
+            // App Launcher State
+            pinnedApps: [],
+            pinApp: (app) => set((state) => {
+                // Max 5 apps
+                if (state.pinnedApps.length >= 5) return state;
+                return { pinnedApps: [...state.pinnedApps, app] };
+            }),
+            unpinApp: (id) => set((state) => ({
+                pinnedApps: state.pinnedApps.filter((a) => a.id !== id),
             })),
+
             // Mini Mode
             isMiniMode: false,
             miniModePosition: null,
@@ -157,6 +176,7 @@ export const useAppStore = create<AppState>()(
                 nextNoteId: state.nextNoteId,
                 notePanelWidth: state.notePanelWidth,
                 notePanelHeight: state.notePanelHeight,
+                pinnedApps: state.pinnedApps,
             }),
         }
     )

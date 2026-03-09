@@ -18,6 +18,7 @@ declare global {
             onRequestNextPaste: (callback: () => void) => (() => void);
             executeGlobalPaste: (data: { type: string; content: string }) => void;
             triggerScreenshot: () => void;
+            moveWindow: (dx: number, dy: number) => void;
         };
     }
 }

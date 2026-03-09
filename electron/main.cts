@@ -276,3 +276,11 @@ ipcMain.on('trigger-screenshot', () => {
         psProcess.stdin.write(psScreenshot + '\n');
     }
 });
+
+ipcMain.on('move-window', (event, { dx, dy }) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+        const [x, y] = win.getPosition();
+        win.setPosition(Math.round(x + dx), Math.round(y + dy));
+    }
+});

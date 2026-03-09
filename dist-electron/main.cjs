@@ -282,3 +282,10 @@ electron_1.ipcMain.on('trigger-screenshot', () => {
         psProcess.stdin.write(psScreenshot + '\n');
     }
 });
+electron_1.ipcMain.on('move-window', (event, { dx, dy }) => {
+    const win = electron_1.BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+        const [x, y] = win.getPosition();
+        win.setPosition(Math.round(x + dx), Math.round(y + dy));
+    }
+});

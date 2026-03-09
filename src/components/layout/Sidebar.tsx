@@ -1,12 +1,63 @@
 import React from 'react';
 import ClipboardSlots from '../clipboard/ClipboardSlots';
 import { useAppStore } from '../../store/useAppStore';
+import { setIsResizingGlobal } from '../../App';
 
 const Sidebar: React.FC = () => {
     const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode } = useAppStore();
+    const [isDragging, setIsDragging] = React.useState(false);
+    const dragRef = React.useRef({ startX: 0, startY: 0, dragged: false });
 
-    const handleHide = (e: React.MouseEvent) => {
-        setMiniMode(true, { x: e.clientX, y: e.clientY });
+    // Handle Window Drag via JS for the Eye Button
+    React.useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDragging) return;
+
+            // Movement deltas between events
+            const dx = e.movementX;
+            const dy = e.movementY;
+
+            if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+                dragRef.current.dragged = true;
+            }
+
+            if (window.api?.moveWindow && (dx !== 0 || dy !== 0)) {
+                window.api.moveWindow(dx, dy);
+            }
+        };
+
+        const handleMouseUp = () => {
+            if (isDragging) {
+                setIsDragging(false);
+                setIsResizingGlobal(false);
+            }
+        };
+
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging]);
+
+    const handleEyeMouseDown = (e: React.MouseEvent) => {
+        if (e.button !== 0) return; // Left click only
+        setIsDragging(true);
+        setIsResizingGlobal(true);
+        dragRef.current = {
+            startX: e.clientX,
+            startY: e.clientY,
+            dragged: false
+        };
+    };
+
+    const handleEyeClick = (e: React.MouseEvent) => {
+        if (!dragRef.current.dragged) {
+            setMiniMode(true, { x: e.clientX, y: e.clientY });
+        }
     };
 
     return (
@@ -64,8 +115,9 @@ const Sidebar: React.FC = () => {
             {/* Hide/Eye Button */}
             <div className="mt-auto mb-1 relative group flex justify-center w-full no-drag-region">
                 <button
-                    onClick={handleHide}
-                    className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_15px_rgba(244,161,37,0.3)] transition-all hover:bg-primary/30 cursor-pointer"
+                    onMouseDown={handleEyeMouseDown}
+                    onClick={handleEyeClick}
+                    className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_15px_rgba(244,161,37,0.3)] transition-all hover:bg-primary/30 cursor-grab active:cursor-grabbing"
                 >
                     <span className="material-symbols-outlined text-[20px]">visibility</span>
                 </button>

@@ -40,5 +40,6 @@ electron_1.contextBridge.exposeInMainWorld('api', {
         };
     },
     executeGlobalPaste: (data) => electron_1.ipcRenderer.send('execute-global-paste', data),
-    triggerScreenshot: () => electron_1.ipcRenderer.send('trigger-screenshot')
+    triggerScreenshot: () => electron_1.ipcRenderer.send('trigger-screenshot'),
+    moveWindow: (dx, dy) => electron_1.ipcRenderer.send('move-window', { dx, dy })
 });

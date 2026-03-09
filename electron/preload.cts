@@ -39,5 +39,6 @@ contextBridge.exposeInMainWorld('api', {
         };
     },
     executeGlobalPaste: (data: { type: string; content: string }) => ipcRenderer.send('execute-global-paste', data),
-    triggerScreenshot: () => ipcRenderer.send('trigger-screenshot')
+    triggerScreenshot: () => ipcRenderer.send('trigger-screenshot'),
+    moveWindow: (dx: number, dy: number) => ipcRenderer.send('move-window', { dx, dy })
 });

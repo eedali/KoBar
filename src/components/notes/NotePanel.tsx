@@ -8,7 +8,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 
 const NotePanel: React.FC = () => {
     const {
-        isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight,
+        isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight, setNotePanelWidth,
         notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
     } = useAppStore();
 
@@ -22,10 +22,18 @@ const NotePanel: React.FC = () => {
     useEffect(() => { setLocalWidth(notePanelWidth); }, [notePanelWidth]);
     useEffect(() => { setLocalHeight(notePanelHeight); }, [notePanelHeight]);
 
-    // Startup sanity check
+    // Startup sanity check — reset panel to safe default if persisted size is too large
     useEffect(() => {
+        const safeMaxW = window.screen.availWidth - 120;
         const safeMaxH = window.screen.availHeight - 100;
-        if (notePanelHeight > safeMaxH) setNotePanelHeight(600);
+        if (notePanelWidth > safeMaxW) {
+            setNotePanelWidth(400);
+            setLocalWidth(400);
+        }
+        if (notePanelHeight > safeMaxH) {
+            setNotePanelHeight(600);
+            setLocalHeight(600);
+        }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Callback for resizer handles to update local dimensions

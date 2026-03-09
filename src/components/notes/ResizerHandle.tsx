@@ -32,31 +32,43 @@ const ResizerHandle: React.FC<ResizerHandleProps> = ({ direction, onResizeTemp }
         // Keep window focused during drag
         window.api?.setIgnoreMouseEvents(false);
 
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const startWidth = widthRef.current;
-        const startHeight = heightRef.current;
-
         const handleMouseMove = (moveEvent: MouseEvent) => {
             let newWidth = widthRef.current;
             let newHeight = heightRef.current;
 
             if (direction === 'side' || direction === 'corner') {
-                const deltaX = moveEvent.clientX - startX;
+                const deltaX = moveEvent.movementX;
                 if (edgePosition === 'right') {
-                    newWidth = startWidth - deltaX;
+                    // Handle is on the left edge. Stop expanding if we hit the left side of the physical monitor
+                    if (deltaX < 0 && moveEvent.screenX <= 20) {
+                        // Stop expanding
+                    } else {
+                        newWidth = widthRef.current - deltaX;
+                    }
                 } else {
-                    newWidth = startWidth + deltaX;
+                    // Handle is on the right edge. Stop expanding if we hit the right side of the physical monitor
+                    if (deltaX > 0 && moveEvent.screenX >= window.screen.availWidth - 20) {
+                        // Stop expanding
+                    } else {
+                        newWidth = widthRef.current + deltaX;
+                    }
                 }
             }
 
             if (direction === 'bottom' || direction === 'corner') {
-                const deltaY = moveEvent.clientY - startY;
-                newHeight = startHeight + deltaY;
+                const deltaY = moveEvent.movementY;
+                // Handle is on the bottom edge. Stop expanding if we drop below the taskbar
+                if (deltaY > 0 && moveEvent.screenY >= window.screen.availHeight - 30) {
+                    // Stop expanding
+                } else {
+                    newHeight = heightRef.current + deltaY;
+                }
             }
 
-            const clampedWidth = Math.max(newWidth, 250); // No max width limit!
-            const clampedHeight = Math.min(Math.max(newHeight, 200), window.screen.availHeight - 100);
+            const maxW = window.screen.availWidth - 120;
+            const maxH = window.screen.availHeight - 100;
+            const clampedWidth = Math.min(Math.max(newWidth, 250), maxW);
+            const clampedHeight = Math.min(Math.max(newHeight, 200), maxH);
 
             widthRef.current = clampedWidth;
             heightRef.current = clampedHeight;

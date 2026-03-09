@@ -104,7 +104,7 @@ body,
 
 body {
   background-color: transparent !important;
-  overflow: hidden;
+  overflow: visible !important;
   font-family: var(--font-display);
 }
 

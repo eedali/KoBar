@@ -22,6 +22,7 @@ const App: React.FC = () => {
     }
     if (window.api?.onOpenSettings) {
       unsubs.push(window.api.onOpenSettings(() => {
+        useAppStore.getState().setMiniMode(false);
         useAppStore.getState().openSettingsTab();
       }));
     }

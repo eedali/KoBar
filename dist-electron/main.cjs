@@ -47,12 +47,21 @@ let psProcess = null;
 let isGlobalPasteModeActive = false;
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
+    const { bounds, workAreaSize } = electron_1.screen.getPrimaryDisplay();
+    // We make horizontal window MASSIVE to avoid Note panel crops (6000 ensures dual 4K monitor compatibility)
+    // We bind height perfectly to workAreaSize to prevent "Tile memory exceeded" and to prevent vertical crops off-screen
+    const winW = 7000;
+    const winH = Math.max(bounds.height, workAreaSize.height);
+    // Center window over primary display exactly!
+    const startX = Math.round(bounds.x + (workAreaSize.width / 2) - (winW / 2));
+    const startY = bounds.y; // Pin exactly to top of screen so panels aren't offset vertically
     mainWindow = new electron_1.BrowserWindow({
-        center: true,
-        width: 3400,
-        height: 2200,
-        minWidth: 3400,
-        minHeight: 2200,
+        x: startX,
+        y: startY,
+        width: winW,
+        height: winH,
+        minWidth: winW,
+        minHeight: winH,
         frame: false,
         transparent: true,
         alwaysOnTop: true,
@@ -66,9 +75,9 @@ function createWindow() {
         }
     });
     currentEdge = 'right'; // Set default edge
-    mainWindow.setMinimumSize(3400, 2200);
-    mainWindow.setMaximumSize(10000, 10000);
-    mainWindow.setSize(3400, 2200);
+    mainWindow.setMinimumSize(4000, 200);
+    mainWindow.setMaximumSize(12000, 12000);
+    // Lock window parameters early
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setIgnoreMouseEvents(true, { forward: true });
     if (isDev) {

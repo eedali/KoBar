@@ -157,7 +157,6 @@ export const useAppStore = create<AppState>()(
                 nextNoteId: state.nextNoteId,
                 notePanelWidth: state.notePanelWidth,
                 notePanelHeight: state.notePanelHeight,
-                isMiniMode: state.isMiniMode,
             }),
         }
     )

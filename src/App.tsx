@@ -11,7 +11,12 @@ export let isResizingGlobal = false;
 export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
 
 const App: React.FC = () => {
-  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode } = useAppStore();
+  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme } = useAppStore();
+
+  // Apply persisted theme on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     let unsubs: (() => void)[] = [];

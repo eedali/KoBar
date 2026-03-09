@@ -90,7 +90,7 @@ const NoteEditor: React.FC = () => {
             </div>
 
             {/* Formatting Toolbar */}
-            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-[#3f362b] text-slate-400 no-drag-region">
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b text-slate-400 no-drag-region" style={{ borderColor: 'var(--theme-border)' }}>
                 <button
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     className={`hover:text-slate-200 transition-colors cursor-pointer ${editor.isActive('bold') ? 'text-primary' : ''}`}
@@ -112,7 +112,7 @@ const NoteEditor: React.FC = () => {
                 >
                     <span className="material-symbols-outlined text-[20px]">format_underlined</span>
                 </button>
-                <div className="w-px h-5 bg-[#3f362b]"></div>
+                <div className="w-px h-5" style={{ backgroundColor: 'var(--theme-border)' }}></div>
                 <button
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
                     className={`hover:text-slate-200 transition-colors cursor-pointer ${editor.isActive('bulletList') ? 'text-primary' : ''}`}
@@ -127,7 +127,7 @@ const NoteEditor: React.FC = () => {
                 >
                     <span className="material-symbols-outlined text-[20px]">format_list_numbered</span>
                 </button>
-                <div className="w-px h-5 bg-[#3f362b]"></div>
+                <div className="w-px h-5" style={{ backgroundColor: 'var(--theme-border)' }}></div>
                 <button
                     onClick={triggerImagePicker}
                     className="hover:text-slate-200 transition-colors cursor-pointer"

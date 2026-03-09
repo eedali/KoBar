@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type ThemeName = 'ember' | 'ocean' | 'sakura' | 'emerald';
+
 export interface Note {
     id: number;
     title: string;
@@ -46,6 +48,9 @@ interface AppState {
     pinnedApps: PinnedApp[];
     pinApp: (app: PinnedApp) => void;
     unpinApp: (id: string) => void;
+    // Theme
+    theme: ThemeName;
+    setTheme: (theme: ThemeName) => void;
 }
 
 const defaultNotes: Note[] = [
@@ -101,6 +106,13 @@ export const useAppStore = create<AppState>()(
             unpinApp: (id) => set((state) => ({
                 pinnedApps: state.pinnedApps.filter((a) => a.id !== id),
             })),
+
+            // Theme
+            theme: 'ember',
+            setTheme: (theme) => {
+                document.documentElement.setAttribute('data-theme', theme);
+                set({ theme });
+            },
 
             // Mini Mode
             isMiniMode: false,
@@ -177,6 +189,7 @@ export const useAppStore = create<AppState>()(
                 notePanelWidth: state.notePanelWidth,
                 notePanelHeight: state.notePanelHeight,
                 pinnedApps: state.pinnedApps,
+                theme: state.theme,
             }),
         }
     )

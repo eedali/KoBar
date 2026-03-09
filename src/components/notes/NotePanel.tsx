@@ -151,10 +151,12 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`relative flex flex-col bg-[#1e1b17] border border-[#3f362b] z-30 shadow-2xl shrink-0 ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
+            className={`relative flex flex-col border z-30 shadow-2xl shrink-0 ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
             style={{
                 width: `${localWidth}px`,
                 height: `${localHeight}px`,
+                backgroundColor: 'var(--theme-bg-base)',
+                borderColor: 'var(--theme-border)',
             }}
         >
             {/* Side Resizer */}
@@ -165,7 +167,7 @@ const NotePanel: React.FC = () => {
             <ResizerHandle direction="corner" onResizeTemp={handleResizeTemp} />
 
             {/* Tabs Header */}
-            <div className="flex items-end border-b border-[#3f362b] bg-[#1a1612] pt-4 px-4 gap-6 no-drag-region shrink-0 relative">
+            <div className="flex items-end border-b pt-4 px-4 gap-6 no-drag-region shrink-0 relative" style={{ borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg-dark)' }}>
                 <div
                     ref={tabsRef}
                     onWheel={handleWheel}
@@ -180,7 +182,8 @@ const NotePanel: React.FC = () => {
                             key={note.id}
                             onClick={() => handleTabClick(note.id)}
                             className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 snap-start ${note.id === activeNoteId
-                                ? 'bg-[#1e1b17] text-slate-200 border border-[#3f362b] border-b-0 relative top-[1px]'
+                                ? 'text-slate-200 border border-b-0 relative top-[1px]'
+                                + ' bg-[var(--theme-bg-base)] border-[var(--theme-border)]'
                                 : 'text-slate-400 hover:text-slate-200'
                                 }`}
                         >
@@ -238,17 +241,20 @@ const NotePanel: React.FC = () => {
                 {deleteConfirm !== null && (
                     <div
                         ref={deleteConfirmRef}
-                        className="fixed z-[100] bg-[#1a1612] border border-[#3f362b] rounded-lg shadow-2xl flex flex-col p-4 pointer-events-auto"
+                        className="fixed z-[100] border rounded-lg shadow-2xl flex flex-col p-4 pointer-events-auto"
                         style={{
                             top: `${deleteConfirm.y + 10}px`,
                             left: `${deleteConfirm.x - 60}px`,
+                            backgroundColor: 'var(--theme-bg-dark)',
+                            borderColor: 'var(--theme-border)',
                         }}
                     >
                         <span className="text-slate-200 text-sm mb-4">Are you sure you want to delete this note?</span>
                         <div className="flex gap-2 justify-end items-center">
                             <button
                                 onClick={(e) => { e.stopPropagation(); cancelDelete(); }}
-                                className="px-4 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-[#2a241c] hover:bg-[#3f362b] transition-colors rounded-md"
+                                className="px-4 py-1.5 text-xs font-medium text-slate-300 hover:text-white transition-colors rounded-md"
+                                style={{ backgroundColor: 'var(--theme-bg-base)' }}
                             >
                                 Cancel
                             </button>

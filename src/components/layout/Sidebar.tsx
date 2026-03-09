@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
     };
 
     return (
-        <div className="w-16 bg-[#14110e] border-[#3f362b] flex flex-col items-center py-3 relative z-20 overflow-y-auto overflow-x-hidden border-x">
+        <div className="w-16 flex flex-col items-center py-3 relative z-20 overflow-y-auto overflow-x-hidden border-x" style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}>
 
 
             {/* Drag Handle - double click resets note panel size */}
@@ -81,14 +81,15 @@ const Sidebar: React.FC = () => {
                 </div>
             </div>
 
-            <div className="w-8 h-px bg-[#3f362b] mb-3"></div>
+            <div className="w-8 h-px mb-3" style={{ backgroundColor: 'var(--theme-border)' }}></div>
 
             <div className="flex-grow drag-region w-full"></div>
 
             {/* Drag & Drop App Launcher */}
             <div className="flex flex-col items-center gap-2 mb-2 no-drag-region w-full px-2">
                 <div
-                    className="w-10 h-10 rounded-xl border-2 border-dashed border-[#3f362b] hover:border-primary/50 flex items-center justify-center text-slate-500 hover:text-primary transition-colors cursor-pointer"
+                    className="w-10 h-10 rounded-xl border-2 border-dashed flex items-center justify-center text-slate-500 hover:text-primary transition-colors cursor-pointer"
+                    style={{ borderColor: 'var(--theme-border)' }}
                     title="Drag and drop shortcuts here"
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={async (e) => {
@@ -114,7 +115,8 @@ const Sidebar: React.FC = () => {
                 {pinnedApps.map(app => (
                     <div key={app.id} className="relative w-10 h-10 group mt-1 flex justify-center items-center">
                         <button
-                            className="w-10 h-10 rounded-xl bg-[#1e1a16] border border-[#3f362b] hover:border-primary/40 flex items-center justify-center overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-sm"
+                            className="w-10 h-10 rounded-xl border flex items-center justify-center overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-sm"
+                            style={{ backgroundColor: 'var(--theme-bg-base)', borderColor: 'var(--theme-border)' }}
                             title={app.name}
                             onMouseDown={() => {
                                 deleteTimeoutRef.current = setTimeout(() => {
@@ -141,7 +143,7 @@ const Sidebar: React.FC = () => {
                             {app.icon ? (
                                 <img src={app.icon} className="w-full h-full object-contain p-1.5 drop-shadow-md" alt={app.name} draggable={false} />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-[#2a241c] text-primary font-bold text-sm shadow-inner overflow-hidden">
+                                <div className="w-full h-full flex items-center justify-center text-primary font-bold text-sm shadow-inner overflow-hidden" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
                                     {app.name.substring(0, 2).toUpperCase()}
                                 </div>
                             )}
@@ -165,7 +167,7 @@ const Sidebar: React.FC = () => {
                 ))}
             </div>
 
-            <div className="w-8 h-px bg-[#3f362b]"></div>
+            <div className="w-8 h-px" style={{ backgroundColor: 'var(--theme-border)' }}></div>
 
             {/* Clipboard Slots Section */}
             <ClipboardSlots />
@@ -173,7 +175,8 @@ const Sidebar: React.FC = () => {
             {/* Toggle Note Panel Button - Repositioned Anchor */}
             <div className="relative w-full h-0 no-drag-region">
                 <button
-                    className={`absolute ${edgePosition === 'left' ? '-right-3' : '-left-3'} top-0 -translate-y-1/2 w-6 h-12 bg-[#14110e] border border-[#3f362b] rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg`}
+                    className={`absolute ${edgePosition === 'left' ? '-right-3' : '-left-3'} top-0 -translate-y-1/2 w-6 h-12 border rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg`}
+                    style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}
                     title="Toggle Notes Section"
                     onClick={toggleNotePanel}
                 >
@@ -187,7 +190,7 @@ const Sidebar: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="w-8 h-px bg-[#3f362b] my-3"></div>
+            <div className="w-8 h-px my-3" style={{ backgroundColor: 'var(--theme-border)' }}></div>
 
             <div className="flex flex-col items-center gap-3 mb-4 mt-1 no-drag-region">
                 <button
@@ -208,7 +211,7 @@ const Sidebar: React.FC = () => {
                 >
                     <span className="material-symbols-outlined text-[20px]">visibility</span>
                 </button>
-                <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-[#2a241c] border border-primary/50 rounded-lg py-1.5 px-3 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50 pointer-events-auto hidden md:block mt-0 mb-0">
+                <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 border border-primary/50 rounded-lg py-1.5 px-3 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50 pointer-events-auto hidden md:block mt-0 mb-0" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
                     <span className="text-xs font-semibold text-primary">Mini Mode</span>
                     <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-0 h-0 border-t-[4px] border-t-transparent border-l-[6px] border-l-primary/50 border-b-[4px] border-b-transparent"></div>
                 </div>

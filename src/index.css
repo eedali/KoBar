@@ -1,14 +1,69 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #f4a125;
-  --color-background-dark: #1a1612;
-  --color-background-light: #f8f7f5;
+  --color-primary: var(--theme-primary);
+  --color-background-dark: var(--theme-bg-dark);
+  --color-background-light: var(--theme-bg-light);
   --font-display: "Space Grotesk", sans-serif;
   --radius: 1rem;
   --radius-lg: 2rem;
   --radius-xl: 3rem;
   --radius-full: 9999px;
+}
+
+/* ===== THEME DEFINITIONS ===== */
+
+/* Ember (Default — warm amber) */
+:root,
+[data-theme="ember"] {
+  --theme-primary: #f4a125;
+  --theme-bg-dark: #1a1612;
+  --theme-bg-base: #1e1b17;
+  --theme-bg-light: #f8f7f5;
+  --theme-border: #3f362b;
+  --theme-surface: #14110e;
+  --theme-accent-glow: rgba(244, 161, 37, 0.15);
+  --theme-scrollbar: #3f362b;
+  --theme-marker: #f4a125;
+}
+
+/* Ocean (cool deep blue) */
+[data-theme="ocean"] {
+  --theme-primary: #38bdf8;
+  --theme-bg-dark: #0c1524;
+  --theme-bg-base: #111b2e;
+  --theme-bg-light: #f0f4f8;
+  --theme-border: #1e3a5f;
+  --theme-surface: #080f1c;
+  --theme-accent-glow: rgba(56, 189, 248, 0.15);
+  --theme-scrollbar: #1e3a5f;
+  --theme-marker: #38bdf8;
+}
+
+/* Sakura (soft cherry-blossom pink) */
+[data-theme="sakura"] {
+  --theme-primary: #f472b6;
+  --theme-bg-dark: #1c1018;
+  --theme-bg-base: #22141c;
+  --theme-bg-light: #fdf2f8;
+  --theme-border: #4a2040;
+  --theme-surface: #150c12;
+  --theme-accent-glow: rgba(244, 114, 182, 0.15);
+  --theme-scrollbar: #4a2040;
+  --theme-marker: #f472b6;
+}
+
+/* Emerald (deep forest green) */
+[data-theme="emerald"] {
+  --theme-primary: #34d399;
+  --theme-bg-dark: #0c1a14;
+  --theme-bg-base: #111f19;
+  --theme-bg-light: #ecfdf5;
+  --theme-border: #1a3d2e;
+  --theme-surface: #081410;
+  --theme-accent-glow: rgba(52, 211, 153, 0.15);
+  --theme-scrollbar: #1a3d2e;
+  --theme-marker: #34d399;
 }
 
 @layer utilities {
@@ -25,7 +80,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    border: 2px solid #3f362b;
+    border: 2px solid var(--theme-border);
     outline: none;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
@@ -76,7 +131,7 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #3f362b;
+    background-color: var(--theme-scrollbar);
     border-radius: 4px;
   }
 
@@ -149,7 +204,7 @@ body {
 }
 
 .tiptap ul>li::marker {
-  color: #f4a125;
+  color: var(--theme-marker);
 }
 
 .tiptap strong {

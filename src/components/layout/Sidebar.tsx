@@ -62,19 +62,7 @@ const Sidebar: React.FC = () => {
 
     return (
         <div className="w-16 bg-[#14110e] border-[#3f362b] flex flex-col items-center py-3 relative z-20 overflow-y-auto overflow-x-hidden border-x">
-            {/* Toggle Note Panel Button */}
-            <button
-                className={`absolute ${edgePosition === 'left' ? '-right-3' : '-left-3'} top-1/2 -translate-y-1/2 w-6 h-12 bg-[#14110e] border border-[#3f362b] rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg no-drag-region`}
-                title="Toggle Notes Section"
-                onClick={toggleNotePanel}
-            >
-                <span className="material-symbols-outlined text-[18px]">
-                    {edgePosition === 'left'
-                        ? (isNotePanelOpen ? 'chevron_left' : 'chevron_right')
-                        : (isNotePanelOpen ? 'chevron_right' : 'chevron_left')
-                    }
-                </span>
-            </button>
+
 
             {/* Drag Handle - double click resets note panel size */}
             <div className="flex flex-col items-center gap-3 mb-3 drag-region w-full" onDoubleClick={() => { setNotePanelWidth(400); setNotePanelHeight(600); }}>
@@ -98,6 +86,22 @@ const Sidebar: React.FC = () => {
 
             {/* Clipboard Slots Section */}
             <ClipboardSlots />
+
+            {/* Toggle Note Panel Button - Repositioned Anchor */}
+            <div className="relative w-full h-0 no-drag-region">
+                <button
+                    className={`absolute ${edgePosition === 'left' ? '-right-3' : '-left-3'} top-0 -translate-y-1/2 w-6 h-12 bg-[#14110e] border border-[#3f362b] rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg`}
+                    title="Toggle Notes Section"
+                    onClick={toggleNotePanel}
+                >
+                    <span className="material-symbols-outlined text-[18px]">
+                        {edgePosition === 'left'
+                            ? (isNotePanelOpen ? 'chevron_left' : 'chevron_right')
+                            : (isNotePanelOpen ? 'chevron_right' : 'chevron_left')
+                        }
+                    </span>
+                </button>
+            </div>
 
             {/* Action Buttons */}
             <div className="w-8 h-px bg-[#3f362b] my-3"></div>

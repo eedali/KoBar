@@ -9,27 +9,17 @@ const FloatingEye: React.FC = () => {
     const defaultX = miniModePosition?.x ?? (edgePosition === 'left' ? (window.innerWidth / 2) - 100 : (window.innerWidth / 2) + 100);
     const defaultY = miniModePosition?.y ?? (window.innerHeight / 2);
 
-    const [pos, setPos] = useState({ x: defaultX, y: defaultY });
+    const [pos] = useState({ x: defaultX, y: defaultY });
     const [isDragging, setIsDragging] = useState(false);
-    const dragInitRef = useRef({ x: 0, y: 0, startX: 0, startY: 0, dragged: false });
+    const dragInitRef = useRef({ dragged: false });
 
-    // Handle initial mount position clamping
-    useEffect(() => {
-        setPos(prev => ({
-            x: Math.max(24, Math.min(window.innerWidth - 24, prev.x)),
-            y: Math.max(24, Math.min(window.innerHeight - 24, prev.y))
-        }));
-    }, []);
+    // Removed local boundary clamping so it can live anywhere in the unbound OS window
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (e.button !== 0) return; // Only left click
         setIsDragging(true);
         setIsResizingGlobal(true); // Prevent transparent click-through issues globally
         dragInitRef.current = {
-            startX: e.clientX,
-            startY: e.clientY,
-            x: pos.x,
-            y: pos.y,
             dragged: false,
         };
     };
@@ -37,22 +27,18 @@ const FloatingEye: React.FC = () => {
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isDragging) return;
-            const dx = e.clientX - dragInitRef.current.startX;
-            const dy = e.clientY - dragInitRef.current.startY;
+
+            const dx = e.movementX;
+            const dy = e.movementY;
 
             // If moved more than 3px, consider it a drag so we don't trigger click
-            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
                 dragInitRef.current.dragged = true;
             }
 
-            const rawX = dragInitRef.current.x + dx;
-            const rawY = dragInitRef.current.y + dy;
-
-            // Clamp to screen bounds to prevent getting lost
-            setPos({
-                x: Math.max(24, Math.min(window.innerWidth - 24, rawX)),
-                y: Math.max(24, Math.min(window.innerHeight - 24, rawY)),
-            });
+            if (window.api?.moveWindow && (dx !== 0 || dy !== 0)) {
+                window.api.moveWindow(dx, dy);
+            }
         };
 
         const handleMouseUp = () => {

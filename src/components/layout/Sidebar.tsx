@@ -5,8 +5,8 @@ import { useAppStore } from '../../store/useAppStore';
 const Sidebar: React.FC = () => {
     const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode } = useAppStore();
 
-    const handleHide = () => {
-        setMiniMode(true);
+    const handleHide = (e: React.MouseEvent) => {
+        setMiniMode(true, { x: e.clientX, y: e.clientY });
     };
 
     return (

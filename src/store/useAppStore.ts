@@ -22,7 +22,8 @@ interface AppState {
     setNotePanelHeight: (height: number | ((prev: number) => number)) => void;
     // Mini Mode
     isMiniMode: boolean;
-    setMiniMode: (isMini: boolean) => void;
+    miniModePosition: { x: number, y: number } | null;
+    setMiniMode: (isMini: boolean, pos?: { x: number, y: number }) => void;
     // Note management
     notes: Note[];
     activeNoteId: number;
@@ -84,7 +85,8 @@ export const useAppStore = create<AppState>()(
             })),
             // Mini Mode
             isMiniMode: false,
-            setMiniMode: (isMini) => set({ isMiniMode: isMini }),
+            miniModePosition: null,
+            setMiniMode: (isMini, pos) => set({ isMiniMode: isMini, miniModePosition: pos || null }),
             // Note management
             notes: defaultNotes,
             activeNoteId: 1,

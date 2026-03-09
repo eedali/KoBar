@@ -3,11 +3,11 @@ import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
 
 const FloatingEye: React.FC = () => {
-    const { setMiniMode, edgePosition } = useAppStore();
+    const { setMiniMode, edgePosition, miniModePosition } = useAppStore();
 
-    // Spawn exactly near the center of the screen where the Sidebar was!
-    const defaultX = edgePosition === 'left' ? (window.innerWidth / 2) - 100 : (window.innerWidth / 2) + 100;
-    const defaultY = window.innerHeight / 2;
+    // Spawn exactly where the cursor is! Or default to center if missing.
+    const defaultX = miniModePosition?.x ?? (edgePosition === 'left' ? (window.innerWidth / 2) - 100 : (window.innerWidth / 2) + 100);
+    const defaultY = miniModePosition?.y ?? (window.innerHeight / 2);
 
     const [pos, setPos] = useState({ x: defaultX, y: defaultY });
     const [isDragging, setIsDragging] = useState(false);

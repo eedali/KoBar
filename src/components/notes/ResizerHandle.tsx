@@ -55,7 +55,7 @@ const ResizerHandle: React.FC<ResizerHandleProps> = ({ direction, onResizeTemp }
                 newHeight = startHeight + deltaY;
             }
 
-            const clampedWidth = Math.min(Math.max(newWidth, 250), window.screen.availWidth - 120);
+            const clampedWidth = Math.max(newWidth, 250); // No max width limit!
             const clampedHeight = Math.min(Math.max(newHeight, 200), window.screen.availHeight - 100);
 
             widthRef.current = clampedWidth;

@@ -8,7 +8,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 
 const NotePanel: React.FC = () => {
     const {
-        isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelWidth, setNotePanelHeight,
+        isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight,
         notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
     } = useAppStore();
 
@@ -24,9 +24,7 @@ const NotePanel: React.FC = () => {
 
     // Startup sanity check
     useEffect(() => {
-        const safeMaxW = window.screen.availWidth - 120;
         const safeMaxH = window.screen.availHeight - 100;
-        if (notePanelWidth > safeMaxW) setNotePanelWidth(400);
         if (notePanelHeight > safeMaxH) setNotePanelHeight(600);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -54,16 +54,10 @@ const ClipboardSlots: React.FC = () => {
         return () => window.api?.stopClipboardListener();
     }, [isCopyModeActive]);
 
-    // Listen for Ctrl+V globally to trigger sequential paste inside the app
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (isPasteModeActive && e.ctrlKey && e.key === 'v') {
-                pasteNextItem();
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isPasteModeActive, pasteNextItem]);
+    // The global OS paste trigger already handles the Ctrl+V shortcut across the entire system.
+    // If we kept the local 'keydown' listener, pasting inside KoBar itself would trigger twice—
+    // once by the OS, and once by the local listener—skipping a slot.
+
 
     const hasPasteableItems = slots.some(s => s.state === 'filled' || s.state === 'selected');
 

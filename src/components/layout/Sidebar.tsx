@@ -139,9 +139,11 @@ const Sidebar: React.FC = () => {
                             }}
                         >
                             {app.icon ? (
-                                <img src={app.icon} className="w-6 h-6 object-contain" alt={app.name} draggable={false} />
+                                <img src={app.icon} className="w-full h-full object-contain p-1.5 drop-shadow-md" alt={app.name} draggable={false} />
                             ) : (
-                                <span className="text-xs text-slate-300 font-medium">{app.name.substring(0, 2).toUpperCase()}</span>
+                                <div className="w-full h-full flex items-center justify-center bg-[#2a241c] text-primary font-bold text-sm shadow-inner overflow-hidden">
+                                    {app.name.substring(0, 2).toUpperCase()}
+                                </div>
                             )}
                         </button>
 

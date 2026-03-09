@@ -1,6 +1,8 @@
 import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut, shell } from 'electron';
 import * as path from 'path';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, exec, ChildProcess } from 'child_process';
+// @ts-expect-error icon-extractor does not have types
+import iconExtractor from 'icon-extractor';
 
 app.disableHardwareAcceleration();
 
@@ -299,13 +301,43 @@ ipcMain.on('move-window', (event, { dx, dy }) => {
 });
 
 ipcMain.handle('get-file-icon', async (event, filePath) => {
-    try {
-        const icon = await app.getFileIcon(filePath, { size: 'normal' });
-        return icon.toDataURL();
-    } catch (e) {
-        return null;
-    }
+    return new Promise((resolve) => {
+        // Step A: Resolve target path for .lnk files
+        if (filePath.toLowerCase().endsWith('.lnk')) {
+            const psScript = `
+            $shell = New-Object -ComObject WScript.Shell
+            $link = $shell.CreateShortcut("${filePath}")
+            $link.TargetPath
+            `;
+            exec(`powershell -NoProfile -Command "${psScript}"`, (error, stdout) => {
+                if (error || !stdout.trim()) {
+                    resolve(null); // Fallback if link resolution fails
+                    return;
+                }
+                const targetPath = stdout.trim();
+                // Step B: Get the icon for the target EXE
+                extractIcon(targetPath, resolve);
+            });
+        } else {
+            // It's a direct .exe or other file, get its icon directly
+            extractIcon(filePath, resolve);
+        }
+    });
 });
+
+// Helper function to extract and convert the icon to base64
+function extractIcon(filePath: string, resolve: (val: string | null) => void) {
+    const contextId = Math.random().toString(36).substring(7);
+    iconExtractor.getIcon(contextId, filePath);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onIconResponse = (data: any) => {
+        if (data.Context === contextId) {
+            resolve(`data:image/png;base64,${data.Base64ImageData}`);
+            iconExtractor.emitter.removeListener('icon', onIconResponse); // Cleanup
+        }
+    };
+    iconExtractor.emitter.on('icon', onIconResponse);
+}
 
 ipcMain.on('launch-file', async (event, filePath) => {
     if (!filePath || typeof filePath !== 'string') {

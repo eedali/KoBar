@@ -111,8 +111,7 @@ function handleWindowMove() {
 // --- Clipboard Polling ---
 function startClipboardPolling() {
     if (clipboardPollingInterval)
-        return; // Already polling
-    // Snapshot current clipboard so we don't immediately capture stale content
+        return;
     lastClipboardText = electron_1.clipboard.readText() || '';
     const img = electron_1.clipboard.readImage();
     lastClipboardImageDataUrl = img.isEmpty() ? '' : img.toDataURL();
@@ -123,7 +122,7 @@ function startClipboardPolling() {
         const currentText = electron_1.clipboard.readText() || '';
         if (currentText && currentText !== lastClipboardText) {
             lastClipboardText = currentText;
-            lastClipboardImageDataUrl = ''; // Reset image tracking
+            lastClipboardImageDataUrl = '';
             mainWindow.webContents.send('clipboard-updated', {
                 type: 'text',
                 content: currentText,
@@ -136,7 +135,7 @@ function startClipboardPolling() {
             const currentDataUrl = currentImage.toDataURL();
             if (currentDataUrl !== lastClipboardImageDataUrl) {
                 lastClipboardImageDataUrl = currentDataUrl;
-                lastClipboardText = ''; // Reset text tracking
+                lastClipboardText = '';
                 mainWindow.webContents.send('clipboard-updated', {
                     type: 'image',
                     content: currentDataUrl,
@@ -227,12 +226,12 @@ electron_1.ipcMain.on('stop-clipboard-listener', () => {
 electron_1.ipcMain.on('write-to-clipboard', (_event, data) => {
     if (data.type === 'text') {
         electron_1.clipboard.writeText(data.content);
-        lastClipboardText = data.content; // Prevent recursive copy!
+        lastClipboardText = data.content;
     }
     else if (data.type === 'image') {
         const img = electron_1.nativeImage.createFromDataURL(data.content);
         electron_1.clipboard.writeImage(img);
-        lastClipboardImageDataUrl = data.content; // Prevent recursive copy!
+        lastClipboardImageDataUrl = data.content;
     }
 });
 electron_1.ipcMain.on('set-ignore-mouse-events', (event, ignore) => {
@@ -284,7 +283,7 @@ if (-not $isDown) { [K]::keybd_event(0x11, 0, 2, 0) }
                     mainWindow.webContents.send('request-next-paste');
             });
         }
-    }, 100);
+    }, 200);
 });
 electron_1.ipcMain.on('trigger-screenshot', () => {
     if (psProcess && psProcess.stdin) {

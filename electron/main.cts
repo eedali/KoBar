@@ -9,8 +9,8 @@ app.disableHardwareAcceleration();
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let clipboardPollingInterval: ReturnType<typeof setInterval> | null = null;
-let lastClipboardText: string = '';
-let lastClipboardImageDataUrl: string = '';
+let lastClipboardText = '';
+let lastClipboardImageDataUrl = '';
 let currentEdge: string = 'left';
 let psProcess: ChildProcess | null = null;
 let isGlobalPasteModeActive = false;
@@ -84,9 +84,8 @@ function handleWindowMove() {
 
 // --- Clipboard Polling ---
 function startClipboardPolling() {
-    if (clipboardPollingInterval) return; // Already polling
+    if (clipboardPollingInterval) return;
 
-    // Snapshot current clipboard so we don't immediately capture stale content
     lastClipboardText = clipboard.readText() || '';
     const img = clipboard.readImage();
     lastClipboardImageDataUrl = img.isEmpty() ? '' : img.toDataURL();
@@ -98,7 +97,7 @@ function startClipboardPolling() {
         const currentText = clipboard.readText() || '';
         if (currentText && currentText !== lastClipboardText) {
             lastClipboardText = currentText;
-            lastClipboardImageDataUrl = ''; // Reset image tracking
+            lastClipboardImageDataUrl = '';
             mainWindow.webContents.send('clipboard-updated', {
                 type: 'text',
                 content: currentText,
@@ -112,7 +111,7 @@ function startClipboardPolling() {
             const currentDataUrl = currentImage.toDataURL();
             if (currentDataUrl !== lastClipboardImageDataUrl) {
                 lastClipboardImageDataUrl = currentDataUrl;
-                lastClipboardText = ''; // Reset text tracking
+                lastClipboardText = '';
                 mainWindow.webContents.send('clipboard-updated', {
                     type: 'image',
                     content: currentDataUrl,
@@ -220,11 +219,11 @@ ipcMain.on('stop-clipboard-listener', () => {
 ipcMain.on('write-to-clipboard', (_event, data: { type: string; content: string }) => {
     if (data.type === 'text') {
         clipboard.writeText(data.content);
-        lastClipboardText = data.content; // Prevent recursive copy!
+        lastClipboardText = data.content;
     } else if (data.type === 'image') {
         const img = nativeImage.createFromDataURL(data.content);
         clipboard.writeImage(img);
-        lastClipboardImageDataUrl = data.content; // Prevent recursive copy!
+        lastClipboardImageDataUrl = data.content;
     }
 });
 
@@ -258,7 +257,6 @@ ipcMain.on('execute-global-paste', (event, data) => {
         clipboard.writeImage(img);
         lastClipboardImageDataUrl = data.content;
     }
-
     globalShortcut.unregister('CommandOrControl+V');
 
     const psPaste = `
@@ -278,7 +276,7 @@ if (-not $isDown) { [K]::keybd_event(0x11, 0, 2, 0) }
                 if (mainWindow) mainWindow.webContents.send('request-next-paste');
             });
         }
-    }, 100);
+    }, 200);
 });
 
 ipcMain.on('trigger-screenshot', () => {

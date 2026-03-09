@@ -162,10 +162,10 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
 
         const item = { ...updated[selectedIndex] };
 
-        // Write to OS clipboard
-        if (item.type && item.content && window.api?.writeToClipboard) {
-            window.api.writeToClipboard({ type: item.type, content: item.content });
-        }
+        // NOTE: We do NOT write to OS clipboard here!
+        // The caller (ClipboardSlots.tsx) already handles clipboard writing
+        // via executeGlobalPaste. Writing here too causes a race condition
+        // where the second clipboard.clear() wipes data before Ctrl+V fires.
 
         // Clear the pasted slot → back to empty
         updated[selectedIndex] = createEmptySlot();

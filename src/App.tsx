@@ -54,8 +54,7 @@ const App: React.FC = () => {
       const isTransparent =
         target.tagName === 'HTML' ||
         target.tagName === 'BODY' ||
-        target.id === 'root' ||
-        target.classList.contains('bg-transparent');
+        target.id === 'root';
       window.api?.setIgnoreMouseEvents(isTransparent);
     };
     window.addEventListener('mousemove', handleMouseMove);

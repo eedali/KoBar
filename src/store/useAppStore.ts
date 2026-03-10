@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { translations } from '../i18n/translations';
 import type { LanguageCode, TranslationKeys } from '../i18n/translations';
 
-export type ThemeName = 'ember' | 'ocean' | 'sakura' | 'emerald';
+export type ThemeName = 'ember' | 'ocean' | 'sakura' | 'emerald' | 'midnight' | 'amethyst' | 'crimson' | 'nord' | 'coffee' | 'lavender';
 
 export interface Note {
     id: number;

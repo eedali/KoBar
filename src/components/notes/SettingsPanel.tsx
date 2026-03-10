@@ -57,12 +57,18 @@ const SettingsPanel: React.FC = () => {
                         {/* Theme Selection */}
                         <div className="flex flex-col gap-3">
                             <label className="text-sm text-slate-400 font-medium">{t('themeColor')}</label>
-                            <div className="flex gap-4 mt-2">
+                            <div className="grid grid-cols-5 gap-4 mt-2">
                                 {[
                                     { id: 'ember', name: 'Ember', color: '#f4a125' },
                                     { id: 'ocean', name: 'Ocean', color: '#38bdf8' },
                                     { id: 'sakura', name: 'Sakura', color: '#f472b6' },
-                                    { id: 'emerald', name: 'Emerald', color: '#34d399' }
+                                    { id: 'emerald', name: 'Emerald', color: '#34d399' },
+                                    { id: 'midnight', name: 'Midnight', color: '#6366f1' },
+                                    { id: 'amethyst', name: 'Amethyst', color: '#a855f7' },
+                                    { id: 'crimson', name: 'Crimson', color: '#f43f5e' },
+                                    { id: 'nord', name: 'Nord', color: '#81a1c1' },
+                                    { id: 'coffee', name: 'Coffee', color: '#d97706' },
+                                    { id: 'lavender', name: 'Lavender', color: '#a78bfa' }
                                 ].map((themeItem) => (
                                     <button
                                         key={themeItem.id}

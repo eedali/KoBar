@@ -31,6 +31,7 @@ const NoteEditor: React.FC = () => {
         editorProps: {
             attributes: {
                 class: 'flex-1 text-slate-300 text-lg leading-relaxed outline-none no-drag-region overflow-y-auto max-w-none',
+                spellcheck: 'false'
             },
             clipboardTextSerializer: (slice) => {
                 const serializeNode = (node: any, listType: 'bullet' | 'ordered' | null = null, index: number = 0): string => {

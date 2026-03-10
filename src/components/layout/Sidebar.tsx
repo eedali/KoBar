@@ -4,7 +4,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
 
 const Sidebar: React.FC = () => {
-    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp, t } = useAppStore();
+    const { toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp, t } = useAppStore();
     const [isDragging, setIsDragging] = React.useState(false);
     const dragRef = React.useRef({ startX: 0, startY: 0, dragged: false });
 
@@ -73,15 +73,6 @@ const Sidebar: React.FC = () => {
     return (
         <div className="w-16 flex flex-col items-center py-3 relative z-20 overflow-y-auto overflow-x-hidden border-x pointer-events-auto" style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}>
 
-
-            {/* Drag Handle - double click resets note panel size */}
-            <div className="flex flex-col items-center gap-3 mb-3 drag-region w-full" onDoubleClick={() => { setNotePanelWidth(400); setNotePanelHeight(600); }}>
-                <div className="p-1.5 text-slate-500 hover:text-slate-300 transition-colors cursor-grab active:cursor-grabbing flex justify-center w-full">
-                    <span className="material-symbols-outlined text-[20px]">drag_indicator</span>
-                </div>
-            </div>
-
-            <div className="w-8 h-px mb-3" style={{ backgroundColor: 'var(--theme-border)' }}></div>
 
             <div className="flex-grow drag-region w-full"></div>
 

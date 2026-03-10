@@ -19,7 +19,10 @@ const NoteEditor: React.FC = () => {
                 orderedList: { keepMarks: true },
             }),
             Underline,
-            Image.configure({ inline: false }),
+            Image.configure({ 
+                inline: false,
+                allowBase64: true 
+            }),
             Placeholder.configure({
                 placeholder: 'Start writing your note…',
             }),

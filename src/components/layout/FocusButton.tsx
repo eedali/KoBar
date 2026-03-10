@@ -10,6 +10,7 @@ const FocusButton: React.FC = () => {
     
     // Preview logic
     const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+    const [melodyDropdownOpen, setMelodyDropdownOpen] = useState(false);
     const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
 
     // Alarm logic
@@ -244,20 +245,41 @@ const FocusButton: React.FC = () => {
                     {/* Melody Selection */}
                     <div className="mb-4">
                         <div className="flex items-center gap-2">
-                            <select
-                                value={localMelody}
-                                onChange={(e) => {
-                                    setLocalMelody(e.target.value);
-                                    stopPreview();
-                                }}
-                                disabled={isFocusActive}
-                                className="flex-1 bg-black/20 border rounded px-2 py-1.5 text-slate-200 focus:outline-none focus:border-primary disabled:opacity-50 cursor-pointer"
-                                style={{ borderColor: 'var(--theme-border)' }}
-                            >
-                                {MELODIES.map((m) => (
-                                    <option key={m} value={m} className="bg-slate-800 text-white">{m}</option>
-                                ))}
-                            </select>
+                            <div className="flex-1 relative">
+                                <button
+                                    type="button"
+                                    onClick={() => !isFocusActive && setMelodyDropdownOpen(!melodyDropdownOpen)}
+                                    disabled={isFocusActive}
+                                    className="w-full bg-black/20 border rounded px-2 py-1.5 text-slate-200 text-left flex items-center justify-between disabled:opacity-50 cursor-pointer hover:border-primary/50 transition-colors"
+                                    style={{ borderColor: 'var(--theme-border)' }}
+                                >
+                                    <span>{localMelody}</span>
+                                    <span className="material-symbols-outlined text-[16px] text-slate-400">
+                                        {melodyDropdownOpen ? 'expand_less' : 'expand_more'}
+                                    </span>
+                                </button>
+                                {melodyDropdownOpen && (
+                                    <div
+                                        className="absolute bottom-full left-0 w-full mb-1 rounded border shadow-xl max-h-48 overflow-y-auto"
+                                        style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)', zIndex: 10000 }}
+                                    >
+                                        {MELODIES.map((m) => (
+                                            <button
+                                                key={m}
+                                                type="button"
+                                                onClick={() => {
+                                                    setLocalMelody(m);
+                                                    setMelodyDropdownOpen(false);
+                                                    stopPreview();
+                                                }}
+                                                className={`w-full text-left px-3 py-1.5 text-sm transition-colors hover:bg-primary/20 ${m === localMelody ? 'text-primary font-semibold bg-primary/10' : 'text-slate-300'}`}
+                                            >
+                                                {m}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                             <button
                                 onClick={togglePreview}
                                 disabled={isFocusActive}

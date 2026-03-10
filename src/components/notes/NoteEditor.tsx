@@ -29,6 +29,9 @@ const NoteEditor: React.FC = () => {
             attributes: {
                 class: 'flex-1 text-slate-300 text-lg leading-relaxed outline-none no-drag-region overflow-y-auto max-w-none',
             },
+            clipboardTextSerializer: (slice) => {
+                return slice.content.textBetween(0, slice.content.size, '\n', '\n');
+            },
         },
         onUpdate: ({ editor: ed }) => {
             if (isUpdatingFromStore.current) return;

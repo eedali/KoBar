@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useClipboardStore } from '../../store/useClipboardStore';
 import type { SlotState } from '../../store/useClipboardStore';
 import { useAppStore } from '../../store/useAppStore';
+import TooltipButton from '../layout/TooltipButton';
 
 function getSlotColorClass(state: SlotState): string {
     switch (state) {
@@ -101,17 +102,17 @@ const ClipboardSlots: React.FC = () => {
     return (
         <div className="flex flex-col items-center gap-2 w-full px-2 no-drag-region">
             {/* Copy Button */}
-            <button
+            <TooltipButton
                 onClick={toggleCopyMode}
                 onDoubleClick={resetAll}
                 className={`p-1.5 transition-colors cursor-pointer ${isCopyModeActive
                     ? 'text-green-500 hover:text-green-400 bg-green-500/10 hover:bg-green-500/20 rounded-md relative group/tooltip'
                     : 'text-slate-500 hover:text-slate-300'
                     }`}
-                title={isCopyModeActive ? t('stopCopyMode') : t('startCopyMode')}
+                label={t('copy')}
             >
                 <span className="material-symbols-outlined text-[18px]">content_copy</span>
-            </button>
+            </TooltipButton>
 
             {/* Unified Slot Circles */}
             <div className="grid grid-cols-4 gap-2 relative w-[80%] mx-auto justify-items-center">
@@ -137,17 +138,17 @@ const ClipboardSlots: React.FC = () => {
             </div>
 
             {/* Paste Button */}
-            <button
+            <TooltipButton
                 onClick={togglePasteMode}
                 onDoubleClick={resetAll}
                 className={`p-1.5 transition-colors cursor-pointer ${isPasteModeActive
                     ? 'text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 rounded-md'
                     : 'text-slate-500 hover:text-slate-300'
                     }`}
-                title={isPasteModeActive ? t('stopPasteMode') : t('startPasteMode')}
+                label={t('paste')}
             >
                 <span className="material-symbols-outlined text-[18px]">content_paste</span>
-            </button>
+            </TooltipButton>
         </div>
     );
 };

@@ -5,7 +5,7 @@ import { getLanguageOptions } from '../../i18n/translations';
 
 const SettingsPanel: React.FC = () => {
     const { slotCount, setSlotCount } = useClipboardStore();
-    const { theme, setTheme, language, setLanguage, t } = useAppStore();
+    const { theme, setTheme, language, setLanguage, t, showTooltips, setShowTooltips } = useAppStore();
 
     // Auto-launch state
     const [autoLaunch, setAutoLaunch] = useState(false);
@@ -140,19 +140,38 @@ const SettingsPanel: React.FC = () => {
                         {t('settings')}
                     </h3>
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-slate-400 text-[20px]">power_settings_new</span>
-                            <span className="text-sm text-slate-300">{t('launchAtStartup')}</span>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-slate-400 text-[20px]">power_settings_new</span>
+                                <span className="text-sm text-slate-300">{t('launchAtStartup')}</span>
+                            </div>
+                            <button
+                                onClick={handleAutoLaunchToggle}
+                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region ${autoLaunch ? 'bg-primary' : 'bg-slate-600'}`}
+                            >
+                                <span
+                                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${autoLaunch ? 'translate-x-5' : 'translate-x-0'}`}
+                                />
+                            </button>
                         </div>
-                        <button
-                            onClick={handleAutoLaunchToggle}
-                            className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region ${autoLaunch ? 'bg-primary' : 'bg-slate-600'}`}
-                        >
-                            <span
-                                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${autoLaunch ? 'translate-x-5' : 'translate-x-0'}`}
-                            />
-                        </button>
+
+                        <div className="w-full h-px opacity-50" style={{ backgroundColor: 'var(--theme-border)' }}></div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-slate-400 text-[20px]">info</span>
+                                <span className="text-sm text-slate-300">{showTooltips ? t('hideTooltips') : t('showTooltips')}</span>
+                            </div>
+                            <button
+                                onClick={() => setShowTooltips(!showTooltips)}
+                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region ${showTooltips ? 'bg-primary' : 'bg-slate-600'}`}
+                            >
+                                <span
+                                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${showTooltips ? 'translate-x-5' : 'translate-x-0'}`}
+                                />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

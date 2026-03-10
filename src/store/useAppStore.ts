@@ -60,6 +60,9 @@ interface AppState {
     // Theme
     theme: ThemeName;
     setTheme: (theme: ThemeName) => void;
+    // Settings
+    showTooltips: boolean;
+    setShowTooltips: (val: boolean) => void;
     // Language
     language: LanguageCode;
     setLanguage: (lang: LanguageCode) => void;
@@ -139,6 +142,10 @@ export const useAppStore = create<AppState>()(
                 document.documentElement.setAttribute('data-theme', theme);
                 set({ theme });
             },
+
+            // Settings
+            showTooltips: true,
+            setShowTooltips: (val) => set({ showTooltips: val }),
 
             // Language
             language: 'tr', // Default Turkish

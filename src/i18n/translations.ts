@@ -60,6 +60,10 @@ export const translations = {
         loop: "Loop",
         start: "Start",
         stop: "Stop",
+        copy: "Copy",
+        paste: "Paste",
+        showTooltips: "Show Tooltips",
+        hideTooltips: "Hide Tooltips",
     },
     tr: {
         settings: "Ayarlar",
@@ -95,6 +99,10 @@ export const translations = {
         loop: "Döngü",
         start: "Başlat",
         stop: "Durdur",
+        copy: "Kopyala",
+        paste: "Yapıştır",
+        showTooltips: "İpuçlarını Göster",
+        hideTooltips: "İpuçlarını Gizle",
     },
     de: {
         settings: "Einstellungen",
@@ -130,6 +138,10 @@ export const translations = {
         loop: "Schleife",
         start: "Starten",
         stop: "Stoppen",
+        copy: "Kopieren",
+        paste: "Einfügen",
+        showTooltips: "Tooltips anzeigen",
+        hideTooltips: "Tooltips ausblenden",
     },
     fr: {
         settings: "Paramètres",
@@ -165,6 +177,10 @@ export const translations = {
         loop: "Boucle",
         start: "Démarrer",
         stop: "Arrêter",
+        copy: "Copier",
+        paste: "Coller",
+        showTooltips: "Afficher les infobulles",
+        hideTooltips: "Masquer les infobulles",
     },
     es: {
         settings: "Ajustes",
@@ -200,6 +216,10 @@ export const translations = {
         loop: "Bucle",
         start: "Iniciar",
         stop: "Detener",
+        copy: "Copiar",
+        paste: "Pegar",
+        showTooltips: "Mostrar descripciones",
+        hideTooltips: "Ocultar descripciones",
     },
     ru: {
         settings: "Настройки",
@@ -235,6 +255,10 @@ export const translations = {
         loop: "Повтор",
         start: "Старт",
         stop: "Стоп",
+        copy: "Копировать",
+        paste: "Вставить",
+        showTooltips: "Показывать подсказки",
+        hideTooltips: "Скрывать подсказки",
     },
     ar: {
         settings: "الإعدادات",
@@ -270,6 +294,10 @@ export const translations = {
         loop: "تكرار",
         start: "بدء",
         stop: "إيقاف",
+        copy: "نسخ",
+        paste: "لصق",
+        showTooltips: "إظهار التلميحات",
+        hideTooltips: "إخفاء التلميحات",
     },
     zh: {
         settings: "设置",
@@ -305,6 +333,10 @@ export const translations = {
         loop: "循环",
         start: "开始",
         stop: "停止",
+        copy: "复制",
+        paste: "粘贴",
+        showTooltips: "显示提示",
+        hideTooltips: "隐藏提示",
     },
     ja: {
         settings: "設定",
@@ -340,6 +372,10 @@ export const translations = {
         loop: "ループ",
         start: "開始",
         stop: "停止",
+        copy: "コピー",
+        paste: "貼り付け",
+        showTooltips: "ツールチップを表示",
+        hideTooltips: "ツールチップを非表示",
     },
     hi: {
         settings: "सेटिंग्स",
@@ -375,6 +411,10 @@ export const translations = {
         loop: "लूप",
         start: "शुरू",
         stop: "रुकें",
+        copy: "कॉपी",
+        paste: "पेस्ट",
+        showTooltips: "टूलटिप्स दिखाएं",
+        hideTooltips: "टूलटिप्स छिपाएं",
     }
 } as const;
 

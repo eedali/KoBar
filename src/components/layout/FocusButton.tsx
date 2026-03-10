@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppStore } from '../../store/useAppStore';
+import TooltipButton from './TooltipButton';
 
 const MELODIES = ['Alarm', 'Bells', 'Calming', 'Cosmic', 'Guitar', 'Hiphop', 'Ringtones'];
 
@@ -183,20 +184,20 @@ const FocusButton: React.FC = () => {
         <div className="relative group flex items-center justify-center w-full no-drag-region">
             
             {/* Main Button */}
-            <button
-                ref={buttonRef}
+            <TooltipButton
+                buttonRef={buttonRef}
                 onClick={handleMainButtonClick}
                 className={`p-1.5 transition-colors relative flex items-center justify-center w-10 h-10 rounded-full
                     ${isAlarmRinging ? 'animate-[pulse_1s_ease-in-out_infinite] bg-red-500/30 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]' : 'text-slate-400 hover:text-slate-200'}
                 `}
-                title={t('focusMode')}
+                label={t('focusMode')}
             >
                 {isFocusActive ? (
                     <span className="text-xs font-bold text-primary tracking-wider">{formatTime(focusRemainingTime)}</span>
                 ) : (
                     <span className="material-symbols-outlined text-[20px]">hourglass_empty</span>
                 )}
-            </button>
+            </TooltipButton>
 
             {/* Popup Panel */}
             {isOpen && createPortal(
@@ -216,29 +217,47 @@ const FocusButton: React.FC = () => {
                     <div className="flex gap-4 mb-4">
                         <div className="flex-1">
                             <label className="text-xs text-slate-400 mb-1 block">{t('minutes')}</label>
-                            <input
-                                type="number"
-                                min="0"
-                                max="120"
-                                value={localMin}
-                                onChange={(e) => setLocalMin(parseInt(e.target.value) || 0)}
-                                disabled={isFocusActive}
-                                className="w-full bg-black/20 border rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-primary disabled:opacity-50"
-                                style={{ borderColor: 'var(--theme-border)' }}
-                            />
+                            <div className="flex items-center border rounded overflow-hidden" style={{ borderColor: 'var(--theme-border)' }}>
+                                <button
+                                    type="button"
+                                    disabled={isFocusActive || localMin <= 0}
+                                    onClick={() => setLocalMin(m => Math.max(0, m - 1))}
+                                    className="px-2 py-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <span className="material-symbols-outlined text-[14px]">remove</span>
+                                </button>
+                                <span className="flex-1 text-center text-slate-200 text-sm py-1 tabular-nums">{localMin}</span>
+                                <button
+                                    type="button"
+                                    disabled={isFocusActive || localMin >= 120}
+                                    onClick={() => setLocalMin(m => Math.min(120, m + 1))}
+                                    className="px-2 py-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <span className="material-symbols-outlined text-[14px]">add</span>
+                                </button>
+                            </div>
                         </div>
                         <div className="flex-1">
                             <label className="text-xs text-slate-400 mb-1 block">{t('seconds')}</label>
-                            <input
-                                type="number"
-                                min="0"
-                                max="59"
-                                value={localSec}
-                                onChange={(e) => setLocalSec(parseInt(e.target.value) || 0)}
-                                disabled={isFocusActive}
-                                className="w-full bg-black/20 border rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-primary disabled:opacity-50"
-                                style={{ borderColor: 'var(--theme-border)' }}
-                            />
+                            <div className="flex items-center border rounded overflow-hidden" style={{ borderColor: 'var(--theme-border)' }}>
+                                <button
+                                    type="button"
+                                    disabled={isFocusActive || localSec <= 0}
+                                    onClick={() => setLocalSec(s => Math.max(0, s - 1))}
+                                    className="px-2 py-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <span className="material-symbols-outlined text-[14px]">remove</span>
+                                </button>
+                                <span className="flex-1 text-center text-slate-200 text-sm py-1 tabular-nums">{localSec}</span>
+                                <button
+                                    type="button"
+                                    disabled={isFocusActive || localSec >= 59}
+                                    onClick={() => setLocalSec(s => Math.min(59, s + 1))}
+                                    className="px-2 py-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <span className="material-symbols-outlined text-[14px]">add</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 

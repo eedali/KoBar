@@ -1,17 +1,29 @@
 export type LanguageCode = 'de' | 'ar' | 'zh' | 'fr' | 'hi' | 'en' | 'es' | 'ja' | 'ru' | 'tr';
 
-export const languageOptions: { code: LanguageCode; name: string }[] = [
-    { code: 'de', name: 'Almanca' },
-    { code: 'ar', name: 'Arapça' },
-    { code: 'zh', name: 'Çince' },
-    { code: 'fr', name: 'Fransızca' },
-    { code: 'hi', name: 'Hintçe' },
-    { code: 'en', name: 'İngilizce' },
-    { code: 'es', name: 'İspanyolca' },
-    { code: 'ja', name: 'Japonca' },
-    { code: 'ru', name: 'Rusça' },
-    { code: 'tr', name: 'Türkçe' },
-];
+// Each language's name, translated into every supported language (alphabetical by code)
+const languageNames: Record<LanguageCode, Record<LanguageCode, string>> = {
+    de: { de: 'Deutsch', ar: 'الألمانية', zh: '德语', fr: 'Allemand', hi: 'जर्मन', en: 'German', es: 'Alemán', ja: 'ドイツ語', ru: 'Немецкий', tr: 'Almanca' },
+    ar: { de: 'Arabisch', ar: 'العربية', zh: '阿拉伯语', fr: 'Arabe', hi: 'अरबी', en: 'Arabic', es: 'Árabe', ja: 'アラビア語', ru: 'Арабский', tr: 'Arapça' },
+    zh: { de: 'Chinesisch', ar: 'الصينية', zh: '中文', fr: 'Chinois', hi: 'चीनी', en: 'Chinese', es: 'Chino', ja: '中国語', ru: 'Китайский', tr: 'Çince' },
+    fr: { de: 'Französisch', ar: 'الفرنسية', zh: '法语', fr: 'Français', hi: 'फ़्रेंच', en: 'French', es: 'Francés', ja: 'フランス語', ru: 'Французский', tr: 'Fransızca' },
+    hi: { de: 'Hindi', ar: 'الهندية', zh: '印地语', fr: 'Hindi', hi: 'हिन्दी', en: 'Hindi', es: 'Hindi', ja: 'ヒンディー語', ru: 'Хинди', tr: 'Hintçe' },
+    en: { de: 'Englisch', ar: 'الإنجليزية', zh: '英语', fr: 'Anglais', hi: 'अंग्रेज़ी', en: 'English', es: 'Inglés', ja: '英語', ru: 'Английский', tr: 'İngilizce' },
+    es: { de: 'Spanisch', ar: 'الإسبانية', zh: '西班牙语', fr: 'Espagnol', hi: 'स्पैनिश', en: 'Spanish', es: 'Español', ja: 'スペイン語', ru: 'Испанский', tr: 'İspanyolca' },
+    ja: { de: 'Japanisch', ar: 'اليابانية', zh: '日语', fr: 'Japonais', hi: 'जापानी', en: 'Japanese', es: 'Japonés', ja: '日本語', ru: 'Японский', tr: 'Japonca' },
+    ru: { de: 'Russisch', ar: 'الروسية', zh: '俄语', fr: 'Russe', hi: 'रूसी', en: 'Russian', es: 'Ruso', ja: 'ロシア語', ru: 'Русский', tr: 'Rusça' },
+    tr: { de: 'Türkisch', ar: 'التركية', zh: '土耳其语', fr: 'Turc', hi: 'तुर्की', en: 'Turkish', es: 'Turco', ja: 'トルコ語', ru: 'Турецкий', tr: 'Türkçe' },
+};
+
+// Alphabetical order of language codes for display
+const languageOrder: LanguageCode[] = ['de', 'ar', 'zh', 'fr', 'hi', 'en', 'es', 'ja', 'ru', 'tr'];
+
+/** Returns language options with display names localized to the given active language */
+export function getLanguageOptions(activeLang: LanguageCode): { code: LanguageCode; name: string }[] {
+    return languageOrder.map(code => ({
+        code,
+        name: languageNames[code][activeLang],
+    }));
+}
 
 export const translations = {
     en: {

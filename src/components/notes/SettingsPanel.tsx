@@ -1,6 +1,6 @@
 import { useClipboardStore } from '../../store/useClipboardStore';
 import { useAppStore } from '../../store/useAppStore';
-import { languageOptions } from '../../i18n/translations';
+import { getLanguageOptions } from '../../i18n/translations';
 
 const SettingsPanel: React.FC = () => {
     const { slotCount, setSlotCount } = useClipboardStore();
@@ -12,6 +12,8 @@ const SettingsPanel: React.FC = () => {
             setSlotCount(Math.min(20, Math.max(4, val)));
         }
     };
+
+    const localizedLanguages = getLanguageOptions(language);
 
     return (
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
@@ -30,13 +32,13 @@ const SettingsPanel: React.FC = () => {
                         <div className="flex flex-col gap-3">
                             <label className="text-sm text-slate-400 font-medium">{t('language')}</label>
                             <div className="grid grid-cols-2 gap-2 mt-1">
-                                {languageOptions.map((lang) => (
+                                {localizedLanguages.map((lang) => (
                                     <button
                                         key={lang.code}
                                         onClick={() => setLanguage(lang.code)}
                                         className={`px-3 py-2 text-left text-sm rounded-lg transition-colors border ${language === lang.code
-                                                ? 'bg-primary/20 border-primary text-primary font-medium'
-                                                : 'border-transparent text-slate-300 hover:bg-[#2a241c] hover:text-slate-200'
+                                            ? 'bg-primary/20 border-primary text-primary font-medium'
+                                            : 'border-transparent text-slate-300 hover:bg-[#2a241c] hover:text-slate-200'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">

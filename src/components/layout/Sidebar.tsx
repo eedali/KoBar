@@ -4,7 +4,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
 
 const Sidebar: React.FC = () => {
-    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp } = useAppStore();
+    const { toggleNotePanel, setNotePanelWidth, setNotePanelHeight, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp, t } = useAppStore();
     const [isDragging, setIsDragging] = React.useState(false);
     const dragRef = React.useRef({ startX: 0, startY: 0, dragged: false });
 
@@ -90,7 +90,7 @@ const Sidebar: React.FC = () => {
                 <div
                     className="w-10 h-10 rounded-xl border-2 border-dashed flex items-center justify-center text-slate-500 hover:text-primary transition-colors cursor-pointer"
                     style={{ borderColor: 'var(--theme-border)' }}
-                    title="Drag and drop shortcuts here"
+                    title={t('dragDropApp')}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={async (e) => {
                         e.preventDefault();
@@ -177,7 +177,7 @@ const Sidebar: React.FC = () => {
                 <button
                     className={`absolute ${edgePosition === 'left' ? '-right-3' : '-left-3'} top-0 -translate-y-1/2 w-6 h-12 border rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg`}
                     style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}
-                    title="Toggle Notes Section"
+                    title={t('toggleNotes')}
                     onClick={toggleNotePanel}
                 >
                     <span className="material-symbols-outlined text-[18px]">
@@ -195,7 +195,7 @@ const Sidebar: React.FC = () => {
             <div className="flex flex-col items-center gap-3 mb-4 mt-1 no-drag-region">
                 <button
                     className="p-1.5 text-slate-400 hover:text-slate-200 transition-colors"
-                    title="Screenshot"
+                    title={t('screenshot')}
                     onClick={() => window.api?.triggerScreenshot()}
                 >
                     <span className="material-symbols-outlined text-[20px]">photo_camera</span>
@@ -212,7 +212,7 @@ const Sidebar: React.FC = () => {
                     <span className="material-symbols-outlined text-[20px]">visibility</span>
                 </button>
                 <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 border border-primary/50 rounded-lg py-1.5 px-3 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50 pointer-events-auto hidden md:block mt-0 mb-0" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
-                    <span className="text-xs font-semibold text-primary">Mini Mode</span>
+                    <span className="text-xs font-semibold text-primary">{t('miniMode')}</span>
                     <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-0 h-0 border-t-[4px] border-t-transparent border-l-[6px] border-l-primary/50 border-b-[4px] border-b-transparent"></div>
                 </div>
             </div>

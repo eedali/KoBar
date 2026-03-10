@@ -9,7 +9,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 const NotePanel: React.FC = () => {
     const {
         isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight, setNotePanelWidth,
-        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji,
+        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t,
     } = useAppStore();
 
     const activeNote = notes.find(n => n.id === activeNoteId);
@@ -191,7 +191,7 @@ const NotePanel: React.FC = () => {
                             <span
                                 onClick={(e) => toggleEmojiPicker(e, note.id)}
                                 className="cursor-pointer hover:scale-110 transition-transform"
-                                title="Click to change icon"
+                                title={t('changeIcon')}
                             >
                                 {note.emoji ? (
                                     <span className="text-[18px]">{note.emoji}</span>
@@ -204,7 +204,7 @@ const NotePanel: React.FC = () => {
                                 <span
                                     onClick={(e) => handleDelete(e, note.id)}
                                     className="material-symbols-outlined text-[16px] ml-2 text-slate-500 hover:text-slate-200 hover:bg-slate-800 rounded-sm transition-all p-0.5"
-                                    title="Close tab"
+                                    title={t('closeTab')}
                                 >
                                     close
                                 </span>
@@ -214,7 +214,7 @@ const NotePanel: React.FC = () => {
                     <button
                         onClick={() => addNote()}
                         className="px-3 py-2.5 text-slate-400 hover:text-slate-200 text-sm font-medium rounded-t-lg transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-                        title="Add new note"
+                        title={t('addNewNote')}
                     >
                         <span className="material-symbols-outlined text-[18px]">add</span>
                     </button>
@@ -249,20 +249,20 @@ const NotePanel: React.FC = () => {
                             borderColor: 'var(--theme-border)',
                         }}
                     >
-                        <span className="text-slate-200 text-sm mb-4">Are you sure you want to delete this note?</span>
+                        <span className="text-slate-200 text-sm mb-4">{t('deleteConfirmMsg')}</span>
                         <div className="flex gap-2 justify-end items-center">
                             <button
                                 onClick={(e) => { e.stopPropagation(); cancelDelete(); }}
                                 className="px-4 py-1.5 text-xs font-medium text-slate-300 hover:text-white transition-colors rounded-md"
                                 style={{ backgroundColor: 'var(--theme-bg-base)' }}
                             >
-                                Cancel
+                                {t('cancel')}
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); confirmDelete(); }}
                                 className="px-4 py-1.5 text-xs font-medium text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 transition-colors border border-red-500/30 rounded-md"
                             >
-                                Delete
+                                {t('deleteTitle')}
                             </button>
                         </div>
                     </div>

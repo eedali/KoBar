@@ -7,8 +7,8 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { useAppStore } from '../../store/useAppStore';
 
 const NoteEditor: React.FC = () => {
-    const { notes, activeNoteId, updateNoteContent, updateNoteTitle } = useAppStore();
-    const activeNote = notes.find(n => n.id === activeNoteId);
+    const { activeNoteId, updateNoteContent, updateNoteTitle, t } = useAppStore();
+    const activeNote = useAppStore((state) => state.notes.find(n => n.id === activeNoteId));
     const fileInputRef = useRef<HTMLInputElement>(null);
     const isUpdatingFromStore = useRef(false);
 
@@ -82,7 +82,7 @@ const NoteEditor: React.FC = () => {
             <div className="flex items-center gap-4 mb-6 no-drag-region">
                 <input
                     className="bg-transparent text-4xl font-bold text-slate-100 border-none outline-none w-full focus:ring-0 placeholder-slate-700"
-                    placeholder="Note Title..."
+                    placeholder={t('noteTitlePlaceholder')}
                     type="text"
                     value={activeNote.title}
                     onChange={(e) => updateNoteTitle(activeNote.id, e.target.value)}

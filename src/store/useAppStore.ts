@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { translations } from '../i18n/translations';
+import type { LanguageCode, TranslationKeys } from '../i18n/translations';
 
 export type ThemeName = 'ember' | 'ocean' | 'sakura' | 'emerald';
 
@@ -51,6 +53,10 @@ interface AppState {
     // Theme
     theme: ThemeName;
     setTheme: (theme: ThemeName) => void;
+    // Language
+    language: LanguageCode;
+    setLanguage: (lang: LanguageCode) => void;
+    t: (key: TranslationKeys) => string;
 }
 
 const defaultNotes: Note[] = [
@@ -85,7 +91,7 @@ const defaultNotes: Note[] = [
 
 export const useAppStore = create<AppState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             edgePosition: 'right',
             setEdgePosition: (edge) => set({ edgePosition: edge }),
             isNotePanelOpen: false,
@@ -114,6 +120,17 @@ export const useAppStore = create<AppState>()(
                 set({ theme });
             },
 
+            // Language
+            language: 'tr', // Default Turkish
+            setLanguage: (language) => set({ language }),
+            t: (key) => {
+                const state = get();
+                const lang = state.language || 'tr';
+                return (translations as Record<string, Record<string, string>>)[lang]?.[key]
+                    || (translations as Record<string, Record<string, string>>)['en'][key]
+                    || key;
+            },
+
             // Mini Mode
             isMiniMode: false,
             miniModePosition: null,
@@ -126,7 +143,7 @@ export const useAppStore = create<AppState>()(
             addNote: () => set((state) => {
                 const newNote: Note = {
                     id: state.nextNoteId,
-                    title: 'New Note',
+                    title: state.t('addNewNote'),
                     icon: 'note',
                     emoji: null,
                     content: '',
@@ -162,7 +179,7 @@ export const useAppStore = create<AppState>()(
                 if (!settingsNote) {
                     settingsNote = {
                         id: state.nextNoteId,
-                        title: 'Settings',
+                        title: state.t('settings'),
                         icon: 'settings',
                         emoji: null,
                         content: '',
@@ -190,6 +207,7 @@ export const useAppStore = create<AppState>()(
                 notePanelHeight: state.notePanelHeight,
                 pinnedApps: state.pinnedApps,
                 theme: state.theme,
+                language: state.language,
             }),
         }
     )

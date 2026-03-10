@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useClipboardStore } from '../../store/useClipboardStore';
 import type { SlotState } from '../../store/useClipboardStore';
+import { useAppStore } from '../../store/useAppStore';
 
 function getSlotColorClass(state: SlotState): string {
     switch (state) {
@@ -31,6 +32,7 @@ const ClipboardSlots: React.FC = () => {
         setListeningSlot,
         setSelectedSlot,
     } = useClipboardStore();
+    const { t } = useAppStore();
 
     // Listen for clipboard updates from Electron backend
     useEffect(() => {
@@ -47,11 +49,10 @@ const ClipboardSlots: React.FC = () => {
 
     useEffect(() => {
         if (isCopyModeActive) {
-            window.api?.startClipboardListener();
+            window.api?.startClipboardListener?.();
         } else {
-            window.api?.stopClipboardListener();
+            window.api?.stopClipboardListener?.();
         }
-        return () => window.api?.stopClipboardListener();
     }, [isCopyModeActive]);
 
     // The global OS paste trigger already handles the Ctrl+V shortcut across the entire system.
@@ -104,10 +105,10 @@ const ClipboardSlots: React.FC = () => {
                 onClick={toggleCopyMode}
                 onDoubleClick={resetAll}
                 className={`p-1.5 transition-colors cursor-pointer ${isCopyModeActive
-                    ? 'text-blue-400 hover:text-blue-300'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'text-green-500 hover:text-green-400 bg-green-500/10 hover:bg-green-500/20 rounded-md relative group/tooltip'
+                    : 'text-slate-500 hover:text-slate-300'
                     }`}
-                title={isCopyModeActive ? 'Stop Copy Mode (Double-click to reset)' : 'Start Copy Mode (Double-click to reset)'}
+                title={isCopyModeActive ? t('stopCopyMode') : t('startCopyMode')}
             >
                 <span className="material-symbols-outlined text-[18px]">content_copy</span>
             </button>
@@ -140,10 +141,10 @@ const ClipboardSlots: React.FC = () => {
                 onClick={togglePasteMode}
                 onDoubleClick={resetAll}
                 className={`p-1.5 transition-colors cursor-pointer ${isPasteModeActive
-                    ? 'text-red-400 hover:text-red-300'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 rounded-md'
+                    : 'text-slate-500 hover:text-slate-300'
                     }`}
-                title={isPasteModeActive ? 'Stop Paste Mode (Double-click to reset)' : 'Start Paste Mode (Double-click to reset)'}
+                title={isPasteModeActive ? t('stopPasteMode') : t('startPasteMode')}
             >
                 <span className="material-symbols-outlined text-[18px]">content_paste</span>
             </button>

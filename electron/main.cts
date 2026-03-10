@@ -46,7 +46,8 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
-        }
+        },
+        icon: path.join(__dirname, '../Assets/KoBar_logo.png')
     });
 
     currentEdge = 'right'; // Set default edge
@@ -148,12 +149,8 @@ function stopClipboardPolling() {
 
 function createTray() {
     // Use a blank native image as a placeholder for the icon
-    const icon = nativeImage.createFromBuffer(
-        Buffer.from(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjbQg61aAAAADUlEQVQoU2NgYGD4DwABBAEAcCBlCwAAAABJRU5ErkJggg==',
-            'base64'
-        )
-    );
+    const iconPath = path.join(__dirname, '../Assets/KoBar_logo.png');
+    const icon = nativeImage.createFromPath(iconPath);
 
     tray = new Tray(icon);
 

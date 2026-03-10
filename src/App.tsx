@@ -65,17 +65,17 @@ const App: React.FC = () => {
     <>
       <div className={`relative w-full h-full pointer-events-none flex justify-center transition-opacity duration-300 ${isMiniMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         {!isMiniMode && (
-          <div className="relative h-full pointer-events-auto shrink-0" style={{ width: '64px' }}>
-            <div className="absolute inset-0">
+          <div className="relative h-full pointer-events-none shrink-0" style={{ width: '64px' }}>
+            <div className="absolute inset-0 pointer-events-none">
               <Sidebar />
             </div>
             {isNotePanelOpen && edgePosition === 'left' && (
-              <div className="absolute top-0 left-[64px]">
+              <div className="absolute top-0 left-[64px] pointer-events-none">
                 <NotePanel />
               </div>
             )}
             {isNotePanelOpen && edgePosition === 'right' && (
-              <div className="absolute top-0 right-[64px]">
+              <div className="absolute top-0 right-[64px] pointer-events-none">
                 <NotePanel />
               </div>
             )}

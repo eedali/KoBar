@@ -151,7 +151,7 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`relative flex flex-col border z-30 shadow-2xl shrink-0 ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
+            className={`relative flex flex-col border z-30 shadow-2xl shrink-0 pointer-events-auto ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
             style={{
                 width: `${localWidth}px`,
                 height: `${localHeight}px`,

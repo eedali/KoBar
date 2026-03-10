@@ -51,7 +51,7 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         },
-        icon: path.join(__dirname, '../Assets/KoBar_logo.png')
+        icon: path.join(__dirname, '../Assets/25px.png')
     });
 
     currentEdge = 'right'; // Set default edge
@@ -153,7 +153,7 @@ function stopClipboardPolling() {
 
 function createTray() {
     // Use a blank native image as a placeholder for the icon
-    const iconPath = path.join(__dirname, '../Assets/KoBar_logo.png');
+    const iconPath = path.join(__dirname, '../Assets/25px.png');
     const icon = nativeImage.createFromPath(iconPath);
 
     tray = new Tray(icon);

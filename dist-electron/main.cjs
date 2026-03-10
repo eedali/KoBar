@@ -82,7 +82,7 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         },
-        icon: path.join(__dirname, '../Assets/KoBar_logo.png')
+        icon: path.join(__dirname, '../Assets/25px.png')
     });
     currentEdge = 'right'; // Set default edge
     mainWindow.setMinimumSize(4000, 200);
@@ -173,7 +173,7 @@ function stopClipboardPolling() {
 }
 function createTray() {
     // Use a blank native image as a placeholder for the icon
-    const iconPath = path.join(__dirname, '../Assets/KoBar_logo.png');
+    const iconPath = path.join(__dirname, '../Assets/25px.png');
     const icon = electron_1.nativeImage.createFromPath(iconPath);
     tray = new electron_1.Tray(icon);
     const contextMenu = electron_1.Menu.buildFromTemplate([

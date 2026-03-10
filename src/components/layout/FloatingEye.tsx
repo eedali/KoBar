@@ -72,7 +72,7 @@ const FloatingEye: React.FC = () => {
             onClick={handleClick}
         >
             <button className="w-12 h-12 rounded-full bg-[#14110e] border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_20px_rgba(244,161,37,0.4)] transition-transform hover:scale-105 active:scale-95 cursor-grab active:cursor-grabbing hover:bg-[#1a1612]">
-                <img src="25px.png" alt="KoBar Logo" className="w-[25px] h-[25px] object-contain" />
+                <span className="material-symbols-outlined text-[24px]">visibility</span>
             </button>
         </div>
     );

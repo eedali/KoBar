@@ -3,6 +3,10 @@ import * as path from 'path';
 import { spawn, exec, ChildProcess } from 'child_process';
 // @ts-expect-error icon-extractor does not have types
 import iconExtractor from 'icon-extractor';
+import { LicenseManager } from './licenseManager.cjs';
+
+// Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
+console.log("BU BİLGİSAYARIN HWID KODU:", LicenseManager.getDeviceHWID());
 
 // hardware acceleration is left ON to allow Windows DWM to properly composite the massive transparent window 
 // over hardware-accelerated video players (like YouTube on Chrome) without blacking them out.

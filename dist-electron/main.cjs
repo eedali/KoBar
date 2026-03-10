@@ -41,6 +41,9 @@ const path = __importStar(require("path"));
 const child_process_1 = require("child_process");
 // @ts-expect-error icon-extractor does not have types
 const icon_extractor_1 = __importDefault(require("icon-extractor"));
+const licenseManager_cjs_1 = require("./licenseManager.cjs");
+// Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
+console.log("BU BİLGİSAYARIN HWID KODU:", licenseManager_cjs_1.LicenseManager.getDeviceHWID());
 // hardware acceleration is left ON to allow Windows DWM to properly composite the massive transparent window 
 // over hardware-accelerated video players (like YouTube on Chrome) without blacking them out.
 electron_1.app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');

@@ -30,7 +30,45 @@ const NoteEditor: React.FC = () => {
                 class: 'flex-1 text-slate-300 text-lg leading-relaxed outline-none no-drag-region overflow-y-auto max-w-none',
             },
             clipboardTextSerializer: (slice) => {
-                return slice.content.textBetween(0, slice.content.size, '\n', '\n');
+                const serializeNode = (node: any, listType: 'bullet' | 'ordered' | null = null, index: number = 0): string => {
+                    if (node.isText) return node.text || '';
+                    if (node.type.name === 'hardBreak') return '\n';
+
+                    let text = '';
+                    if (node.type.name === 'bulletList') {
+                        node.forEach((child: any) => { text += serializeNode(child, 'bullet'); });
+                        return text;
+                    }
+                    if (node.type.name === 'orderedList') {
+                        let i = node.attrs?.start || 1;
+                        node.forEach((child: any) => {
+                            text += serializeNode(child, 'ordered', i);
+                            i++;
+                        });
+                        return text;
+                    }
+                    if (node.type.name === 'listItem') {
+                        const prefix = listType === 'ordered' ? `${index}. ` : '- ';
+                        let itemText = '';
+                        node.forEach((child: any) => { itemText += serializeNode(child); });
+                        return prefix + itemText.trimEnd() + '\n';
+                    }
+
+                    if (node.isBlock) {
+                        node.forEach((child: any) => { text += serializeNode(child); });
+                        return text + '\n';
+                    }
+                    if (!node.isLeaf) {
+                        node.forEach((child: any) => { text += serializeNode(child); });
+                    }
+                    return text;
+                };
+
+                let result = '';
+                slice.content.forEach((node: any) => {
+                    result += serializeNode(node);
+                });
+                return result.trim();
             },
         },
         onUpdate: ({ editor: ed }) => {

@@ -4,7 +4,9 @@ import { spawn, exec, ChildProcess } from 'child_process';
 // @ts-expect-error icon-extractor does not have types
 import iconExtractor from 'icon-extractor';
 
-app.disableHardwareAcceleration();
+// hardware acceleration is left ON to allow Windows DWM to properly composite the massive transparent window 
+// over hardware-accelerated video players (like YouTube on Chrome) without blacking them out.
+app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -18,16 +20,16 @@ let isGlobalPasteModeActive = false;
 const isDev = !app.isPackaged;
 
 function createWindow() {
-    const { bounds, workAreaSize } = screen.getPrimaryDisplay();
+    const { bounds, workArea } = screen.getPrimaryDisplay();
 
     // We make horizontal window MASSIVE to avoid Note panel crops (6000 ensures dual 4K monitor compatibility)
-    // We bind height perfectly to workAreaSize to prevent "Tile memory exceeded" and to prevent vertical crops off-screen
+    // We bind height perfectly to workArea to prevent covering the Windows taskbar at the bottom!
     const winW = 7000;
-    const winH = Math.max(bounds.height, workAreaSize.height);
+    const winH = workArea.height;
 
     // Center window over primary display exactly!
-    const startX = Math.round(bounds.x + (workAreaSize.width / 2) - (winW / 2));
-    const startY = bounds.y; // Pin exactly to top of screen so panels aren't offset vertically
+    const startX = Math.round(bounds.x + (workArea.width / 2) - (winW / 2));
+    const startY = workArea.y; // Pin exactly to workArea top so taskbar limits are respected
 
     mainWindow = new BrowserWindow({
         x: startX,
@@ -38,6 +40,8 @@ function createWindow() {
         minHeight: winH,
         frame: false,
         transparent: true,
+        backgroundColor: '#00000000',
+        opacity: 0.999, // CRITICAL: This bypasses Windows DWM 'MPO' (Multi-Plane Overlay) occlusion bug, fixing black YouTube screens!
         alwaysOnTop: true,
         skipTaskbar: true,
         resizable: true,

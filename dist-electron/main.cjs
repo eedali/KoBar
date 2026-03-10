@@ -240,6 +240,9 @@ electron_1.ipcMain.on('hide-app', () => {
         mainWindow.hide();
     }
 });
+electron_1.ipcMain.on('quit-app', () => {
+    electron_1.app.quit();
+});
 // Auto-launch at system startup
 electron_1.ipcMain.handle('get-auto-launch', () => {
     const settings = electron_1.app.getLoginItemSettings();
@@ -402,4 +405,8 @@ electron_1.ipcMain.handle('get-melody-audio', (_event, melodyName) => {
         console.error('Failed to load melody audio:', e);
         return null;
     }
+});
+// IPC map to expose the Hardware ID synchronously generated from LicenseManager
+electron_1.ipcMain.handle('get-hwid', () => {
+    return licenseManager_cjs_1.LicenseManager.getDeviceHWID();
 });

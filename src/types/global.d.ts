@@ -4,6 +4,7 @@ declare global {
     interface Window {
         api: {
             hideApp: () => void;
+            quitApp: () => void;
             onEdgeChanged: (callback: (edge: 'left' | 'right') => void) => void;
             // Clipboard Manager
             startClipboardListener: () => void;
@@ -28,6 +29,8 @@ declare global {
             setAutoLaunch: (enabled: boolean) => void;
             // Focus Audio
             getMelodyAudio: (name: string) => Promise<string | null>;
+            // License API
+            getHwid: () => Promise<string>;
         };
     }
 }

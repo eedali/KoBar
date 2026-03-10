@@ -229,6 +229,10 @@ ipcMain.on('hide-app', () => {
     }
 });
 
+ipcMain.on('quit-app', () => {
+    app.quit();
+});
+
 // Auto-launch at system startup
 ipcMain.handle('get-auto-launch', () => {
     const settings = app.getLoginItemSettings();
@@ -398,4 +402,9 @@ ipcMain.handle('get-melody-audio', (_event, melodyName: string) => {
         console.error('Failed to load melody audio:', e);
         return null;
     }
+});
+
+// IPC map to expose the Hardware ID synchronously generated from LicenseManager
+ipcMain.handle('get-hwid', () => {
+    return LicenseManager.getDeviceHWID();
 });

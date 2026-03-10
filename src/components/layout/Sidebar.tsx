@@ -5,7 +5,7 @@ import { setIsResizingGlobal } from '../../App';
 import FocusButton from './FocusButton';
 
 const Sidebar: React.FC = () => {
-    const { toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp, t } = useAppStore();
+    const { toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp, t, isLicensed } = useAppStore();
     const [isDragging, setIsDragging] = React.useState(false);
     const dragRef = React.useRef({ startX: 0, startY: 0, dragged: false });
 
@@ -75,7 +75,10 @@ const Sidebar: React.FC = () => {
         <div className="w-16 flex flex-col items-center py-3 relative z-20 overflow-y-auto overflow-x-hidden border-x pointer-events-auto" style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}>
 
 
-            <div className="flex-grow drag-region w-full"></div>
+            <div className={`flex-grow drag-region w-full ${!isLicensed ? '' : ''}`}></div>
+
+            {/* Lockable content — disabled when unlicensed */}
+            <div className={!isLicensed ? 'pointer-events-none opacity-40 select-none' : ''}>
 
             {/* Drag & Drop App Launcher */}
             <div className="flex flex-col items-center gap-2 mb-2 no-drag-region w-full px-2">
@@ -194,6 +197,8 @@ const Sidebar: React.FC = () => {
                 </button>
                 <FocusButton />
             </div>
+
+            </div>{/* end lockable content */}
 
             {/* Hide/Eye Button */}
             <div className="mt-auto mb-1 relative group flex justify-center w-full no-drag-region">

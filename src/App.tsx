@@ -4,6 +4,7 @@ import { useAppStore } from './store/useAppStore';
 import Sidebar from './components/layout/Sidebar';
 import NotePanel from './components/notes/NotePanel';
 import FloatingEye from './components/layout/FloatingEye';
+import LicenseActivationModal from './components/license/LicenseActivationModal';
 
 // Global flag: when true, the ghost-window logic won't steal focus
 // Exported so ResizerHandle can set it during drags
@@ -11,7 +12,7 @@ export let isResizingGlobal = false;
 export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
 
 const App: React.FC = () => {
-  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme } = useAppStore();
+  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme, isLicensed, setLicensed } = useAppStore();
 
   // Apply persisted theme on mount
   useEffect(() => {
@@ -25,6 +26,14 @@ const App: React.FC = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // License Check
+  useEffect(() => {
+    const storedKey = localStorage.getItem('kobar_license_key');
+    if (storedKey) {
+        setLicensed(true);
+    }
+  }, [setLicensed]);
 
   useEffect(() => {
     let unsubs: (() => void)[] = [];
@@ -121,12 +130,12 @@ const App: React.FC = () => {
             <div className="absolute inset-0 pointer-events-none">
               <Sidebar />
             </div>
-            {isNotePanelOpen && edgePosition === 'left' && (
+            {isLicensed && isNotePanelOpen && edgePosition === 'left' && (
               <div className="absolute top-0 left-[64px] pointer-events-none">
                 <NotePanel />
               </div>
             )}
-            {isNotePanelOpen && edgePosition === 'right' && (
+            {isLicensed && isNotePanelOpen && edgePosition === 'right' && (
               <div className="absolute top-0 right-[64px] pointer-events-none">
                 <NotePanel />
               </div>
@@ -136,6 +145,10 @@ const App: React.FC = () => {
       </div>
 
       {isMiniMode && <FloatingEye />}
+
+      {!isLicensed && (
+        <LicenseActivationModal onSuccess={() => setLicensed(true)} />
+      )}
     </>
   );
 };

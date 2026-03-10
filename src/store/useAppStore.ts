@@ -73,6 +73,10 @@ interface AppState {
     startFocusMode: () => void;
     stopFocusMode: () => void;
     tickFocusTracker: () => void;
+
+    // License
+    isLicensed: boolean;
+    setLicensed: (val: boolean) => void;
 }
 
 const defaultNotes: Note[] = [
@@ -238,6 +242,10 @@ export const useAppStore = create<AppState>()(
                     nextNoteId: nextId,
                 };
             }),
+
+            // License
+            isLicensed: false,
+            setLicensed: (val) => set({ isLicensed: val }),
         }),
         {
             name: 'kobar-storage',

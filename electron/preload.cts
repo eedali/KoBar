@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer, webUtils } from 'electron';
 console.log('Preload loaded successfully');
 contextBridge.exposeInMainWorld('api', {
     hideApp: () => ipcRenderer.send('hide-app'),
+    quitApp: () => ipcRenderer.send('quit-app'),
     onEdgeChanged: (callback: (edge: 'left' | 'right') => void) => {
         ipcRenderer.on('edge-changed', (_event, edge) => callback(edge));
     },
@@ -53,4 +54,7 @@ contextBridge.exposeInMainWorld('api', {
 
     // Focus Audio
     getMelodyAudio: (name: string) => ipcRenderer.invoke('get-melody-audio', name) as Promise<string | null>,
+
+    // License ID
+    getHwid: () => ipcRenderer.invoke('get-hwid') as Promise<string>,
 });

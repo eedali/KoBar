@@ -4,6 +4,7 @@ const electron_1 = require("electron");
 console.log('Preload loaded successfully');
 electron_1.contextBridge.exposeInMainWorld('api', {
     hideApp: () => electron_1.ipcRenderer.send('hide-app'),
+    quitApp: () => electron_1.ipcRenderer.send('quit-app'),
     onEdgeChanged: (callback) => {
         electron_1.ipcRenderer.on('edge-changed', (_event, edge) => callback(edge));
     },
@@ -51,4 +52,6 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     setAutoLaunch: (enabled) => electron_1.ipcRenderer.send('set-auto-launch', enabled),
     // Focus Audio
     getMelodyAudio: (name) => electron_1.ipcRenderer.invoke('get-melody-audio', name),
+    // License ID
+    getHwid: () => electron_1.ipcRenderer.invoke('get-hwid'),
 });

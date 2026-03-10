@@ -59,11 +59,89 @@
   --theme-bg-dark: #0c1a14;
   --theme-bg-base: #111f19;
   --theme-bg-light: #ecfdf5;
-  --theme-border: #1a3d2e;
-  --theme-surface: #081410;
+  --theme-border: #1a4d3a;
+  --theme-surface: #08110d;
   --theme-accent-glow: rgba(52, 211, 153, 0.15);
-  --theme-scrollbar: #1a3d2e;
+  --theme-scrollbar: #1a4d3a;
   --theme-marker: #34d399;
+}
+
+/* Midnight (deep indigo) */
+[data-theme="midnight"] {
+  --theme-primary: #6366f1;
+  --theme-bg-dark: #0f172a;
+  --theme-bg-base: #1e293b;
+  --theme-bg-light: #f8fafc;
+  --theme-border: #334155;
+  --theme-surface: #020617;
+  --theme-accent-glow: rgba(99, 102, 241, 0.15);
+  --theme-scrollbar: #334155;
+  --theme-marker: #6366f1;
+}
+
+/* Amethyst (rich purple) */
+[data-theme="amethyst"] {
+  --theme-primary: #a855f7;
+  --theme-bg-dark: #1a1024;
+  --theme-bg-base: #21152d;
+  --theme-bg-light: #faf5ff;
+  --theme-border: #432b57;
+  --theme-surface: #120a1a;
+  --theme-accent-glow: rgba(168, 85, 247, 0.15);
+  --theme-scrollbar: #432b57;
+  --theme-marker: #a855f7;
+}
+
+/* Crimson (vibrant red) */
+[data-theme="crimson"] {
+  --theme-primary: #f43f5e;
+  --theme-bg-dark: #1a0a0c;
+  --theme-bg-base: #210e11;
+  --theme-bg-light: #fff1f2;
+  --theme-border: #4c1d24;
+  --theme-surface: #120608;
+  --theme-accent-glow: rgba(244, 63, 94, 0.15);
+  --theme-scrollbar: #4c1d24;
+  --theme-marker: #f43f5e;
+}
+
+/* Nord (arctic blue-grey) */
+[data-theme="nord"] {
+  --theme-primary: #81a1c1;
+  --theme-bg-dark: #2e3440;
+  --theme-bg-base: #3b4252;
+  --theme-bg-light: #eceff4;
+  --theme-border: #4c566a;
+  --theme-surface: #242933;
+  --theme-accent-glow: rgba(129, 161, 193, 0.15);
+  --theme-scrollbar: #4c566a;
+  --theme-marker: #81a1c1;
+}
+
+/* Coffee (warm brown-gold) */
+[data-theme="coffee"] {
+  --theme-primary: #d97706;
+  --theme-bg-dark: #1c1511;
+  --theme-bg-base: #241b16;
+  --theme-bg-light: #fffbeb;
+  --theme-border: #4a3728;
+  --theme-surface: #140f0c;
+  --theme-accent-glow: rgba(217, 119, 6, 0.15);
+  --theme-scrollbar: #4a3728;
+  --theme-marker: #d97706;
+}
+
+/* Lavender (soothing pastel purple) */
+[data-theme="lavender"] {
+  --theme-primary: #a78bfa;
+  --theme-bg-dark: #17151c;
+  --theme-bg-base: #1d1b26;
+  --theme-bg-light: #f5f3ff;
+  --theme-border: #3e384d;
+  --theme-surface: #111015;
+  --theme-accent-glow: rgba(167, 139, 250, 0.15);
+  --theme-scrollbar: #3e384d;
+  --theme-marker: #a78bfa;
 }
 
 @layer utilities {

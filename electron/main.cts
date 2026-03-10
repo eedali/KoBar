@@ -57,6 +57,22 @@ function createWindow() {
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setIgnoreMouseEvents(true, { forward: true });
 
+    // Forcefully keep window above all OS elements (including Windows Taskbar)
+    // Windows frequently demotes always-on-top windows when the Taskbar is clicked.
+    setInterval(() => {
+        if (mainWindow) {
+            mainWindow.setAlwaysOnTop(true, 'screen-saver');
+        }
+    }, 1500);
+
+    // Re-assert alwaysOnTop on focus/show just to be instant
+    mainWindow.on('focus', () => {
+        mainWindow?.setAlwaysOnTop(true, 'screen-saver');
+    });
+    mainWindow.on('show', () => {
+        mainWindow?.setAlwaysOnTop(true, 'screen-saver');
+    });
+
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools({ mode: 'detach' });

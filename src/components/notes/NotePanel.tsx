@@ -189,9 +189,12 @@ const NotePanel: React.FC = () => {
                         >
                             {/* Icon: emoji or Material icon */}
                             <span
-                                onClick={(e) => toggleEmojiPicker(e, note.id)}
-                                className="cursor-pointer hover:scale-110 transition-transform"
-                                title={t('changeIcon')}
+                                onClick={(e) => {
+                                    if (note.isSettings) return;
+                                    toggleEmojiPicker(e, note.id);
+                                }}
+                                className={`${note.isSettings ? '' : 'cursor-pointer hover:scale-110 transition-transform'}`}
+                                title={note.isSettings ? '' : t('changeIcon')}
                             >
                                 {note.emoji ? (
                                     <span className="text-[18px]">{note.emoji}</span>
@@ -199,7 +202,7 @@ const NotePanel: React.FC = () => {
                                     <span className="material-symbols-outlined text-[18px]">{note.icon}</span>
                                 )}
                             </span>
-                            {note.title}
+                            {note.isSettings ? t('settings') : note.title}
                             {note.id === activeNoteId && (
                                 <span
                                     onClick={(e) => handleDelete(e, note.id)}

@@ -57,8 +57,52 @@ const App: React.FC = () => {
         target.id === 'root';
       window.api?.setIgnoreMouseEvents(isTransparent);
     };
+
+    // During HTML5 drag-and-drop, 'mousemove' is suppressed.
+    // 'drag' fires continuously on the source element being dragged (if inside KoBar).
+    // 'dragover' fires continuously on the target element under the cursor.
+    // We use elementFromPoint to robustly determine transparency regardless of event type.
+    const handleDragEvent = (e: DragEvent) => {
+      if (isResizingGlobal) return;
+      
+      // If clientX/Y are 0, it means drag just ended or is off-screen. Ignore.
+      if (e.clientX === 0 && e.clientY === 0) return;
+
+      const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
+      if (!elementUnderCursor) return;
+
+      if (elementUnderCursor.closest('.resizer-handle')) {
+        window.api?.setIgnoreMouseEvents(false);
+        return;
+      }
+
+      const isTransparent =
+        elementUnderCursor.tagName === 'HTML' ||
+        elementUnderCursor.tagName === 'BODY' ||
+        elementUnderCursor.id === 'root';
+        
+      window.api?.setIgnoreMouseEvents(isTransparent);
+    };
+
+    const handleDragEnd = () => {
+      // Safety reset: when drag finishes, mousemove will fire again and fix state naturally,
+      // but let's reset to false just in case.
+      window.api?.setIgnoreMouseEvents(false);
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('drag', handleDragEvent);
+    window.addEventListener('dragover', handleDragEvent);
+    window.addEventListener('dragenter', handleDragEvent);
+    window.addEventListener('dragend', handleDragEnd);
+
+    return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('drag', handleDragEvent);
+        window.removeEventListener('dragover', handleDragEvent);
+        window.removeEventListener('dragenter', handleDragEvent);
+        window.removeEventListener('dragend', handleDragEnd);
+    };
   }, []);
 
   return (

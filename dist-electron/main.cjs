@@ -385,3 +385,18 @@ electron_1.ipcMain.on('launch-file', async (event, filePath) => {
         console.error('Failed to launch application:', e);
     }
 });
+const fs = __importStar(require("fs"));
+electron_1.ipcMain.handle('get-melody-audio', (_event, melodyName) => {
+    try {
+        const audioPath = path.join(__dirname, '../Assets/Melody', `${melodyName}.ogg`);
+        if (fs.existsSync(audioPath)) {
+            const buf = fs.readFileSync(audioPath);
+            return `data:audio/ogg;base64,${buf.toString('base64')}`;
+        }
+        return null;
+    }
+    catch (e) {
+        console.error('Failed to load melody audio:', e);
+        return null;
+    }
+});

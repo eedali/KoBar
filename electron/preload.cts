@@ -50,4 +50,7 @@ contextBridge.exposeInMainWorld('api', {
     // Auto-launch
     getAutoLaunch: () => ipcRenderer.invoke('get-auto-launch') as Promise<boolean>,
     setAutoLaunch: (enabled: boolean) => ipcRenderer.send('set-auto-launch', enabled),
+
+    // Focus Audio
+    getMelodyAudio: (name: string) => ipcRenderer.invoke('get-melody-audio', name) as Promise<string | null>,
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import ClipboardSlots from '../clipboard/ClipboardSlots';
 import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
+import FocusButton from './FocusButton';
 
 const Sidebar: React.FC = () => {
     const { toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, pinnedApps, pinApp, unpinApp, t } = useAppStore();
@@ -191,6 +192,7 @@ const Sidebar: React.FC = () => {
                 >
                     <span className="material-symbols-outlined text-[20px]">photo_camera</span>
                 </button>
+                <FocusButton />
             </div>
 
             {/* Hide/Eye Button */}

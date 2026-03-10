@@ -18,6 +18,14 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  // Focus Tracker Interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+        useAppStore.getState().tickFocusTracker();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     let unsubs: (() => void)[] = [];
     if (window.api?.onEdgeChanged) {

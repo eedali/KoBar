@@ -26,6 +26,8 @@ declare global {
             // Auto-launch
             getAutoLaunch: () => Promise<boolean>;
             setAutoLaunch: (enabled: boolean) => void;
+            // Focus Audio
+            getMelodyAudio: (name: string) => Promise<string | null>;
         };
     }
 }

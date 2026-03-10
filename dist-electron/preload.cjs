@@ -49,4 +49,6 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     // Auto-launch
     getAutoLaunch: () => electron_1.ipcRenderer.invoke('get-auto-launch'),
     setAutoLaunch: (enabled) => electron_1.ipcRenderer.send('set-auto-launch', enabled),
+    // Focus Audio
+    getMelodyAudio: (name) => electron_1.ipcRenderer.invoke('get-melody-audio', name),
 });

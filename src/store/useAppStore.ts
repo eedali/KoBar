@@ -21,6 +21,13 @@ export interface PinnedApp {
     icon: string;
 }
 
+export interface FocusSettings {
+    minutes: number;
+    seconds: number;
+    melody: string;
+    loop: boolean;
+}
+
 interface AppState {
     edgePosition: 'left' | 'right';
     setEdgePosition: (edge: 'left' | 'right') => void;
@@ -57,6 +64,15 @@ interface AppState {
     language: LanguageCode;
     setLanguage: (lang: LanguageCode) => void;
     t: (key: TranslationKeys) => string;
+
+    // Focus Mode
+    focusSettings: FocusSettings;
+    setFocusSettings: (settings: Partial<FocusSettings>) => void;
+    isFocusActive: boolean;
+    focusRemainingTime: number;
+    startFocusMode: () => void;
+    stopFocusMode: () => void;
+    tickFocusTracker: () => void;
 }
 
 const defaultNotes: Note[] = [
@@ -129,6 +145,32 @@ export const useAppStore = create<AppState>()(
                 return (translations as Record<string, Record<string, string>>)[lang]?.[key]
                     || (translations as Record<string, Record<string, string>>)['en'][key]
                     || key;
+            },
+
+            // Focus Mode
+            focusSettings: { minutes: 25, seconds: 0, melody: 'Calming', loop: false },
+            setFocusSettings: (settings) => set((state) => ({ focusSettings: { ...state.focusSettings, ...settings } })),
+            isFocusActive: false,
+            focusRemainingTime: 0,
+            startFocusMode: () => {
+                const state = get();
+                const totalSeconds = (state.focusSettings.minutes * 60) + state.focusSettings.seconds;
+                if (totalSeconds > 0) {
+                    set({ isFocusActive: true, focusRemainingTime: totalSeconds });
+                }
+            },
+            stopFocusMode: () => set({ isFocusActive: false, focusRemainingTime: 0 }),
+            tickFocusTracker: () => {
+                set((state) => {
+                    if (!state.isFocusActive) return state;
+                    if (state.focusRemainingTime <= 1) {
+                        // Don't set isFocusActive false here! Let FocusButton detect
+                        // focusRemainingTime === 0 while isFocusActive is still true,
+                        // so it can trigger the alarm.
+                        return { focusRemainingTime: 0 };
+                    }
+                    return { focusRemainingTime: state.focusRemainingTime - 1 };
+                });
             },
 
             // Mini Mode
@@ -208,6 +250,7 @@ export const useAppStore = create<AppState>()(
                 pinnedApps: state.pinnedApps,
                 theme: state.theme,
                 language: state.language,
+                focusSettings: state.focusSettings,
             }),
         }
     )

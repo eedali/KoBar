@@ -199,6 +199,29 @@
     border-color: #3b82f6;
   }
 
+  .material-symbols-outlined {
+    user-select: none;
+  }
+
+  ::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--theme-scrollbar);
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     height: 4px;
     width: 4px;

@@ -42,6 +42,7 @@ const child_process_1 = require("child_process");
 // @ts-expect-error icon-extractor does not have types
 const icon_extractor_1 = __importDefault(require("icon-extractor"));
 const licenseManager_cjs_1 = require("./licenseManager.cjs");
+const electron_updater_1 = require("electron-updater");
 // Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
 console.log("BU BİLGİSAYARIN HWID KODU:", licenseManager_cjs_1.LicenseManager.getDeviceHWID());
 // hardware acceleration is left ON to allow Windows DWM to properly composite the massive transparent window 
@@ -227,6 +228,26 @@ electron_1.app.whenReady().then(() => {
         electron_1.globalShortcut.unregisterAll();
         if (psProcess)
             psProcess.kill();
+    });
+    // Auto Updater Setup
+    electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
+    electron_updater_1.autoUpdater.on('update-available', () => {
+        console.log('Update available.');
+    });
+    electron_updater_1.autoUpdater.on('update-downloaded', () => {
+        electron_1.dialog.showMessageBox({
+            type: 'info',
+            title: 'Update Ready',
+            message: 'A new version has been downloaded. Restart the application to apply the updates?',
+            buttons: ['Yes', 'Later']
+        }).then((result) => {
+            if (result.response === 0) {
+                electron_updater_1.autoUpdater.quitAndInstall();
+            }
+        });
+    });
+    electron_updater_1.autoUpdater.on('error', (err) => {
+        console.error('Auto Updater Error:', err);
     });
 });
 electron_1.app.on('window-all-closed', () => {

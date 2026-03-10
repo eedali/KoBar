@@ -1,15 +1,42 @@
 {
-  "name": "tmpapp",
+  "name": "kobar",
+  "productName": "KoBar",
+  "version": "1.0.2",
+  "description": "Modular utility sidebar for desktop. Your multi-threaded creative assistant.",
+  "author": "Ekrem Edali <ekrem.edali@gmail.com>",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "main": "dist-electron/main.cjs",
   "scripts": {
     "dev": "concurrently \"vite\" \"tsc -w -p electron/tsconfig.json\" \"wait-on tcp:5173 && wait-on dist-electron/main.cjs && wait-on dist-electron/preload.cjs && electron .\"",
     "build": "tsc -b && vite build && tsc -p electron/tsconfig.json",
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "main": "dist-electron/main.cjs",
+  "build": {
+    "appId": "com.eedali.kobar",
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/icon-extractor/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "eedali",
+        "repo": "KoBar-Releases"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true
+    }
+  },
   "dependencies": {
     "@tiptap/extension-image": "^3.20.1",
     "@tiptap/extension-placeholder": "^3.20.1",
@@ -17,6 +44,7 @@
     "@tiptap/pm": "^3.20.1",
     "@tiptap/react": "^3.20.1",
     "@tiptap/starter-kit": "^3.20.1",
+    "electron-updater": "^6.8.3",
     "emoji-picker-react": "^4.18.0",
     "icon-extractor": "^1.0.3",
     "node-machine-id": "^1.1.12",

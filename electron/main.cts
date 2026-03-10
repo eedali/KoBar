@@ -1,9 +1,10 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut, shell } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut, shell, dialog } from 'electron';
 import * as path from 'path';
 import { spawn, exec, ChildProcess } from 'child_process';
 // @ts-expect-error icon-extractor does not have types
 import iconExtractor from 'icon-extractor';
 import { LicenseManager } from './licenseManager.cjs';
+import { autoUpdater } from 'electron-updater';
 
 // Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
 console.log("BU BİLGİSAYARIN HWID KODU:", LicenseManager.getDeviceHWID());
@@ -213,6 +214,30 @@ app.whenReady().then(() => {
     app.on('will-quit', () => {
         globalShortcut.unregisterAll();
         if (psProcess) psProcess.kill();
+    });
+
+    // Auto Updater Setup
+    autoUpdater.checkForUpdatesAndNotify();
+
+    autoUpdater.on('update-available', () => {
+        console.log('Update available.');
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Update Ready',
+            message: 'A new version has been downloaded. Restart the application to apply the updates?',
+            buttons: ['Yes', 'Later']
+        }).then((result) => {
+            if (result.response === 0) {
+                autoUpdater.quitAndInstall();
+            }
+        });
+    });
+
+    autoUpdater.on('error', (err) => {
+        console.error('Auto Updater Error:', err);
     });
 });
 

@@ -260,7 +260,7 @@ const FocusButton: React.FC = () => {
                                 </button>
                                 {melodyDropdownOpen && (
                                     <div
-                                        className="absolute bottom-full left-0 w-full mb-1 rounded border shadow-xl max-h-48 overflow-y-auto"
+                                        className="absolute top-full left-0 w-full mt-1 rounded border shadow-xl overflow-y-auto"
                                         style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)', zIndex: 10000 }}
                                     >
                                         {MELODIES.map((m) => (

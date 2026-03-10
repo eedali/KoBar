@@ -237,6 +237,16 @@ electron_1.ipcMain.on('hide-app', () => {
         mainWindow.hide();
     }
 });
+// Auto-launch at system startup
+electron_1.ipcMain.handle('get-auto-launch', () => {
+    const settings = electron_1.app.getLoginItemSettings();
+    return settings.openAtLogin;
+});
+electron_1.ipcMain.on('set-auto-launch', (_event, enabled) => {
+    electron_1.app.setLoginItemSettings({
+        openAtLogin: enabled,
+    });
+});
 electron_1.ipcMain.on('start-clipboard-listener', () => {
     startClipboardPolling();
 });

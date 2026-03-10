@@ -23,6 +23,9 @@ declare global {
             getFileIcon: (path: string) => Promise<string | null>;
             launchFile: (path: string) => void;
             getFilePath: (file: File) => string;
+            // Auto-launch
+            getAutoLaunch: () => Promise<boolean>;
+            setAutoLaunch: (enabled: boolean) => void;
         };
     }
 }

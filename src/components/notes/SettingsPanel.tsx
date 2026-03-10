@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { useClipboardStore } from '../../store/useClipboardStore';
 import { useAppStore } from '../../store/useAppStore';
 import { getLanguageOptions } from '../../i18n/translations';
@@ -5,6 +6,21 @@ import { getLanguageOptions } from '../../i18n/translations';
 const SettingsPanel: React.FC = () => {
     const { slotCount, setSlotCount } = useClipboardStore();
     const { theme, setTheme, language, setLanguage, t } = useAppStore();
+
+    // Auto-launch state
+    const [autoLaunch, setAutoLaunch] = useState(false);
+
+    useEffect(() => {
+        window.api?.getAutoLaunch?.().then((enabled: boolean) => {
+            setAutoLaunch(enabled);
+        });
+    }, []);
+
+    const handleAutoLaunchToggle = () => {
+        const newValue = !autoLaunch;
+        setAutoLaunch(newValue);
+        window.api?.setAutoLaunch?.(newValue);
+    };
 
     const handleSlotCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = parseInt(e.target.value, 10);
@@ -114,6 +130,29 @@ const SettingsPanel: React.FC = () => {
                             style={{ accentColor: 'var(--theme-primary)' }}
                         />
                         <p className="text-xs text-slate-500 mt-2">{t('slotsMinMaxInfo')}</p>
+                    </div>
+                </div>
+
+                {/* General Settings Area */}
+                <div className="rounded-xl p-6 shadow-inner border" style={{ backgroundColor: 'var(--theme-bg-dark)', borderColor: 'var(--theme-border)' }}>
+                    <h3 className="text-lg font-medium text-slate-300 mb-4 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary">tune</span>
+                        {t('settings')}
+                    </h3>
+
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-slate-400 text-[20px]">power_settings_new</span>
+                            <span className="text-sm text-slate-300">{t('launchAtStartup')}</span>
+                        </div>
+                        <button
+                            onClick={handleAutoLaunchToggle}
+                            className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region ${autoLaunch ? 'bg-primary' : 'bg-slate-600'}`}
+                        >
+                            <span
+                                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${autoLaunch ? 'translate-x-5' : 'translate-x-0'}`}
+                            />
+                        </button>
                     </div>
                 </div>
             </div>

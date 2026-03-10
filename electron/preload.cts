@@ -45,5 +45,9 @@ contextBridge.exposeInMainWorld('api', {
     // App Launcher Native
     getFileIcon: (path: string) => ipcRenderer.invoke('get-file-icon', path),
     launchFile: (path: string) => ipcRenderer.send('launch-file', path),
-    getFilePath: (file: File) => webUtils.getPathForFile(file)
+    getFilePath: (file: File) => webUtils.getPathForFile(file),
+
+    // Auto-launch
+    getAutoLaunch: () => ipcRenderer.invoke('get-auto-launch') as Promise<boolean>,
+    setAutoLaunch: (enabled: boolean) => ipcRenderer.send('set-auto-launch', enabled),
 });

@@ -53,6 +53,7 @@ export const translations = {
         startCopyMode: "Start Copy Mode (Double-click to reset)",
         stopPasteMode: "Stop Paste Mode (Double-click to reset)",
         startPasteMode: "Start Paste Mode (Double-click to reset)",
+        launchAtStartup: "Launch at Startup",
     },
     tr: {
         settings: "Ayarlar",
@@ -81,6 +82,7 @@ export const translations = {
         startCopyMode: "Kopyalama Modunu Başlat (Sıfırlamak için çift tıkla)",
         stopPasteMode: "Yapıştırma Modunu Durdur (Sıfırlamak için çift tıkla)",
         startPasteMode: "Yapıştırma Modunu Başlat (Sıfırlamak için çift tıkla)",
+        launchAtStartup: "Bilgisayar Açıldığında Başlat",
     },
     de: {
         settings: "Einstellungen",
@@ -109,6 +111,7 @@ export const translations = {
         startCopyMode: "Kopiermodus starten (Doppelklick zum Zurücksetzen)",
         stopPasteMode: "Einfügemodus stoppen (Doppelklick zum Zurücksetzen)",
         startPasteMode: "Einfügemodus starten (Doppelklick zum Zurücksetzen)",
+        launchAtStartup: "Beim Systemstart starten",
     },
     fr: {
         settings: "Paramètres",
@@ -137,6 +140,7 @@ export const translations = {
         startCopyMode: "Démarrer le mode copie (Double-clic pour réinitialiser)",
         stopPasteMode: "Arrêter le mode collage (Double-clic pour réinitialiser)",
         startPasteMode: "Démarrer le mode collage (Double-clic pour réinitialiser)",
+        launchAtStartup: "Lancer au démarrage",
     },
     es: {
         settings: "Ajustes",
@@ -165,6 +169,7 @@ export const translations = {
         startCopyMode: "Iniciar modo de copia (Doble clic para restablecer)",
         stopPasteMode: "Detener modo de pegado (Doble clic para restablecer)",
         startPasteMode: "Iniciar modo de pegado (Doble clic para restablecer)",
+        launchAtStartup: "Iniciar con el sistema",
     },
     ru: {
         settings: "Настройки",
@@ -193,6 +198,7 @@ export const translations = {
         startCopyMode: "Запустить режим копирования (Двойной клик для сброса)",
         stopPasteMode: "Остановить режим вставки (Двойной клик для сброса)",
         startPasteMode: "Запустить режим вставки (Двойной клик для сброса)",
+        launchAtStartup: "Запускать при включении",
     },
     ar: {
         settings: "الإعدادات",
@@ -221,6 +227,7 @@ export const translations = {
         startCopyMode: "بدء وضع النسخ (انقر نقرًا مزدوجًا لإعادة الضبط)",
         stopPasteMode: "إيقاف وضع اللصق (انقر نقرًا مزدوجًا لإعادة الضبط)",
         startPasteMode: "بدء وضع اللصق (انقر نقرًا مزدوجًا لإعادة الضبط)",
+        launchAtStartup: "التشغيل عند بدء التشغيل",
     },
     zh: {
         settings: "设置",
@@ -249,6 +256,7 @@ export const translations = {
         startCopyMode: "开始复制模式 (双击重置)",
         stopPasteMode: "停止粘贴模式 (双击重置)",
         startPasteMode: "开始粘贴模式 (双击重置)",
+        launchAtStartup: "开机启动",
     },
     ja: {
         settings: "設定",
@@ -277,6 +285,7 @@ export const translations = {
         startCopyMode: "コピーモードを開始 (ダブルクリックでリセット)",
         stopPasteMode: "貼り付けモードを停止 (ダブルクリックでリセット)",
         startPasteMode: "貼り付けモードを開始 (ダブルクリックでリセット)",
+        launchAtStartup: "起動時に自動実行",
     },
     hi: {
         settings: "सेटिंग्स",
@@ -305,6 +314,7 @@ export const translations = {
         startCopyMode: "कॉपी मोड प्रारंभ करें (रीसेट करने के लिए डबल-क्लिक करें)",
         stopPasteMode: "पेस्ट मोड रोकें (रीसेट करने के लिए डबल-क्लिक करें)",
         startPasteMode: "पेस्ट मोड प्रारंभ करें (रीसेट करने के लिए डबल-क्लिक करें)",
+        launchAtStartup: "कंप्यूटर शुरू होने पर लॉन्च करें",
     }
 } as const;
 

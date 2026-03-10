@@ -225,6 +225,18 @@ ipcMain.on('hide-app', () => {
     }
 });
 
+// Auto-launch at system startup
+ipcMain.handle('get-auto-launch', () => {
+    const settings = app.getLoginItemSettings();
+    return settings.openAtLogin;
+});
+
+ipcMain.on('set-auto-launch', (_event, enabled: boolean) => {
+    app.setLoginItemSettings({
+        openAtLogin: enabled,
+    });
+});
+
 ipcMain.on('start-clipboard-listener', () => {
     startClipboardPolling();
 });

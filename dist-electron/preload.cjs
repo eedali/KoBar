@@ -45,5 +45,8 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     // App Launcher Native
     getFileIcon: (path) => electron_1.ipcRenderer.invoke('get-file-icon', path),
     launchFile: (path) => electron_1.ipcRenderer.send('launch-file', path),
-    getFilePath: (file) => electron_1.webUtils.getPathForFile(file)
+    getFilePath: (file) => electron_1.webUtils.getPathForFile(file),
+    // Auto-launch
+    getAutoLaunch: () => electron_1.ipcRenderer.invoke('get-auto-launch'),
+    setAutoLaunch: (enabled) => electron_1.ipcRenderer.send('set-auto-launch', enabled),
 });

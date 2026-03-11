@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -11,6 +11,7 @@ const NoteEditor: React.FC = () => {
     const activeNote = useAppStore((state) => state.notes.find(n => n.id === activeNoteId));
     const fileInputRef = useRef<HTMLInputElement>(null);
     const isUpdatingFromStore = useRef(false);
+    const [, setTick] = useState(0);
 
     const editor = useEditor({
         extensions: [
@@ -81,6 +82,12 @@ const NoteEditor: React.FC = () => {
                 updateNoteContent(activeNote.id, ed.getHTML());
             }
         },
+        onSelectionUpdate: () => {
+            setTick((prev) => prev + 1);
+        },
+        onTransaction: () => {
+            setTick((prev) => prev + 1);
+        }
     });
 
     // Sync editor content when active tab changes

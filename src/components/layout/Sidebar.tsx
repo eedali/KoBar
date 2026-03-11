@@ -109,10 +109,14 @@ const Sidebar: React.FC = () => {
                 </TooltipButton>
 
                 {/* Pinned Apps List */}
-                {pinnedApps.map(app => (
-                    <div key={app.id} className="relative w-10 h-10 group mt-1 flex justify-center items-center">
-                        <TooltipButton
-                            label={app.name}
+                {pinnedApps.map(app => {
+                    const appInitials = app.name ? app.name.substring(0, 2).toUpperCase() : 'APP';
+                    const isGenericOrEmpty = !app.icon || app.icon === '' || app.icon.length < 500; // Generic icons are usually very small base64 strings
+
+                    return (
+                        <div key={app.id} className="relative w-10 h-10 group mt-1 flex justify-center items-center">
+                            <TooltipButton
+                                label={app.name}
                             className="w-10 h-10 rounded-xl border flex items-center justify-center overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-sm"
                             style={{ backgroundColor: 'var(--theme-bg-base)', borderColor: 'var(--theme-border)' }}
                             onMouseDown={() => {
@@ -137,12 +141,12 @@ const Sidebar: React.FC = () => {
                                 }
                             }}
                         >
-                            {app.icon ? (
-                                <img src={app.icon} className="w-full h-full object-contain p-1.5 drop-shadow-md" alt={app.name} draggable={false} />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-primary font-bold text-sm shadow-inner overflow-hidden" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
-                                    {app.name.substring(0, 2).toUpperCase()}
+                            {isGenericOrEmpty ? (
+                                <div className="text-lg font-bold text-slate-300 bg-slate-800 rounded-full w-full h-full flex items-center justify-center drop-shadow-sm">
+                                    {appInitials}
                                 </div>
+                            ) : (
+                                <img src={app.icon} className="w-full h-full object-contain p-1.5 drop-shadow-md" alt={app.name} draggable={false} />
                             )}
                         </TooltipButton>
 
@@ -161,7 +165,8 @@ const Sidebar: React.FC = () => {
                             </button>
                         )}
                     </div>
-                ))}
+                    );
+                })}
             </div>
 
             <div className="w-8 h-px" style={{ backgroundColor: 'var(--theme-border)' }}></div>

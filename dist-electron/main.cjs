@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
+const fs = __importStar(require("fs"));
 const child_process_1 = require("child_process");
 const licenseManager_cjs_1 = require("./licenseManager.cjs");
 const electron_updater_1 = require("electron-updater");
@@ -63,9 +64,19 @@ function createWindow() {
     // Center window over primary display exactly!
     const startX = Math.round(bounds.x + (workArea.width / 2) - (winW / 2));
     const startY = workArea.y; // Pin exactly to workArea top so taskbar limits are respected
+    let savedX = startX;
+    let savedY = startY;
+    let savedState = { x: undefined, y: undefined };
+    try {
+        const boundsPath = path.join(electron_1.app.getPath('userData'), 'window-state.json');
+        if (fs.existsSync(boundsPath)) {
+            savedState = JSON.parse(fs.readFileSync(boundsPath, 'utf-8'));
+        }
+    }
+    catch (e) { }
     mainWindow = new electron_1.BrowserWindow({
-        x: startX,
-        y: startY,
+        x: savedState.x !== undefined ? savedState.x : savedX,
+        y: savedState.y !== undefined ? savedState.y : savedY,
         width: winW,
         height: winH,
         minWidth: winW,
@@ -122,6 +133,20 @@ function createWindow() {
             mainWindow.show();
             mainWindow.setAlwaysOnTop(true, 'screen-saver');
         }
+    });
+    let saveBoundsTimeout;
+    mainWindow.on('moved', () => {
+        clearTimeout(saveBoundsTimeout);
+        saveBoundsTimeout = setTimeout(() => {
+            if (!mainWindow)
+                return;
+            const [x, y] = mainWindow.getPosition();
+            try {
+                const boundsPath = path.join(electron_1.app.getPath('userData'), 'window-state.json');
+                fs.writeFileSync(boundsPath, JSON.stringify({ x, y }));
+            }
+            catch (e) { }
+        }, 500);
     });
     // Edge detection — fires during drag for smooth real-time updates
     mainWindow.on('move', handleWindowMove);
@@ -232,6 +257,19 @@ electron_1.app.whenReady().then(() => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createWindow();
     });
+    if (electron_1.app.isPackaged) {
+        electron_1.app.setLoginItemSettings({
+            openAtLogin: true,
+            path: process.execPath,
+            args: [
+                '--processStart', `"${process.execPath}"`,
+                '--process-start-args', `"--hidden"`
+            ]
+        });
+    }
+    else {
+        electron_1.app.setLoginItemSettings({ openAtLogin: false, path: process.execPath });
+    }
     electron_1.app.on('will-quit', () => {
         electron_1.globalShortcut.unregisterAll();
         if (psProcess)
@@ -280,8 +318,17 @@ electron_1.ipcMain.handle('get-auto-launch', () => {
     return settings.openAtLogin;
 });
 electron_1.ipcMain.on('set-auto-launch', (_event, enabled) => {
+    if (isDev) {
+        console.log(`Bypassing auto-launch setting in DEV mode (would set to: ${enabled})`);
+        return;
+    }
     electron_1.app.setLoginItemSettings({
         openAtLogin: enabled,
+        path: process.execPath,
+        args: [
+            '--processStart', `"${process.execPath}"`,
+            '--process-start-args', `"--hidden"`
+        ]
     });
 });
 electron_1.ipcMain.on('start-clipboard-listener', () => {
@@ -413,7 +460,6 @@ electron_1.ipcMain.on('launch-file', async (event, filePath) => {
         console.error('Failed to launch application:', e);
     }
 });
-const fs = __importStar(require("fs"));
 electron_1.ipcMain.handle('get-melody-audio', (_event, melodyName) => {
     try {
         const audioPath = path.join(__dirname, '../Assets/Melody', `${melodyName}.ogg`);

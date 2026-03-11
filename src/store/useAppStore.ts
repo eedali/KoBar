@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { translations } from '../i18n/translations';
 import type { LanguageCode, TranslationKeys } from '../i18n/translations';
-
 export type ThemeName = 'ember' | 'ocean' | 'sakura' | 'emerald' | 'midnight' | 'amethyst' | 'crimson' | 'nord' | 'coffee' | 'lavender';
 
 export interface Note {
@@ -148,7 +147,7 @@ export const useAppStore = create<AppState>()(
             setShowTooltips: (val) => set({ showTooltips: val }),
 
             // Language
-            language: 'tr', // Default Turkish
+            language: 'tr',
             setLanguage: (language) => set({ language }),
             t: (key) => {
                 const state = get();
@@ -266,6 +265,7 @@ export const useAppStore = create<AppState>()(
                 theme: state.theme,
                 language: state.language,
                 focusSettings: state.focusSettings,
+                showTooltips: state.showTooltips,
             }),
         }
     )

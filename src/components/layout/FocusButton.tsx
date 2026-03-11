@@ -226,7 +226,17 @@ const FocusButton: React.FC = () => {
                                 >
                                     <span className="material-symbols-outlined text-[14px]">remove</span>
                                 </button>
-                                <span className="flex-1 text-center text-slate-200 text-sm py-1 tabular-nums">{localMin}</span>
+                                <input
+                                    type="number"
+                                    disabled={isFocusActive}
+                                    value={localMin}
+                                    onChange={(e) => {
+                                        let val = parseInt(e.target.value, 10);
+                                        if (isNaN(val)) val = 0;
+                                        setLocalMin(Math.min(120, Math.max(0, val)));
+                                    }}
+                                    className="flex-1 w-full text-center text-slate-200 text-sm py-1 tabular-nums bg-transparent outline-none focus:bg-primary/10 transition-colors disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
                                 <button
                                     type="button"
                                     disabled={isFocusActive || localMin >= 120}
@@ -248,7 +258,17 @@ const FocusButton: React.FC = () => {
                                 >
                                     <span className="material-symbols-outlined text-[14px]">remove</span>
                                 </button>
-                                <span className="flex-1 text-center text-slate-200 text-sm py-1 tabular-nums">{localSec}</span>
+                                <input
+                                    type="number"
+                                    disabled={isFocusActive}
+                                    value={localSec}
+                                    onChange={(e) => {
+                                        let val = parseInt(e.target.value, 10);
+                                        if (isNaN(val)) val = 0;
+                                        setLocalSec(Math.min(59, Math.max(0, val)));
+                                    }}
+                                    className="flex-1 w-full text-center text-slate-200 text-sm py-1 tabular-nums bg-transparent outline-none focus:bg-primary/10 transition-colors disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
                                 <button
                                     type="button"
                                     disabled={isFocusActive || localSec >= 59}

@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut, shell, dialog } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs';
 import { spawn, exec, ChildProcess } from 'child_process';
 import { LicenseManager } from './licenseManager.cjs';
 import { autoUpdater } from 'electron-updater';
@@ -37,9 +38,19 @@ function createWindow() {
     const startX = Math.round(bounds.x + (workArea.width / 2) - (winW / 2));
     const startY = workArea.y; // Pin exactly to workArea top so taskbar limits are respected
 
+    let savedX = startX;
+    let savedY = startY;
+    let savedState = { x: undefined as number | undefined, y: undefined as number | undefined };
+    try {
+        const boundsPath = path.join(app.getPath('userData'), 'window-state.json');
+        if (fs.existsSync(boundsPath)) {
+            savedState = JSON.parse(fs.readFileSync(boundsPath, 'utf-8'));
+        }
+    } catch(e) {}
+
     mainWindow = new BrowserWindow({
-        x: startX,
-        y: startY,
+        x: savedState.x !== undefined ? savedState.x : savedX,
+        y: savedState.y !== undefined ? savedState.y : savedY,
         width: winW,
         height: winH,
         minWidth: winW,
@@ -101,6 +112,19 @@ function createWindow() {
             mainWindow.show();
             mainWindow.setAlwaysOnTop(true, 'screen-saver');
         }
+    });
+
+    let saveBoundsTimeout: ReturnType<typeof setTimeout>;
+    mainWindow.on('moved', () => {
+        clearTimeout(saveBoundsTimeout);
+        saveBoundsTimeout = setTimeout(() => {
+            if (!mainWindow) return;
+            const [x, y] = mainWindow.getPosition();
+            try {
+                const boundsPath = path.join(app.getPath('userData'), 'window-state.json');
+                fs.writeFileSync(boundsPath, JSON.stringify({ x, y }));
+            } catch (e) {}
+        }, 500);
     });
 
     // Edge detection — fires during drag for smooth real-time updates
@@ -224,6 +248,19 @@ app.whenReady().then(() => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 
+    if (app.isPackaged) {
+        app.setLoginItemSettings({
+            openAtLogin: true,
+            path: process.execPath,
+            args: [
+                '--processStart', `"${process.execPath}"`,
+                '--process-start-args', `"--hidden"`
+            ]
+        });
+    } else {
+        app.setLoginItemSettings({ openAtLogin: false, path: process.execPath });
+    }
+
     app.on('will-quit', () => {
         globalShortcut.unregisterAll();
         if (psProcess) psProcess.kill();
@@ -280,8 +317,17 @@ ipcMain.handle('get-auto-launch', () => {
 });
 
 ipcMain.on('set-auto-launch', (_event, enabled: boolean) => {
+    if (isDev) {
+        console.log(`Bypassing auto-launch setting in DEV mode (would set to: ${enabled})`);
+        return;
+    }
     app.setLoginItemSettings({
         openAtLogin: enabled,
+        path: process.execPath,
+        args: [
+            '--processStart', `"${process.execPath}"`,
+            '--process-start-args', `"--hidden"`
+        ]
     });
 });
 
@@ -420,7 +466,6 @@ ipcMain.on('launch-file', async (event, filePath) => {
     }
 });
 
-import * as fs from 'fs';
 ipcMain.handle('get-melody-audio', (_event, melodyName: string) => {
     try {
         const audioPath = path.join(__dirname, '../Assets/Melody', `${melodyName}.ogg`);

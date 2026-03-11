@@ -33,7 +33,8 @@
       }
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "Assets/250AppLogo.png"
     },
     "nsis": {
       "oneClick": true,
@@ -44,6 +45,7 @@
     }
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.6",
     "@tiptap/extension-image": "^3.20.1",
     "@tiptap/extension-placeholder": "^3.20.1",
     "@tiptap/extension-underline": "^3.20.1",

@@ -84,31 +84,11 @@ interface AppState {
 const defaultNotes: Note[] = [
     {
         id: 1,
-        title: 'Project Ideas',
-        icon: 'lightbulb',
-        emoji: null,
-        content: `<p>Here are some initial thoughts for the upcoming quarter:</p>
-            <ul>
-                <li><strong>Revamp the Dashboard:</strong> Focus on user-customizable widgets.</li>
-                <li><strong>Integrate new API:</strong> The third-party data needs to be pulled in real-time.</li>
-                <li><strong>Performance optimization:</strong> Investigate the slow load times on the reporting module.</li>
-            </ul>
-            <p>Next steps are to schedule a sync with design to review wireframes by next Tuesday.</p>`,
-    },
-    {
-        id: 2,
-        title: 'Meeting Notes',
-        icon: 'groups',
-        emoji: null,
-        content: '<p>Meeting notes go here...</p>',
-    },
-    {
-        id: 3,
-        title: 'Daily Tasks',
-        icon: 'checklist',
-        emoji: null,
-        content: '<p>Daily task list goes here...</p>',
-    },
+        title: 'KoBar Tutorial',
+        icon: 'folder',
+        emoji: '📁',
+        content: '<ul><li><strong>Moving KoBar</strong></li></ul><p>Just click and hold the <strong>"Eye"</strong> icon with your left mouse button to drag KoBar wherever you like.<br>Want it out of the way? A single left click on the <strong>"Eye"</strong> will instantly shrink it! 👁️</p><p>-----------------------------------</p><ul><li><strong>Copy & Paste</strong></li></ul><p>Hit the copy button to copy as many items as you want, one after the other. Everything you copy is safely stored in your <strong>"Slots"</strong>.</p>'
+    }
 ];
 
 export const useAppStore = create<AppState>()(
@@ -147,7 +127,7 @@ export const useAppStore = create<AppState>()(
             setShowTooltips: (val) => set({ showTooltips: val }),
 
             // Language
-            language: 'tr',
+            language: 'en',
             setLanguage: (language) => set({ language }),
             t: (key) => {
                 const state = get();
@@ -190,7 +170,7 @@ export const useAppStore = create<AppState>()(
             // Note management
             notes: defaultNotes,
             activeNoteId: 1,
-            nextNoteId: 4,
+            nextNoteId: 2,
             setActiveNoteId: (id) => set({ activeNoteId: id }),
             addNote: () => set((state) => {
                 const newNote: Note = {

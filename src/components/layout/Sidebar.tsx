@@ -111,7 +111,7 @@ const Sidebar: React.FC = () => {
                 {/* Pinned Apps List */}
                 {pinnedApps.map(app => {
                     const appInitials = app.name ? app.name.substring(0, 2).toUpperCase() : 'APP';
-                    const isGenericOrEmpty = !app.icon || app.icon === '' || app.icon.length < 500; // Generic icons are usually very small base64 strings
+                    const isGenericOrEmpty = !app.icon || app.icon === '' || app.icon.length < 3000; // Generic icons are usually around 2000-2500 chars
 
                     return (
                         <div key={app.id} className="relative w-10 h-10 group mt-1 flex justify-center items-center">
@@ -142,7 +142,7 @@ const Sidebar: React.FC = () => {
                             }}
                         >
                             {isGenericOrEmpty ? (
-                                <div className="text-lg font-bold text-slate-300 bg-slate-800 rounded-full w-full h-full flex items-center justify-center drop-shadow-sm">
+                                <div className="w-full h-full rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm tracking-widest">
                                     {appInitials}
                                 </div>
                             ) : (

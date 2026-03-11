@@ -8,9 +8,9 @@ import { autoUpdater } from 'electron-updater';
 // Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
 console.log("BU BİLGİSAYARIN HWID KODU:", LicenseManager.getDeviceHWID());
 
-// hardware acceleration is left ON to allow Windows DWM to properly composite the massive transparent window 
-// over hardware-accelerated video players (like YouTube on Chrome) without blacking them out.
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+
+const windowStatePath = path.join(app.getPath('userData'), 'window-state.json');
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -40,13 +40,8 @@ function createWindow() {
 
     let savedX = startX;
     let savedY = startY;
-    let savedState = { x: undefined as number | undefined, y: undefined as number | undefined };
-    try {
-        const boundsPath = path.join(app.getPath('userData'), 'window-state.json');
-        if (fs.existsSync(boundsPath)) {
-            savedState = JSON.parse(fs.readFileSync(boundsPath, 'utf-8'));
-        }
-    } catch(e) {}
+    let savedState: { x?: number, y?: number } = { x: undefined, y: undefined };
+    try { if (fs.existsSync(windowStatePath)) savedState = JSON.parse(fs.readFileSync(windowStatePath, 'utf8')); } catch (e) {}
 
     mainWindow = new BrowserWindow({
         x: savedState.x !== undefined ? savedState.x : savedX,
@@ -115,15 +110,12 @@ function createWindow() {
     });
 
     let saveBoundsTimeout: ReturnType<typeof setTimeout>;
-    mainWindow.on('moved', () => {
+    mainWindow.on('move', () => {
         clearTimeout(saveBoundsTimeout);
         saveBoundsTimeout = setTimeout(() => {
             if (!mainWindow) return;
             const [x, y] = mainWindow.getPosition();
-            try {
-                const boundsPath = path.join(app.getPath('userData'), 'window-state.json');
-                fs.writeFileSync(boundsPath, JSON.stringify({ x, y }));
-            } catch (e) {}
+            fs.writeFileSync(windowStatePath, JSON.stringify({ x, y }));
         }, 500);
     });
 

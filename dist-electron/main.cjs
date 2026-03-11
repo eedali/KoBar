@@ -41,9 +41,8 @@ const licenseManager_cjs_1 = require("./licenseManager.cjs");
 const electron_updater_1 = require("electron-updater");
 // Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
 console.log("BU BİLGİSAYARIN HWID KODU:", licenseManager_cjs_1.LicenseManager.getDeviceHWID());
-// hardware acceleration is left ON to allow Windows DWM to properly composite the massive transparent window 
-// over hardware-accelerated video players (like YouTube on Chrome) without blacking them out.
 electron_1.app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+const windowStatePath = path.join(electron_1.app.getPath('userData'), 'window-state.json');
 let mainWindow = null;
 let tray = null;
 let clipboardPollingInterval = null;
@@ -68,10 +67,8 @@ function createWindow() {
     let savedY = startY;
     let savedState = { x: undefined, y: undefined };
     try {
-        const boundsPath = path.join(electron_1.app.getPath('userData'), 'window-state.json');
-        if (fs.existsSync(boundsPath)) {
-            savedState = JSON.parse(fs.readFileSync(boundsPath, 'utf-8'));
-        }
+        if (fs.existsSync(windowStatePath))
+            savedState = JSON.parse(fs.readFileSync(windowStatePath, 'utf8'));
     }
     catch (e) { }
     mainWindow = new electron_1.BrowserWindow({
@@ -135,17 +132,13 @@ function createWindow() {
         }
     });
     let saveBoundsTimeout;
-    mainWindow.on('moved', () => {
+    mainWindow.on('move', () => {
         clearTimeout(saveBoundsTimeout);
         saveBoundsTimeout = setTimeout(() => {
             if (!mainWindow)
                 return;
             const [x, y] = mainWindow.getPosition();
-            try {
-                const boundsPath = path.join(electron_1.app.getPath('userData'), 'window-state.json');
-                fs.writeFileSync(boundsPath, JSON.stringify({ x, y }));
-            }
-            catch (e) { }
+            fs.writeFileSync(windowStatePath, JSON.stringify({ x, y }));
         }, 500);
     });
     // Edge detection — fires during drag for smooth real-time updates

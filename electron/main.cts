@@ -1,8 +1,6 @@
 import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, clipboard, globalShortcut, shell, dialog } from 'electron';
 import * as path from 'path';
 import { spawn, exec, ChildProcess } from 'child_process';
-// @ts-expect-error icon-extractor does not have types
-import iconExtractor from 'icon-extractor';
 import { LicenseManager } from './licenseManager.cjs';
 import { autoUpdater } from 'electron-updater';
 
@@ -56,7 +54,8 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         },
-        icon: path.join(__dirname, '../Assets/25px.png')
+        icon: path.join(__dirname, '../Assets/25px.png'),
+        show: false // Don't show until ready-to-show fires
     });
 
     currentEdge = 'right'; // Set default edge
@@ -84,11 +83,22 @@ function createWindow() {
     });
 
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173');
+        mainWindow.loadURL('http://localhost:5173').catch(err => console.error("Failed to load window:", err));
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     } else {
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        const prodPath = path.join(__dirname, '../dist/index.html');
+        console.log("Loading production URL from:", prodPath);
+        mainWindow.loadFile(prodPath).catch(err => {
+            dialog.showErrorBox('UI Load Error', err.message);
+        });
     }
+
+    mainWindow.once('ready-to-show', () => {
+        if (mainWindow) {
+            mainWindow.show();
+            mainWindow.setAlwaysOnTop(true, 'screen-saver');
+        }
+    });
 
     // Edge detection — fires during drag for smooth real-time updates
     mainWindow.on('move', handleWindowMove);
@@ -360,44 +370,35 @@ ipcMain.on('move-window', (event, { dx, dy }) => {
     }
 });
 
-ipcMain.handle('get-file-icon', async (event, filePath) => {
-    return new Promise((resolve) => {
-        // Step A: Resolve target path for .lnk files
+ipcMain.handle('get-file-icon', async (_event, filePath: string) => {
+    try {
+        // Step A: Resolve target path for .lnk shortcut files
+        let targetPath = filePath;
         if (filePath.toLowerCase().endsWith('.lnk')) {
-            const psScript = `
-            $shell = New-Object -ComObject WScript.Shell
-            $link = $shell.CreateShortcut("${filePath}")
-            $link.TargetPath
-            `;
-            exec(`powershell -NoProfile -Command "${psScript}"`, (error, stdout) => {
-                if (error || !stdout.trim()) {
-                    resolve(null); // Fallback if link resolution fails
-                    return;
-                }
-                const targetPath = stdout.trim();
-                // Step B: Get the icon for the target EXE
-                extractIcon(targetPath, resolve);
+            targetPath = await new Promise<string>((resolve) => {
+                const psScript = `
+                $shell = New-Object -ComObject WScript.Shell
+                $link = $shell.CreateShortcut("${filePath}")
+                $link.TargetPath
+                `;
+                exec(`powershell -NoProfile -Command "${psScript}"`, (error, stdout) => {
+                    if (error || !stdout.trim()) {
+                        resolve(filePath); // Fallback to original path
+                        return;
+                    }
+                    resolve(stdout.trim());
+                });
             });
-        } else {
-            // It's a direct .exe or other file, get its icon directly
-            extractIcon(filePath, resolve);
         }
-    });
-});
 
-// Helper function to extract and convert the icon to base64
-function extractIcon(filePath: string, resolve: (val: string | null) => void) {
-    const contextId = Math.random().toString(36).substring(7);
-    iconExtractor.getIcon(contextId, filePath);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onIconResponse = (data: any) => {
-        if (data.Context === contextId) {
-            resolve(`data:image/png;base64,${data.Base64ImageData}`);
-            iconExtractor.emitter.removeListener('icon', onIconResponse); // Cleanup
-        }
-    };
-    iconExtractor.emitter.on('icon', onIconResponse);
-}
+        // Step B: Use Electron's native API to get the file icon
+        const icon = await app.getFileIcon(targetPath, { size: 'large' });
+        return icon.toDataURL();
+    } catch (e) {
+        console.error('Failed to get file icon:', e);
+        return null;
+    }
+});
 
 ipcMain.on('launch-file', async (event, filePath) => {
     if (!filePath || typeof filePath !== 'string') {

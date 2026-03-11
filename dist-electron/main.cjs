@@ -32,15 +32,10 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const child_process_1 = require("child_process");
-// @ts-expect-error icon-extractor does not have types
-const icon_extractor_1 = __importDefault(require("icon-extractor"));
 const licenseManager_cjs_1 = require("./licenseManager.cjs");
 const electron_updater_1 = require("electron-updater");
 // Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
@@ -86,7 +81,8 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         },
-        icon: path.join(__dirname, '../Assets/25px.png')
+        icon: path.join(__dirname, '../Assets/25px.png'),
+        show: false // Don't show until ready-to-show fires
     });
     currentEdge = 'right'; // Set default edge
     mainWindow.setMinimumSize(4000, 200);
@@ -109,12 +105,22 @@ function createWindow() {
         mainWindow?.setAlwaysOnTop(true, 'screen-saver');
     });
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173');
+        mainWindow.loadURL('http://localhost:5173').catch(err => console.error("Failed to load window:", err));
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
     else {
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        const prodPath = path.join(__dirname, '../dist/index.html');
+        console.log("Loading production URL from:", prodPath);
+        mainWindow.loadFile(prodPath).catch(err => {
+            electron_1.dialog.showErrorBox('UI Load Error', err.message);
+        });
     }
+    mainWindow.once('ready-to-show', () => {
+        if (mainWindow) {
+            mainWindow.show();
+            mainWindow.setAlwaysOnTop(true, 'screen-saver');
+        }
+    });
     // Edge detection — fires during drag for smooth real-time updates
     mainWindow.on('move', handleWindowMove);
 }
@@ -359,44 +365,35 @@ electron_1.ipcMain.on('move-window', (event, { dx, dy }) => {
         win.setPosition(Math.round(x + dx), Math.round(y + dy));
     }
 });
-electron_1.ipcMain.handle('get-file-icon', async (event, filePath) => {
-    return new Promise((resolve) => {
-        // Step A: Resolve target path for .lnk files
+electron_1.ipcMain.handle('get-file-icon', async (_event, filePath) => {
+    try {
+        // Step A: Resolve target path for .lnk shortcut files
+        let targetPath = filePath;
         if (filePath.toLowerCase().endsWith('.lnk')) {
-            const psScript = `
-            $shell = New-Object -ComObject WScript.Shell
-            $link = $shell.CreateShortcut("${filePath}")
-            $link.TargetPath
-            `;
-            (0, child_process_1.exec)(`powershell -NoProfile -Command "${psScript}"`, (error, stdout) => {
-                if (error || !stdout.trim()) {
-                    resolve(null); // Fallback if link resolution fails
-                    return;
-                }
-                const targetPath = stdout.trim();
-                // Step B: Get the icon for the target EXE
-                extractIcon(targetPath, resolve);
+            targetPath = await new Promise((resolve) => {
+                const psScript = `
+                $shell = New-Object -ComObject WScript.Shell
+                $link = $shell.CreateShortcut("${filePath}")
+                $link.TargetPath
+                `;
+                (0, child_process_1.exec)(`powershell -NoProfile -Command "${psScript}"`, (error, stdout) => {
+                    if (error || !stdout.trim()) {
+                        resolve(filePath); // Fallback to original path
+                        return;
+                    }
+                    resolve(stdout.trim());
+                });
             });
         }
-        else {
-            // It's a direct .exe or other file, get its icon directly
-            extractIcon(filePath, resolve);
-        }
-    });
+        // Step B: Use Electron's native API to get the file icon
+        const icon = await electron_1.app.getFileIcon(targetPath, { size: 'large' });
+        return icon.toDataURL();
+    }
+    catch (e) {
+        console.error('Failed to get file icon:', e);
+        return null;
+    }
 });
-// Helper function to extract and convert the icon to base64
-function extractIcon(filePath, resolve) {
-    const contextId = Math.random().toString(36).substring(7);
-    icon_extractor_1.default.getIcon(contextId, filePath);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onIconResponse = (data) => {
-        if (data.Context === contextId) {
-            resolve(`data:image/png;base64,${data.Base64ImageData}`);
-            icon_extractor_1.default.emitter.removeListener('icon', onIconResponse); // Cleanup
-        }
-    };
-    icon_extractor_1.default.emitter.on('icon', onIconResponse);
-}
 electron_1.ipcMain.on('launch-file', async (event, filePath) => {
     if (!filePath || typeof filePath !== 'string') {
         console.error('Launch failed: Invalid or undefined file path received.');

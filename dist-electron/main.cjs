@@ -129,6 +129,8 @@ function createWindow() {
         if (mainWindow) {
             mainWindow.show();
             mainWindow.setAlwaysOnTop(true, 'screen-saver');
+            // Force an initial edge check to ensure Sidebar and NotePanel open on the correct side
+            handleWindowMove(true);
         }
     });
     let saveBoundsTimeout;
@@ -142,9 +144,9 @@ function createWindow() {
         }, 500);
     });
     // Edge detection — fires during drag for smooth real-time updates
-    mainWindow.on('move', handleWindowMove);
+    mainWindow.on('move', () => handleWindowMove());
 }
-function handleWindowMove() {
+function handleWindowMove(force = false) {
     if (!mainWindow)
         return;
     const [x] = mainWindow.getPosition();
@@ -152,7 +154,7 @@ function handleWindowMove() {
     const windowCenter = x + (width / 2);
     const { workAreaSize } = electron_1.screen.getPrimaryDisplay();
     const newEdge = windowCenter > (workAreaSize.width / 2) ? 'right' : 'left';
-    if (newEdge !== currentEdge) {
+    if (force || newEdge !== currentEdge) {
         currentEdge = newEdge;
         mainWindow.webContents.send('edge-changed', newEdge);
     }

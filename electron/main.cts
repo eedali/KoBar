@@ -54,7 +54,7 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         },
-        icon: path.join(__dirname, '../Assets/25px.png'),
+        icon: path.join(__dirname, '../Assets/24px.png'),
         show: false // Don't show until ready-to-show fires
     });
 
@@ -168,7 +168,7 @@ function stopClipboardPolling() {
 
 function createTray() {
     // Use a blank native image as a placeholder for the icon
-    const iconPath = path.join(__dirname, '../Assets/25px.png');
+    const iconPath = path.join(__dirname, '../Assets/24px.png');
     const icon = nativeImage.createFromPath(iconPath);
 
     tray = new Tray(icon);

@@ -20,6 +20,9 @@ let currentEdge: string = 'left';
 let psProcess: ChildProcess | null = null;
 let isGlobalPasteModeActive = false;
 
+// Set this to true for Microsoft Store releases (disables custom licensing & updates)
+const IS_STORE_BUILD = true;
+
 const isDev = !app.isPackaged;
 
 function createWindow() {
@@ -226,29 +229,31 @@ app.whenReady().then(() => {
         if (psProcess) psProcess.kill();
     });
 
-    // Auto Updater Setup
-    autoUpdater.checkForUpdatesAndNotify();
+    // Auto Updater Setup (Disabled for MS Store build)
+    if (!IS_STORE_BUILD) {
+        autoUpdater.checkForUpdatesAndNotify();
 
-    autoUpdater.on('update-available', () => {
-        console.log('Update available.');
-    });
-
-    autoUpdater.on('update-downloaded', () => {
-        dialog.showMessageBox({
-            type: 'info',
-            title: 'Update Ready',
-            message: 'A new version has been downloaded. Restart the application to apply the updates?',
-            buttons: ['Yes', 'Later']
-        }).then((result) => {
-            if (result.response === 0) {
-                autoUpdater.quitAndInstall();
-            }
+        autoUpdater.on('update-available', () => {
+            console.log('Update available.');
         });
-    });
 
-    autoUpdater.on('error', (err) => {
-        console.error('Auto Updater Error:', err);
-    });
+        autoUpdater.on('update-downloaded', () => {
+            dialog.showMessageBox({
+                type: 'info',
+                title: 'Update Ready',
+                message: 'A new version has been downloaded. Restart the application to apply the updates?',
+                buttons: ['Yes', 'Later']
+            }).then((result) => {
+                if (result.response === 0) {
+                    autoUpdater.quitAndInstall();
+                }
+            });
+        });
+
+        autoUpdater.on('error', (err) => {
+            console.error('Auto Updater Error:', err);
+        });
+    }
 });
 
 app.on('window-all-closed', () => {

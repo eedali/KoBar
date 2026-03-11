@@ -11,6 +11,9 @@ import LicenseActivationModal from './components/license/LicenseActivationModal'
 export let isResizingGlobal = false;
 export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
 
+// Set this to true for Microsoft Store releases (disables custom licensing & updates)
+export const IS_STORE_BUILD = true;
+
 const App: React.FC = () => {
   const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme, isLicensed, setLicensed } = useAppStore();
 
@@ -29,6 +32,10 @@ const App: React.FC = () => {
 
   // License Check
   useEffect(() => {
+    if (IS_STORE_BUILD) {
+        setLicensed(true);
+        return;
+    }
     const storedKey = localStorage.getItem('kobar_license_key');
     if (storedKey) {
         setLicensed(true);
@@ -146,7 +153,7 @@ const App: React.FC = () => {
 
       {isMiniMode && <FloatingEye />}
 
-      {!isLicensed && (
+      {!IS_STORE_BUILD && !isLicensed && (
         <LicenseActivationModal onSuccess={() => setLicensed(true)} />
       )}
     </>

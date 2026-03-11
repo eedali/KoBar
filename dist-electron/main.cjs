@@ -51,6 +51,8 @@ let lastClipboardImageDataUrl = '';
 let currentEdge = 'left';
 let psProcess = null;
 let isGlobalPasteModeActive = false;
+// Set this to true for Microsoft Store releases (disables custom licensing & updates)
+const IS_STORE_BUILD = true;
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
     const { bounds, workArea } = electron_1.screen.getPrimaryDisplay();
@@ -235,26 +237,28 @@ electron_1.app.whenReady().then(() => {
         if (psProcess)
             psProcess.kill();
     });
-    // Auto Updater Setup
-    electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
-    electron_updater_1.autoUpdater.on('update-available', () => {
-        console.log('Update available.');
-    });
-    electron_updater_1.autoUpdater.on('update-downloaded', () => {
-        electron_1.dialog.showMessageBox({
-            type: 'info',
-            title: 'Update Ready',
-            message: 'A new version has been downloaded. Restart the application to apply the updates?',
-            buttons: ['Yes', 'Later']
-        }).then((result) => {
-            if (result.response === 0) {
-                electron_updater_1.autoUpdater.quitAndInstall();
-            }
+    // Auto Updater Setup (Disabled for MS Store build)
+    if (!IS_STORE_BUILD) {
+        electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
+        electron_updater_1.autoUpdater.on('update-available', () => {
+            console.log('Update available.');
         });
-    });
-    electron_updater_1.autoUpdater.on('error', (err) => {
-        console.error('Auto Updater Error:', err);
-    });
+        electron_updater_1.autoUpdater.on('update-downloaded', () => {
+            electron_1.dialog.showMessageBox({
+                type: 'info',
+                title: 'Update Ready',
+                message: 'A new version has been downloaded. Restart the application to apply the updates?',
+                buttons: ['Yes', 'Later']
+            }).then((result) => {
+                if (result.response === 0) {
+                    electron_updater_1.autoUpdater.quitAndInstall();
+                }
+            });
+        });
+        electron_updater_1.autoUpdater.on('error', (err) => {
+            console.error('Auto Updater Error:', err);
+        });
+    }
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

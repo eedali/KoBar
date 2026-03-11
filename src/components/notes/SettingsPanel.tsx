@@ -1,25 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useClipboardStore } from '../../store/useClipboardStore';
 import { useAppStore } from '../../store/useAppStore';
 import { getLanguageOptions } from '../../i18n/translations';
 
 const SettingsPanel: React.FC = () => {
     const { slotCount, setSlotCount } = useClipboardStore();
-    const { theme, setTheme, language, setLanguage, t, showTooltips, setShowTooltips } = useAppStore();
-
-    // Auto-launch state
-    const [autoLaunch, setAutoLaunch] = useState(false);
-
-    useEffect(() => {
-        window.api?.getAutoLaunch?.().then((enabled: boolean) => {
-            setAutoLaunch(enabled);
-        });
-    }, []);
+    const { theme, setTheme, language, setLanguage, t, showTooltips, setShowTooltips, launchAtStartup, setLaunchAtStartup } = useAppStore();
 
     const handleAutoLaunchToggle = () => {
-        const newValue = !autoLaunch;
-        setAutoLaunch(newValue);
-        window.api?.setAutoLaunch?.(newValue);
+        setLaunchAtStartup(!launchAtStartup);
     };
 
     const handleSlotCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,10 +137,10 @@ const SettingsPanel: React.FC = () => {
                             </div>
                             <button
                                 onClick={handleAutoLaunchToggle}
-                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region ${autoLaunch ? 'bg-primary' : 'bg-slate-600'}`}
+                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region ${launchAtStartup ? 'bg-primary' : 'bg-slate-600'}`}
                             >
                                 <span
-                                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${autoLaunch ? 'translate-x-5' : 'translate-x-0'}`}
+                                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${launchAtStartup ? 'translate-x-5' : 'translate-x-0'}`}
                                 />
                             </button>
                         </div>

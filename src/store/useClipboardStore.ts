@@ -46,8 +46,8 @@ interface ClipboardState {
 export const useClipboardStore = create<ClipboardState>()(
     persist(
         (set, get) => ({
-            slots: createEmptySlots(10),
-            slotCount: 10,
+            slots: createEmptySlots(8),
+            slotCount: 8,
             isCopyModeActive: false,
             isPasteModeActive: false,
 

@@ -25,23 +25,16 @@
       "Assets/**/*",
       "package.json"
     ],
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "eedali",
-        "repo": "KoBar-Releases"
-      }
-    ],
     "win": {
-      "target": "nsis",
-      "icon": "Assets/250AppLogo.png"
+      "target": "appx"
     },
-    "nsis": {
-      "oneClick": true,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": false,
-      "createDesktopShortcut": true,
-      "runAfterFinish": true
+    "appx": {
+      "applicationId": "KoBar",
+      "identityName": "KO-48.KoBar",
+      "publisher": "CN=358C5E0F-7C4B-4D02-BDB1-91148CB62AED",
+      "publisherDisplayName": "KO-48",
+      "displayName": "KoBar",
+      "backgroundColor": "#1a1a1a"
     }
   },
   "dependencies": {

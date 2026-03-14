@@ -58,7 +58,9 @@ const SettingsPanel: React.FC = () => {
         isCopyPasteEnabled, setIsCopyPasteEnabled,
         isScreenshotEnabled, setIsScreenshotEnabled,
         isFocusModeEnabled, setIsFocusModeEnabled,
-        featureOrder, setFeatureOrder
+        featureOrder, setFeatureOrder,
+        toggleWidth, setToggleWidth,
+        featureSpacing, setFeatureSpacing
     } = useAppStore();
 
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -78,6 +80,20 @@ const SettingsPanel: React.FC = () => {
         const val = parseInt(e.target.value, 10);
         if (!isNaN(val)) {
             setMaxShortcuts(Math.min(6, Math.max(1, val)));
+        }
+    };
+
+    const handleToggleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val)) {
+            setToggleWidth(Math.min(40, Math.max(10, val)));
+        }
+    };
+
+    const handleFeatureSpacingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val)) {
+            setFeatureSpacing(Math.min(50, Math.max(0, val)));
         }
     };
 
@@ -244,6 +260,54 @@ const SettingsPanel: React.FC = () => {
                     <h3 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2">{t('featureToggles')}</h3>
                     <div className="space-y-4">
                         {featureOrder.map((id, index) => renderFeatureAccordion(id, index))}
+                    </div>
+                </div>
+
+                <div className="w-full h-px opacity-20" style={{ backgroundColor: 'var(--theme-border)' }}></div>
+
+                {/* --- MIDDLE SECTION: Application UI Configuration --- */}
+                <div>
+                    <h3 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2">UI Layout</h3>
+                    <div className="space-y-4">
+                        <Accordion title="Layout & Spacing" icon="grid_view" defaultOpen={true}>
+                            <div className="flex flex-col gap-6">
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-sm text-slate-400 font-medium">{t('toggleWidthConfig')}</label>
+                                        <span className="text-base font-bold text-primary">{toggleWidth}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="10"
+                                        max="40"
+                                        value={toggleWidth}
+                                        onChange={handleToggleWidthChange}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                        onTouchStart={(e) => e.stopPropagation()}
+                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                        style={{ accentColor: 'var(--theme-primary)' }}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-sm text-slate-400 font-medium">{t('featureSpacingConfig')}</label>
+                                        <span className="text-base font-bold text-primary">{featureSpacing}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="50"
+                                        value={featureSpacing}
+                                        onChange={handleFeatureSpacingChange}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                        onTouchStart={(e) => e.stopPropagation()}
+                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                        style={{ accentColor: 'var(--theme-primary)' }}
+                                    />
+                                </div>
+                            </div>
+                        </Accordion>
                     </div>
                 </div>
 

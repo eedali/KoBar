@@ -68,6 +68,8 @@ export const translations = {
         copyAndPaste: "Copy & Paste",
         maxShortcuts: "Max Shortcuts",
         featureToggles: "KoBar Features",
+        toggleWidthConfig: "Note Notch Protrusion",
+        featureSpacingConfig: "Feature Spacing",
     },
     tr: {
         settings: "Ayarlar",
@@ -111,6 +113,8 @@ export const translations = {
         copyAndPaste: "Kopyala ve Yapıştır",
         maxShortcuts: "Maks. Kısayol",
         featureToggles: "KoBar Özellikleri",
+        toggleWidthConfig: "Not Çentiği Genişliği",
+        featureSpacingConfig: "Aralık Boşluğu",
     },
     de: {
         settings: "Einstellungen",
@@ -154,6 +158,8 @@ export const translations = {
         copyAndPaste: "Kopieren & Einfügen",
         maxShortcuts: "Max. Verknüpfungen",
         featureToggles: "KoBar Funktionen",
+        toggleWidthConfig: "Notiz-Kerbe Vorsprung",
+        featureSpacingConfig: "Abstand der Funktionen",
     },
     fr: {
         settings: "Paramètres",
@@ -197,6 +203,8 @@ export const translations = {
         copyAndPaste: "Copier & Coller",
         maxShortcuts: "Raccourcis max.",
         featureToggles: "Fonctionnalités KoBar",
+        toggleWidthConfig: "Saillie de l'encoche",
+        featureSpacingConfig: "Espacement",
     },
     es: {
         settings: "Ajustes",
@@ -240,6 +248,8 @@ export const translations = {
         copyAndPaste: "Copiar y Pegar",
         maxShortcuts: "Máx. Atajos",
         featureToggles: "Características de KoBar",
+        toggleWidthConfig: "Protrusión de la muesca de nota",
+        featureSpacingConfig: "Espaciado de funciones",
     },
     ru: {
         settings: "Настройки",
@@ -283,6 +293,8 @@ export const translations = {
         copyAndPaste: "Копировать и Вставить",
         maxShortcuts: "Макс. ярлыков",
         featureToggles: "Функции KoBar",
+        toggleWidthConfig: "Выступ для заметок",
+        featureSpacingConfig: "Интервал",
     },
     ar: {
         settings: "الإعدادات",
@@ -326,6 +338,8 @@ export const translations = {
         copyAndPaste: "نسخ ولصق",
         maxShortcuts: "أقصى عدد للاختصارات",
         featureToggles: "ميزات KoBar",
+        toggleWidthConfig: "بروز الشق للملاحظات",
+        featureSpacingConfig: "تباعد الميزات",
     },
     zh: {
         settings: "设置",
@@ -369,6 +383,8 @@ export const translations = {
         copyAndPaste: "复制与粘贴",
         maxShortcuts: "最大快捷方式数",
         featureToggles: "KoBar 功能",
+        toggleWidthConfig: "笔记槽宽度",
+        featureSpacingConfig: "功能间距",
     },
     ja: {
         settings: "設定",
@@ -412,6 +428,8 @@ export const translations = {
         copyAndPaste: "コピー＆ペースト",
         maxShortcuts: "最大ショートカット数",
         featureToggles: "KoBar の機能",
+        toggleWidthConfig: "ノートノッチの突出量",
+        featureSpacingConfig: "機能の間隔",
     },
     hi: {
         settings: "सेटिंग्स",
@@ -455,6 +473,8 @@ export const translations = {
         copyAndPaste: "कॉपी और पेस्ट",
         maxShortcuts: "अधिकतम शॉर्टकट",
         featureToggles: "KoBar सुविधाएँ",
+        toggleWidthConfig: "नोट नॉच चौड़ाई",
+        featureSpacingConfig: "फ़ीचर स्पेसिंग",
     },
 } as const;
 

@@ -80,6 +80,13 @@ interface AppState {
 
     featureOrder: string[];
     setFeatureOrder: (order: string[]) => void;
+    
+    // UI Spacing & Sizing
+    toggleWidth: number;
+    setToggleWidth: (val: number) => void;
+    featureSpacing: number;
+    setFeatureSpacing: (val: number) => void;
+    
     // Launch at Startup
     launchAtStartup: boolean;
     setLaunchAtStartup: (val: boolean) => void;
@@ -188,6 +195,14 @@ export const useAppStore = create<AppState>()(
 
             featureOrder: ['shortcuts', 'copypaste', 'screenshot', 'focusmode'],
             setFeatureOrder: (order) => set({ featureOrder: order }),
+            
+            // UI Spacing & Sizing (defaults)
+            toggleWidth: 24, // Matches w-6 (24px)
+            setToggleWidth: (val) => set({ toggleWidth: val }),
+            featureSpacing: 8, // Matches my-2 (8px margin top/bottom)
+            setFeatureSpacing: (val) => set({ featureSpacing: val }),
+            
+            // Launch at Startup
             launchAtStartup: true,
             setLaunchAtStartup: (val) => {
                 set({ launchAtStartup: val });

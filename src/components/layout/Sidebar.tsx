@@ -9,7 +9,8 @@ const Sidebar: React.FC = () => {
     const { 
         toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, 
         pinnedApps, pinApp, unpinApp, t, isLicensed,
-        featureOrder, isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, maxShortcuts 
+        featureOrder, isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, maxShortcuts,
+        toggleWidth, featureSpacing
     } = useAppStore();
     const [isDragging, setIsDragging] = React.useState(false);
     const dragRef = React.useRef({ startX: 0, startY: 0, dragged: false });
@@ -224,39 +225,44 @@ const Sidebar: React.FC = () => {
                     <React.Fragment key={featureId}>
                         {content}
                         {visibleFeaturesBehind.length > 0 && (
-                            <div className="w-8 h-px mx-auto my-2 shrink-0" style={{ backgroundColor: 'var(--theme-border)' }}></div>
+                            <div className="w-8 h-px mx-auto shrink-0 transition-all duration-300" style={{ backgroundColor: 'var(--theme-border)', marginTop: `${featureSpacing}px`, marginBottom: `${featureSpacing}px` }}></div>
                         )}
                     </React.Fragment>
                 );
             })}
+            
+            </div>{/* end lockable content */}
 
-            {/* Toggle Note Panel Button - Absolute Hook */}
-            <div className="relative w-full h-0 no-drag-region">
+            {/* Hide/Eye Button and Note Toggle Container */}
+            <div className="mt-auto relative flex justify-center w-full pb-2 mb-1 no-drag-region">
+                
+                {/* Toggle Note Panel Button - Absolute Hook dynamically positioned based on toggleWidth */}
                 <TooltipButton
                     label={t('toggleNotes')}
-                    className={`absolute ${edgePosition === 'left' ? '-right-3' : '-left-3'} top-0 -translate-y-1/2 w-6 h-12 border rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors z-30 shadow-lg`}
-                    style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}
+                    className="absolute top-1/2 -translate-y-1/2 h-10 border rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all z-10 shadow-lg group"
+                    style={{ 
+                        backgroundColor: 'var(--theme-surface)', 
+                        borderColor: 'var(--theme-border)',
+                        width: `${toggleWidth}px`,
+                        [edgePosition === 'left' ? 'right' : 'left']: `-${toggleWidth / 2}px`
+                    }}
                     onClick={toggleNotePanel}
                 >
-                    <span className="material-symbols-outlined text-[18px]">
+                    <span className="material-symbols-outlined text-[18px] transition-transform group-active:scale-95">
                         {edgePosition === 'left'
                             ? (isNotePanelOpen ? 'chevron_left' : 'chevron_right')
                             : (isNotePanelOpen ? 'chevron_right' : 'chevron_left')
                         }
                     </span>
                 </TooltipButton>
-            </div>
 
-            </div>{/* end lockable content */}
-
-            {/* Hide/Eye Button */}
-            <div className="mt-auto mb-1 relative flex justify-center w-full no-drag-region">
+                {/* Hide/Eye Button */}
                 <TooltipButton
                     label={t('miniMode')}
                     buttonRef={eyeButtonRef}
                     onMouseDown={handleEyeMouseDown}
                     onClick={handleEyeClick}
-                    className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_15px_rgba(244,161,37,0.3)] transition-all hover:bg-primary/30 cursor-grab active:cursor-grabbing"
+                    className="w-10 h-10 relative z-20 rounded-full bg-primary/20 border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_15px_rgba(244,161,37,0.3)] transition-all hover:bg-primary/30 cursor-grab active:cursor-grabbing"
                 >
                     <span className="material-symbols-outlined text-[20px]">visibility</span>
                 </TooltipButton>

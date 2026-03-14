@@ -64,6 +64,10 @@ export const translations = {
         paste: "Paste",
         showTooltips: "Show Tooltips",
         hideTooltips: "Hide Tooltips",
+        shortcuts: "Shortcuts",
+        copyAndPaste: "Copy & Paste",
+        maxShortcuts: "Max Shortcuts",
+        featureToggles: "KoBar Features",
     },
     tr: {
         settings: "Ayarlar",
@@ -103,6 +107,10 @@ export const translations = {
         paste: "Yapıştır",
         showTooltips: "İpuçlarını Göster",
         hideTooltips: "İpuçlarını Gizle",
+        shortcuts: "Kısayollar",
+        copyAndPaste: "Kopyala ve Yapıştır",
+        maxShortcuts: "Maks. Kısayol",
+        featureToggles: "KoBar Özellikleri",
     },
     de: {
         settings: "Einstellungen",
@@ -142,6 +150,10 @@ export const translations = {
         paste: "Einfügen",
         showTooltips: "Tooltips anzeigen",
         hideTooltips: "Tooltips ausblenden",
+        shortcuts: "Verknüpfungen",
+        copyAndPaste: "Kopieren & Einfügen",
+        maxShortcuts: "Max. Verknüpfungen",
+        featureToggles: "KoBar Funktionen",
     },
     fr: {
         settings: "Paramètres",
@@ -181,6 +193,10 @@ export const translations = {
         paste: "Coller",
         showTooltips: "Afficher les infobulles",
         hideTooltips: "Masquer les infobulles",
+        shortcuts: "Raccourcis",
+        copyAndPaste: "Copier & Coller",
+        maxShortcuts: "Raccourcis max.",
+        featureToggles: "Fonctionnalités KoBar",
     },
     es: {
         settings: "Ajustes",
@@ -220,6 +236,10 @@ export const translations = {
         paste: "Pegar",
         showTooltips: "Mostrar descripciones",
         hideTooltips: "Ocultar descripciones",
+        shortcuts: "Atajos",
+        copyAndPaste: "Copiar y Pegar",
+        maxShortcuts: "Máx. Atajos",
+        featureToggles: "Características de KoBar",
     },
     ru: {
         settings: "Настройки",
@@ -259,6 +279,10 @@ export const translations = {
         paste: "Вставить",
         showTooltips: "Показывать подсказки",
         hideTooltips: "Скрывать подсказки",
+        shortcuts: "Ярлыки",
+        copyAndPaste: "Копировать и Вставить",
+        maxShortcuts: "Макс. ярлыков",
+        featureToggles: "Функции KoBar",
     },
     ar: {
         settings: "الإعدادات",
@@ -298,6 +322,10 @@ export const translations = {
         paste: "لصق",
         showTooltips: "إظهار التلميحات",
         hideTooltips: "إخفاء التلميحات",
+        shortcuts: "الاختصارات",
+        copyAndPaste: "نسخ ولصق",
+        maxShortcuts: "أقصى عدد للاختصارات",
+        featureToggles: "ميزات KoBar",
     },
     zh: {
         settings: "设置",
@@ -337,6 +365,10 @@ export const translations = {
         paste: "粘贴",
         showTooltips: "显示提示",
         hideTooltips: "隐藏提示",
+        shortcuts: "快捷方式",
+        copyAndPaste: "复制与粘贴",
+        maxShortcuts: "最大快捷方式数",
+        featureToggles: "KoBar 功能",
     },
     ja: {
         settings: "設定",
@@ -376,6 +408,10 @@ export const translations = {
         paste: "貼り付け",
         showTooltips: "ツールチップを表示",
         hideTooltips: "ツールチップを非表示",
+        shortcuts: "ショートカット",
+        copyAndPaste: "コピー＆ペースト",
+        maxShortcuts: "最大ショートカット数",
+        featureToggles: "KoBar の機能",
     },
     hi: {
         settings: "सेटिंग्स",
@@ -415,7 +451,11 @@ export const translations = {
         paste: "पेस्ट",
         showTooltips: "टूलटिप्स दिखाएं",
         hideTooltips: "टूलटिप्स छिपाएं",
-    }
+        shortcuts: "शॉर्टकट",
+        copyAndPaste: "कॉपी और पेस्ट",
+        maxShortcuts: "अधिकतम शॉर्टकट",
+        featureToggles: "KoBar सुविधाएँ",
+    },
 } as const;
 
 export type TranslationKeys = keyof typeof translations.en;

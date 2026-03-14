@@ -3,25 +3,46 @@ import { useClipboardStore } from '../../store/useClipboardStore';
 import { useAppStore } from '../../store/useAppStore';
 import { getLanguageOptions } from '../../i18n/translations';
 
-const Accordion: React.FC<{ title: string; icon: string; defaultOpen?: boolean; children: React.ReactNode }> = ({ title, icon, defaultOpen = true, children }) => {
+const Accordion: React.FC<{
+    title: string;
+    icon: string;
+    defaultOpen?: boolean;
+    children: React.ReactNode;
+    masterToggle?: { isOn: boolean; onToggle: () => void };
+}> = ({ title, icon, defaultOpen = true, children, masterToggle }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     return (
         <div className="rounded-xl shadow-inner border overflow-hidden" style={{ backgroundColor: 'var(--theme-bg-dark)', borderColor: 'var(--theme-border)' }}>
-            <button
-                className="w-full flex items-center justify-between p-6 cursor-pointer hover:bg-black/10 transition-colors"
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                <div className="flex items-center gap-2">
+            <div className="w-full flex items-center justify-between p-6">
+                <button
+                    className="flex-1 flex items-center gap-2 cursor-pointer hover:bg-black/10 transition-colors text-left"
+                    onClick={() => setIsOpen(!isOpen)}
+                >
                     <span className="material-symbols-outlined text-primary">{icon}</span>
                     <h3 className="text-lg font-medium text-slate-300">{title}</h3>
+                </button>
+                
+                <div className="flex items-center gap-4">
+                    {masterToggle && (
+                        <button
+                            onClick={masterToggle.onToggle}
+                            className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region shrink-0 ${masterToggle.isOn ? 'bg-primary' : 'bg-slate-600'}`}
+                        >
+                            <span
+                                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${masterToggle.isOn ? 'translate-x-5' : 'translate-x-0'}`}
+                            />
+                        </button>
+                    )}
+                    <button onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
+                        <span className={`material-symbols-outlined text-slate-400 text-[20px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                            expand_more
+                        </span>
+                    </button>
                 </div>
-                <span className={`material-symbols-outlined text-slate-400 text-[20px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-                    expand_more
-                </span>
-            </button>
+            </div>
             {isOpen && (
-                <div className="p-0 px-6 pb-6">
+                <div className="p-0 px-6 pb-6 mt-2 border-t pt-4" style={{ borderColor: 'var(--theme-border)' }}>
                     {children}
                 </div>
             )}
@@ -31,7 +52,16 @@ const Accordion: React.FC<{ title: string; icon: string; defaultOpen?: boolean; 
 
 const SettingsPanel: React.FC = () => {
     const { slotCount, setSlotCount } = useClipboardStore();
-    const { theme, setTheme, language, setLanguage, t, showTooltips, setShowTooltips, launchAtStartup, setLaunchAtStartup } = useAppStore();
+    const { 
+        theme, setTheme, language, setLanguage, t, showTooltips, setShowTooltips, launchAtStartup, setLaunchAtStartup,
+        isShortcutsEnabled, setIsShortcutsEnabled, maxShortcuts, setMaxShortcuts,
+        isCopyPasteEnabled, setIsCopyPasteEnabled,
+        isScreenshotEnabled, setIsScreenshotEnabled,
+        isFocusModeEnabled, setIsFocusModeEnabled,
+        featureOrder, setFeatureOrder
+    } = useAppStore();
+
+    const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
 
     const handleAutoLaunchToggle = () => {
         setLaunchAtStartup(!launchAtStartup);
@@ -43,18 +73,190 @@ const SettingsPanel: React.FC = () => {
             setSlotCount(Math.min(20, Math.max(4, val)));
         }
     };
+    
+    const handleMaxShortcutsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val)) {
+            setMaxShortcuts(Math.min(6, Math.max(1, val)));
+        }
+    };
+
+    // Drag & Drop Handlers for Feature Order
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+        setDraggedItemIndex(index);
+        // Required for Firefox
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', index.toString());
+        // Slight delay to allow drag image generation before applying opacity
+        setTimeout(() => {
+            if (e.target instanceof HTMLElement) {
+                e.target.style.opacity = '0.4';
+            }
+        }, 0);
+    };
+
+    const handleDragEnter = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+        e.preventDefault();
+        if (draggedItemIndex === null || draggedItemIndex === index) return;
+
+        const newOrder = [...featureOrder];
+        const draggedItem = newOrder[draggedItemIndex];
+        newOrder.splice(draggedItemIndex, 1);
+        newOrder.splice(index, 0, draggedItem);
+
+        setFeatureOrder(newOrder);
+        setDraggedItemIndex(index); // Update dragged index to the new position
+    };
+
+    const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+        setDraggedItemIndex(null);
+        if (e.target instanceof HTMLElement) {
+            e.target.style.opacity = '1';
+        }
+    };
+    
+    // Helper to render accordion based on ID
+    const renderFeatureAccordion = (id: string, index: number) => {
+        let content = null;
+        
+        switch (id) {
+            case 'shortcuts':
+                content = (
+                    <Accordion 
+                        title={t('shortcuts')}
+                        icon="bolt" 
+                        defaultOpen={false}
+                        masterToggle={{ isOn: isShortcutsEnabled, onToggle: () => setIsShortcutsEnabled(!isShortcutsEnabled) }}
+                    >
+                        <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-center">
+                                <label className="text-sm text-slate-400 font-medium">{t('maxShortcuts')}</label>
+                                <span className="text-lg font-bold text-primary">{maxShortcuts}</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="1"
+                                max="6"
+                                value={maxShortcuts}
+                                onChange={handleMaxShortcutsChange}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                style={{ accentColor: 'var(--theme-primary)' }}
+                            />
+                        </div>
+                    </Accordion>
+                );
+                break;
+            case 'copypaste':
+                content = (
+                    <Accordion 
+                        title={t('copyAndPaste')} 
+                        icon="content_paste" 
+                        defaultOpen={false}
+                        masterToggle={{ isOn: isCopyPasteEnabled, onToggle: () => setIsCopyPasteEnabled(!isCopyPasteEnabled) }}
+                    >
+                        <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-center">
+                                <label className="text-sm text-slate-400 font-medium">{t('numberOfSlots')}</label>
+                                <span className="text-lg font-bold text-primary">{slotCount}</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="4"
+                                max="20"
+                                value={slotCount}
+                                onChange={handleSlotCountChange}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                style={{ accentColor: 'var(--theme-primary)' }}
+                            />
+                            <p className="text-xs text-slate-500 mt-2">{t('slotsMinMaxInfo')}</p>
+                        </div>
+                    </Accordion>
+                );
+                break;
+            case 'screenshot':
+                content = (
+                    <Accordion 
+                        title={t('screenshot')} 
+                        icon="photo_camera" 
+                        defaultOpen={false}
+                        masterToggle={{ isOn: isScreenshotEnabled, onToggle: () => setIsScreenshotEnabled(!isScreenshotEnabled) }}
+                    >
+                        <div className="text-sm text-slate-400">
+                            {/* Can add more specific settings here later if needed */}
+                        </div>
+                    </Accordion>
+                );
+                break;
+            case 'focusmode':
+                content = (
+                    <Accordion 
+                        title={t('focusMode')} 
+                        icon="hourglass_empty" 
+                        defaultOpen={false}
+                        masterToggle={{ isOn: isFocusModeEnabled, onToggle: () => setIsFocusModeEnabled(!isFocusModeEnabled) }}
+                    >
+                        <div className="text-sm text-slate-400">
+                             {/* Can add Focus specific overrides here later if needed */}
+                        </div>
+                    </Accordion>
+                );
+                break;
+            default: return null;
+        }
+
+        return (
+            <div 
+                key={id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => e.preventDefault()}
+                className="cursor-move transition-transform"
+                style={{ 
+                    transform: draggedItemIndex === index ? 'scale(1.02)' : 'none',
+                    zIndex: draggedItemIndex === index ? 50 : 'auto',
+                    position: 'relative'
+                }}
+            >
+                {/* Visual drag handle indicator */}
+                <div className="absolute left-[-24px] top-1/2 -translate-y-1/2 opacity-30 hover:opacity-100 flex items-center justify-center p-2">
+                    <span className="material-symbols-outlined text-[18px]">drag_indicator</span>
+                </div>
+                {content}
+            </div>
+        );
+    };
 
     const localizedLanguages = getLanguageOptions(language);
 
     return (
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
+        <div className="flex-1 overflow-y-auto p-8 pl-10 custom-scrollbar relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
             <h2 className="text-2xl font-semibold text-slate-200 mb-8">{t('settings')}</h2>
 
-            <div className="space-y-8">
-                {/* Theme & Language Settings Area */}
-                <Accordion title={t('appearance')} icon="palette">
+            <div className="space-y-10">
+                {/* --- TOP SECTION: Dynamic Features --- */}
+                <div>
+                    <h3 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2">{t('featureToggles')}</h3>
+                    <div className="space-y-4">
+                        {featureOrder.map((id, index) => renderFeatureAccordion(id, index))}
+                    </div>
+                </div>
 
-                    <div className="flex flex-col gap-6">
+                <div className="w-full h-px opacity-20" style={{ backgroundColor: 'var(--theme-border)' }}></div>
+
+                {/* --- BOTTOM SECTION: Static Settings --- */}
+                <div>
+                    <h3 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2">{t('appearance')} & {t('settings')}</h3>
+                    <div className="space-y-4">
+                        
+                        {/* Theme & Language Settings Area */}
+                        <Accordion title={t('appearance')} icon="palette" defaultOpen={true}>
+                            <div className="flex flex-col gap-6">
                         {/* Language Selection */}
                         <div className="flex flex-col gap-3">
                             <label className="text-sm text-slate-400 font-medium">{t('language')}</label>
@@ -118,31 +320,9 @@ const SettingsPanel: React.FC = () => {
                         </div>
                     </div>
                 </Accordion>
-
-                {/* Clipboard Settings Area */}
-                <Accordion title={t('clipboardSettings')} icon="content_paste">
-
-                    <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-center">
-                            <label className="text-sm text-slate-400 font-medium">{t('numberOfSlots')}</label>
-                            <span className="text-lg font-bold text-primary">{slotCount}</span>
-                        </div>
-                        <input
-                            type="range"
-                            min="4"
-                            max="20"
-                            value={slotCount}
-                            onChange={handleSlotCountChange}
-                            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
-                            style={{ accentColor: 'var(--theme-primary)' }}
-                        />
-                        <p className="text-xs text-slate-500 mt-2">{t('slotsMinMaxInfo')}</p>
-                    </div>
-                </Accordion>
-
+                
                 {/* General Settings Area */}
-                <Accordion title={t('settings')} icon="tune">
-
+                <Accordion title={t('settings')} icon="tune" defaultOpen={true}>
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -176,7 +356,9 @@ const SettingsPanel: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                </Accordion>
+                 </Accordion>
+                    </div>
+                </div>
             </div>
         </div>
     );

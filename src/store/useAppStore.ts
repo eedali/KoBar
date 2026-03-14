@@ -62,6 +62,24 @@ interface AppState {
     // Settings
     showTooltips: boolean;
     setShowTooltips: (val: boolean) => void;
+    
+    // Feature Toggles
+    isShortcutsEnabled: boolean;
+    setIsShortcutsEnabled: (val: boolean) => void;
+    maxShortcuts: number;
+    setMaxShortcuts: (val: number) => void;
+    
+    isCopyPasteEnabled: boolean;
+    setIsCopyPasteEnabled: (val: boolean) => void;
+    
+    isScreenshotEnabled: boolean;
+    setIsScreenshotEnabled: (val: boolean) => void;
+    
+    isFocusModeEnabled: boolean;
+    setIsFocusModeEnabled: (val: boolean) => void;
+
+    featureOrder: string[];
+    setFeatureOrder: (order: string[]) => void;
     // Launch at Startup
     launchAtStartup: boolean;
     setLaunchAtStartup: (val: boolean) => void;
@@ -152,6 +170,24 @@ export const useAppStore = create<AppState>()(
             // Settings
             showTooltips: true,
             setShowTooltips: (val) => set({ showTooltips: val }),
+            
+            // Feature Toggles (Initial State)
+            isShortcutsEnabled: true,
+            setIsShortcutsEnabled: (val) => set({ isShortcutsEnabled: val }),
+            maxShortcuts: 6,
+            setMaxShortcuts: (val) => set({ maxShortcuts: val }),
+            
+            isCopyPasteEnabled: true,
+            setIsCopyPasteEnabled: (val) => set({ isCopyPasteEnabled: val }),
+            
+            isScreenshotEnabled: true,
+            setIsScreenshotEnabled: (val) => set({ isScreenshotEnabled: val }),
+            
+            isFocusModeEnabled: true,
+            setIsFocusModeEnabled: (val) => set({ isFocusModeEnabled: val }),
+
+            featureOrder: ['shortcuts', 'copypaste', 'screenshot', 'focusmode'],
+            setFeatureOrder: (order) => set({ featureOrder: order }),
             launchAtStartup: true,
             setLaunchAtStartup: (val) => {
                 set({ launchAtStartup: val });
@@ -279,6 +315,12 @@ export const useAppStore = create<AppState>()(
                 focusSettings: state.focusSettings,
                 showTooltips: state.showTooltips,
                 launchAtStartup: state.launchAtStartup,
+                isShortcutsEnabled: state.isShortcutsEnabled,
+                maxShortcuts: state.maxShortcuts,
+                isCopyPasteEnabled: state.isCopyPasteEnabled,
+                isScreenshotEnabled: state.isScreenshotEnabled,
+                isFocusModeEnabled: state.isFocusModeEnabled,
+                featureOrder: state.featureOrder,
             }),
         }
     )

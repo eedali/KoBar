@@ -1,7 +1,7 @@
 {
   "name": "kobar",
   "productName": "KoBar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Modular utility sidebar for desktop. Your multi-threaded creative assistant.",
   "author": "Ekrem Edali <ekrem.edali@gmail.com>",
   "private": true,
@@ -17,7 +17,8 @@
     "appId": "com.eedali.kobar",
     "asar": true,
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
     "files": [
       "dist/**/*",
@@ -34,7 +35,7 @@
       "publisher": "CN=358C5E0F-7C4B-4D02-BDB1-91148CB62AED",
       "publisherDisplayName": "KO-48",
       "displayName": "KoBar",
-      "backgroundColor": "#1a1a1a"
+      "backgroundColor": "#1a1612"
     }
   },
   "dependencies": {

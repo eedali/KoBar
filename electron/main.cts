@@ -41,7 +41,7 @@ function createWindow() {
     let savedX = startX;
     let savedY = startY;
     let savedState: { x?: number, y?: number } = { x: undefined, y: undefined };
-    try { if (fs.existsSync(windowStatePath)) savedState = JSON.parse(fs.readFileSync(windowStatePath, 'utf8')); } catch (e) {}
+    try { if (fs.existsSync(windowStatePath)) savedState = JSON.parse(fs.readFileSync(windowStatePath, 'utf8')); } catch (e) { }
 
     mainWindow = new BrowserWindow({
         x: savedState.x !== undefined ? savedState.x : savedX,
@@ -63,7 +63,7 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         },
-        icon: path.join(__dirname, '../Assets/24px.png'),
+        icon: path.join(__dirname, '../Assets/Logos/256.png'),
         show: false // Don't show until ready-to-show fires
     });
 
@@ -188,8 +188,8 @@ function stopClipboardPolling() {
 }
 
 function createTray() {
-    // Use a blank native image as a placeholder for the icon
-    const iconPath = path.join(__dirname, '../Assets/24px.png');
+    // Use the 25px logo for the tray
+    const iconPath = path.join(__dirname, '../Assets/Logos/25.png');
     const icon = nativeImage.createFromPath(iconPath);
 
     tray = new Tray(icon);

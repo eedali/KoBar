@@ -91,7 +91,7 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
         },
-        icon: path.join(__dirname, '../Assets/24px.png'),
+        icon: path.join(__dirname, '../Assets/Logos/256.png'),
         show: false // Don't show until ready-to-show fires
     });
     currentEdge = 'right'; // Set default edge
@@ -204,8 +204,8 @@ function stopClipboardPolling() {
     lastClipboardImageDataUrl = '';
 }
 function createTray() {
-    // Use a blank native image as a placeholder for the icon
-    const iconPath = path.join(__dirname, '../Assets/24px.png');
+    // Use the 25px logo for the tray
+    const iconPath = path.join(__dirname, '../Assets/Logos/25.png');
     const icon = electron_1.nativeImage.createFromPath(iconPath);
     tray = new electron_1.Tray(icon);
     const contextMenu = electron_1.Menu.buildFromTemplate([

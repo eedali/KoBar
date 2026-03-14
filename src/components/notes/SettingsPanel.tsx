@@ -1,7 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useClipboardStore } from '../../store/useClipboardStore';
 import { useAppStore } from '../../store/useAppStore';
 import { getLanguageOptions } from '../../i18n/translations';
+
+const Accordion: React.FC<{ title: string; icon: string; defaultOpen?: boolean; children: React.ReactNode }> = ({ title, icon, defaultOpen = true, children }) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+
+    return (
+        <div className="rounded-xl shadow-inner border overflow-hidden" style={{ backgroundColor: 'var(--theme-bg-dark)', borderColor: 'var(--theme-border)' }}>
+            <button
+                className="w-full flex items-center justify-between p-6 cursor-pointer hover:bg-black/10 transition-colors"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">{icon}</span>
+                    <h3 className="text-lg font-medium text-slate-300">{title}</h3>
+                </div>
+                <span className={`material-symbols-outlined text-slate-400 text-[20px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                    expand_more
+                </span>
+            </button>
+            {isOpen && (
+                <div className="p-0 px-6 pb-6">
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const SettingsPanel: React.FC = () => {
     const { slotCount, setSlotCount } = useClipboardStore();
@@ -26,11 +52,7 @@ const SettingsPanel: React.FC = () => {
 
             <div className="space-y-8">
                 {/* Theme & Language Settings Area */}
-                <div className="rounded-xl p-6 shadow-inner border" style={{ backgroundColor: 'var(--theme-bg-dark)', borderColor: 'var(--theme-border)' }}>
-                    <h3 className="text-lg font-medium text-slate-300 mb-6 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">palette</span>
-                        {t('appearance')}
-                    </h3>
+                <Accordion title={t('appearance')} icon="palette">
 
                     <div className="flex flex-col gap-6">
                         {/* Language Selection */}
@@ -95,14 +117,10 @@ const SettingsPanel: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </Accordion>
 
                 {/* Clipboard Settings Area */}
-                <div className="rounded-xl p-6 shadow-inner border" style={{ backgroundColor: 'var(--theme-bg-dark)', borderColor: 'var(--theme-border)' }}>
-                    <h3 className="text-lg font-medium text-slate-300 mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">content_paste</span>
-                        {t('clipboardSettings')}
-                    </h3>
+                <Accordion title={t('clipboardSettings')} icon="content_paste">
 
                     <div className="flex flex-col gap-3">
                         <div className="flex justify-between items-center">
@@ -120,14 +138,10 @@ const SettingsPanel: React.FC = () => {
                         />
                         <p className="text-xs text-slate-500 mt-2">{t('slotsMinMaxInfo')}</p>
                     </div>
-                </div>
+                </Accordion>
 
                 {/* General Settings Area */}
-                <div className="rounded-xl p-6 shadow-inner border" style={{ backgroundColor: 'var(--theme-bg-dark)', borderColor: 'var(--theme-border)' }}>
-                    <h3 className="text-lg font-medium text-slate-300 mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">tune</span>
-                        {t('settings')}
-                    </h3>
+                <Accordion title={t('settings')} icon="tune">
 
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
@@ -162,7 +176,7 @@ const SettingsPanel: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </Accordion>
             </div>
         </div>
     );

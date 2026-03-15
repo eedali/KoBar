@@ -126,6 +126,11 @@ function startClipboardPolling() {
             if (currentDataUrl !== lastClipboardImageDataUrl) {
                 lastClipboardImageDataUrl = currentDataUrl;
                 lastClipboardText = '';
+                
+                if (mainWindow && !mainWindow.isVisible()) {
+                    mainWindow.show();
+                }
+
                 mainWindow.webContents.send('clipboard-updated', {
                     type: 'image',
                     content: currentDataUrl,
@@ -361,6 +366,16 @@ ipcMain.on('trigger-screenshot', () => {
 `;
         psProcess.stdin.write(psScreenshot + '\n');
     }
+});
+
+ipcMain.on('take-screenshot', (event, hideApp) => {
+    if (hideApp && mainWindow) {
+        mainWindow.hide();
+    }
+    // Launch native Windows 10/11 Snipping Tool overlay
+    setTimeout(() => {
+        shell.openExternal('ms-screenclip:');
+    }, 150);
 });
 
 ipcMain.on('move-window', (event, { dx, dy }) => {

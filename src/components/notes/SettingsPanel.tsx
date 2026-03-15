@@ -61,7 +61,8 @@ const SettingsPanel: React.FC = () => {
         isCalculatorEnabled, setIsCalculatorEnabled,
         featureOrder, setFeatureOrder,
         toggleWidth, setToggleWidth,
-        featureSpacing, setFeatureSpacing
+        featureSpacing, setFeatureSpacing,
+        hideOnScreenshot, setHideOnScreenshot
     } = useAppStore();
 
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -214,8 +215,21 @@ const SettingsPanel: React.FC = () => {
                         defaultOpen={false}
                         masterToggle={{ isOn: isScreenshotEnabled, onToggle: () => setIsScreenshotEnabled(!isScreenshotEnabled) }}
                     >
-                        <div className="text-sm text-slate-400">
-                            {/* Can add more specific settings here later if needed */}
+                        <div className="flex flex-col gap-4 px-1">
+                            <div className="flex items-center justify-between">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-sm text-slate-300 font-medium">{t('hideOnScreenshot')}</span>
+                                    <span className="text-xs text-slate-500 leading-tight pr-4">{t('hideOnScreenshotDesc')}</span>
+                                </div>
+                                <button
+                                    onClick={() => setHideOnScreenshot(!hideOnScreenshot)}
+                                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 no-drag-region shrink-0 ${hideOnScreenshot ? 'bg-primary' : 'bg-slate-600'}`}
+                                >
+                                    <span
+                                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${hideOnScreenshot ? 'translate-x-5' : 'translate-x-0'}`}
+                                    />
+                                </button>
+                            </div>
                         </div>
                     </Accordion>
                 );

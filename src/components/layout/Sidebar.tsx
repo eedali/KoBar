@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
         toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, 
         pinnedApps, pinApp, unpinApp, t,
         isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, isCalculatorEnabled, maxShortcuts,
-        toggleWidth, featureOrder, featureSpacing
+        toggleWidth, featureOrder, featureSpacing, hideOnScreenshot
     } = useAppStore();
     
     const [isDragging, setIsDragging] = React.useState(false);
@@ -182,7 +182,7 @@ const Sidebar: React.FC = () => {
                                         <TooltipButton
                                             label={t('screenshot')}
                                             className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all hover:bg-white/5"
-                                            onClick={() => window.api?.triggerScreenshot()}
+                                            onClick={() => window.api?.takeScreenshot ? window.api.takeScreenshot(hideOnScreenshot) : window.api?.triggerScreenshot()}
                                         >
                                             <span className="material-symbols-outlined text-[24px]">photo_camera</span>
                                         </TooltipButton>

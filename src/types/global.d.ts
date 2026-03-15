@@ -19,6 +19,7 @@ declare global {
             onRequestNextPaste: (callback: () => void) => (() => void);
             executeGlobalPaste: (data: { type: string; content: string }) => void;
             triggerScreenshot: () => void;
+            takeScreenshot: (hideApp: boolean) => void;
             moveWindow: (dx: number, dy: number) => void;
             // Native App Launcher
             getFileIcon: (path: string) => Promise<string | null>;

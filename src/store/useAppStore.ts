@@ -74,6 +74,8 @@ interface AppState {
     
     isScreenshotEnabled: boolean;
     setIsScreenshotEnabled: (val: boolean) => void;
+    hideOnScreenshot: boolean;
+    setHideOnScreenshot: (val: boolean) => void;
     
     isFocusModeEnabled: boolean;
     setIsFocusModeEnabled: (val: boolean) => void;
@@ -198,6 +200,8 @@ export const useAppStore = create<AppState>()(
             
             isScreenshotEnabled: true,
             setIsScreenshotEnabled: (val) => set({ isScreenshotEnabled: val }),
+            hideOnScreenshot: true,
+            setHideOnScreenshot: (val) => set({ hideOnScreenshot: val }),
             
             isFocusModeEnabled: true,
             setIsFocusModeEnabled: (val: boolean) => set({ isFocusModeEnabled: val }),
@@ -366,6 +370,7 @@ export const useAppStore = create<AppState>()(
                 maxShortcuts: state.maxShortcuts,
                 isCopyPasteEnabled: state.isCopyPasteEnabled,
                 isScreenshotEnabled: state.isScreenshotEnabled,
+                hideOnScreenshot: state.hideOnScreenshot,
                 isFocusModeEnabled: state.isFocusModeEnabled,
                 isCalculatorEnabled: state.isCalculatorEnabled,
                 featureOrder: state.featureOrder,

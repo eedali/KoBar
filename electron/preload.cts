@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('api', {
     },
     executeGlobalPaste: (data: { type: string; content: string }) => ipcRenderer.send('execute-global-paste', data),
     triggerScreenshot: () => ipcRenderer.send('trigger-screenshot'),
+    takeScreenshot: (hideApp: boolean) => ipcRenderer.send('take-screenshot', hideApp),
     moveWindow: (dx: number, dy: number) => ipcRenderer.send('move-window', { dx, dy }),
 
     // App Launcher Native

@@ -42,6 +42,7 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     },
     executeGlobalPaste: (data) => electron_1.ipcRenderer.send('execute-global-paste', data),
     triggerScreenshot: () => electron_1.ipcRenderer.send('trigger-screenshot'),
+    takeScreenshot: (hideApp) => electron_1.ipcRenderer.send('take-screenshot', hideApp),
     moveWindow: (dx, dy) => electron_1.ipcRenderer.send('move-window', { dx, dy }),
     // App Launcher Native
     getFileIcon: (path) => electron_1.ipcRenderer.invoke('get-file-icon', path),

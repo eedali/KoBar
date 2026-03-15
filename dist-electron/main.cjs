@@ -126,18 +126,12 @@ function startClipboardPolling() {
     lastClipboardText = electron_1.clipboard.readText() || '';
     const initialImg = electron_1.clipboard.readImage();
     lastClipboardImageDataUrl = initialImg.isEmpty() ? '' : initialImg.toDataURL();
-    let debugTick = 0;
     clipboardPollingInterval = setInterval(() => {
-        debugTick++;
         if (!mainWindow)
             return;
         const currentText = electron_1.clipboard.readText() || '';
         const currentImage = electron_1.clipboard.readImage();
         const isImgEmpty = currentImage.isEmpty();
-        // Print a heartbeat every 2 seconds to prove it is alive
-        if (debugTick % 4 === 0) {
-            console.log(`[HEARTBEAT] Polling active | Text len: ${currentText.length} | HasImage: ${!isImgEmpty}`);
-        }
         if (currentText && currentText !== lastClipboardText) {
             lastClipboardText = currentText;
             lastClipboardImageDataUrl = '';
@@ -147,24 +141,19 @@ function startClipboardPolling() {
         if (!isImgEmpty) {
             const currentDataUrl = currentImage.toDataURL();
             if (currentDataUrl !== lastClipboardImageDataUrl) {
-                console.log('\n[DEBUG 4] 🚨 NEW IMAGE DETECTED IN CLIPBOARD! 🚨');
                 lastClipboardImageDataUrl = currentDataUrl;
                 lastClipboardText = '';
-                console.log(`[DEBUG 5] Visibility before show: ${mainWindow.isVisible()}`);
                 if (!mainWindow.isVisible()) {
-                    console.log('[DEBUG 6] Window hidden, forcing mainWindow.show()!');
                     mainWindow.show();
                 }
                 mainWindow.setAlwaysOnTop(true, 'screen-saver');
                 mainWindow.focus();
                 mainWindow.webContents.send('clipboard-updated', { type: 'image', content: currentDataUrl });
-                console.log('[DEBUG 7] Sent image to UI.');
             }
         }
     }, 500);
 }
 function stopClipboardPolling() {
-    console.log('\n[DEBUG TRAP] 🛑 stopClipboardPolling WAS CALLED! The interval was assassinated!');
     // clearInterval(clipboardPollingInterval);
     // clipboardPollingInterval = null;
     lastClipboardText = '';
@@ -221,7 +210,6 @@ electron_1.app.whenReady().then(() => {
     psProcess.stdin?.write(`Add-Type -TypeDefinition ' using System.Runtime.InteropServices; public class K { [DllImport("user32.dll")] public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo); [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey); } '\n`);
     createWindow();
     createTray();
-    console.log('[DEBUG 0] Forcing clipboard polling to start natively on boot...');
     startClipboardPolling();
     electron_1.app.on('activate', () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
@@ -377,13 +365,9 @@ electron_1.ipcMain.on('trigger-screenshot', () => {
     }
 });
 electron_1.ipcMain.on('take-screenshot', (event, hideApp) => {
-    console.log(`\n--- KO-BAR DEBUG LOG ---`);
-    console.log(`[DEBUG 1] 'take-screenshot' button clicked. hideApp setting: ${hideApp}`);
     if (hideApp && mainWindow) {
-        console.log('[DEBUG 2] Hiding KoBar mainWindow now...');
         mainWindow.hide();
     }
-    console.log('[DEBUG 3] Launching Windows Snipping Tool (ms-screenclip:)...');
     setTimeout(() => {
         electron_1.shell.openExternal('ms-screenclip:');
     }, 150);

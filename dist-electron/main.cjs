@@ -65,7 +65,8 @@ function createWindow() {
         transparent: true,
         alwaysOnTop: true,
         skipTaskbar: true,
-        resizable: true,
+        resizable: false,
+        maximizable: false,
         enableLargerThanScreen: true,
         webPreferences: {
             nodeIntegration: false,

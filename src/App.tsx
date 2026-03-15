@@ -81,7 +81,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="relative w-full h-full pointer-events-none flex items-center justify-center">
+      <div className="relative w-full h-full pointer-events-none flex items-start justify-center pt-[20px]">
         <div className={`relative h-fit pointer-events-auto shrink-0 transition-opacity duration-300 ${isMiniMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} 
              style={{ width: '80px', zIndex: 30 }}>
           {!isMiniMode && (

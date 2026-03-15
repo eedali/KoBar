@@ -10,7 +10,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 const NotePanel: React.FC = () => {
     const {
         isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight, setNotePanelWidth,
-        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t, openSettingsTab, edgePosition, design, glassOpacity
+        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t, openSettingsTab, design, glassOpacity
     } = useAppStore();
 
     const activeNote = notes.find(n => n.id === activeNoteId);

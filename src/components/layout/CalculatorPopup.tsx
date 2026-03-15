@@ -84,6 +84,49 @@ const CalculatorPopup: React.FC = () => {
         setWaitingForOperand(false);
     };
 
+    const handleBackspace = () => {
+        if (waitingForOperand) return;
+        if (display === '0') return;
+        if (display.length === 1) {
+            setDisplay('0');
+        } else {
+            setDisplay(display.slice(0, -1));
+        }
+    };
+
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // If any input/textarea is focused, don't hijack keys
+            if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) return;
+
+            const { key } = e;
+
+            if (/[0-9]/.test(key)) {
+                handleDigit(key);
+            } else if (key === '.' || key === ',') {
+                if (!display.includes('.')) handleDigit('.');
+            } else if (key === '+') {
+                handleOperator('+');
+            } else if (key === '-') {
+                handleOperator('-');
+            } else if (key === '*' || key.toLowerCase() === 'x') {
+                handleOperator('×');
+            } else if (key === '/') {
+                handleOperator('÷');
+            } else if (key === 'Enter' || key === '=') {
+                e.preventDefault();
+                handleEqual();
+            } else if (key === 'Backspace') {
+                handleBackspace();
+            } else if (key === 'Escape' || key.toLowerCase() === 'c') {
+                handleClear();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [display, prevValue, operator, waitingForOperand]);
+
     const CalcButton = ({ onClick, children, className = '' }: any) => (
         <button
             onClick={onClick}

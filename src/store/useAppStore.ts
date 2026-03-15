@@ -67,21 +67,21 @@ interface AppState {
     // Settings
     showTooltips: boolean;
     setShowTooltips: (val: boolean) => void;
-    
+
     // Feature Toggles
     isShortcutsEnabled: boolean;
     setIsShortcutsEnabled: (val: boolean) => void;
     maxShortcuts: number;
     setMaxShortcuts: (val: number) => void;
-    
+
     isCopyPasteEnabled: boolean;
     setIsCopyPasteEnabled: (val: boolean) => void;
-    
+
     isScreenshotEnabled: boolean;
     setIsScreenshotEnabled: (val: boolean) => void;
     hideOnScreenshot: boolean;
     setHideOnScreenshot: (val: boolean) => void;
-    
+
     isFocusModeEnabled: boolean;
     setIsFocusModeEnabled: (val: boolean) => void;
 
@@ -90,13 +90,13 @@ interface AppState {
 
     featureOrder: string[];
     setFeatureOrder: (order: string[]) => void;
-    
+
     // UI Spacing & Sizing
     toggleWidth: number;
     setToggleWidth: (val: number) => void;
     featureSpacing: number;
     setFeatureSpacing: (val: number) => void;
-    
+
     // Launch at Startup
     launchAtStartup: boolean;
     setLaunchAtStartup: (val: boolean) => void;
@@ -202,21 +202,21 @@ export const useAppStore = create<AppState>()(
             // Settings
             showTooltips: true,
             setShowTooltips: (val) => set({ showTooltips: val }),
-            
+
             // Feature Toggles (Initial State)
             isShortcutsEnabled: true,
             setIsShortcutsEnabled: (val) => set({ isShortcutsEnabled: val }),
             maxShortcuts: 6,
             setMaxShortcuts: (val) => set({ maxShortcuts: val }),
-            
+
             isCopyPasteEnabled: true,
             setIsCopyPasteEnabled: (val) => set({ isCopyPasteEnabled: val }),
-            
+
             isScreenshotEnabled: true,
             setIsScreenshotEnabled: (val) => set({ isScreenshotEnabled: val }),
             hideOnScreenshot: true,
             setHideOnScreenshot: (val) => set({ hideOnScreenshot: val }),
-            
+
             isFocusModeEnabled: true,
             setIsFocusModeEnabled: (val: boolean) => set({ isFocusModeEnabled: val }),
 
@@ -225,13 +225,13 @@ export const useAppStore = create<AppState>()(
 
             featureOrder: ['shortcuts', 'copypaste', 'screenshot', 'focusmode', 'calculator'],
             setFeatureOrder: (order) => set({ featureOrder: order }),
-            
+
             // UI Spacing & Sizing (defaults)
             toggleWidth: 24, // Matches w-6 (24px)
             setToggleWidth: (val) => set({ toggleWidth: val }),
             featureSpacing: 8, // Matches my-2 (8px margin top/bottom)
             setFeatureSpacing: (val) => set({ featureSpacing: val }),
-            
+
             // Launch at Startup
             launchAtStartup: true,
             setLaunchAtStartup: (val) => {
@@ -394,3 +394,4 @@ export const useAppStore = create<AppState>()(
         }
     )
 );
+

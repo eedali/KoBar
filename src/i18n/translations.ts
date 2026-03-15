@@ -70,6 +70,8 @@ export const translations = {
         featureToggles: "KoBar Features",
         toggleWidthConfig: "Note Notch Protrusion",
         featureSpacingConfig: "Feature Spacing",
+        uiLayout: "UI Layout",
+        layoutAndSpacing: "Layout & Spacing",
     },
     tr: {
         settings: "Ayarlar",
@@ -115,6 +117,8 @@ export const translations = {
         featureToggles: "KoBar Özellikleri",
         toggleWidthConfig: "Not Çentiği Genişliği",
         featureSpacingConfig: "Aralık Boşluğu",
+        uiLayout: "UI Düzeni",
+        layoutAndSpacing: "Düzen ve Boşluklar",
     },
     de: {
         settings: "Einstellungen",
@@ -160,6 +164,8 @@ export const translations = {
         featureToggles: "KoBar Funktionen",
         toggleWidthConfig: "Notiz-Kerbe Vorsprung",
         featureSpacingConfig: "Abstand der Funktionen",
+        uiLayout: "UI-Layout",
+        layoutAndSpacing: "Layout & Abstände",
     },
     fr: {
         settings: "Paramètres",
@@ -205,6 +211,8 @@ export const translations = {
         featureToggles: "Fonctionnalités KoBar",
         toggleWidthConfig: "Saillie de l'encoche",
         featureSpacingConfig: "Espacement",
+        uiLayout: "Mise en page UI",
+        layoutAndSpacing: "Mise en page et espacement",
     },
     es: {
         settings: "Ajustes",
@@ -250,6 +258,8 @@ export const translations = {
         featureToggles: "Características de KoBar",
         toggleWidthConfig: "Protrusión de la muesca de nota",
         featureSpacingConfig: "Espaciado de funciones",
+        uiLayout: "Diseño de UI",
+        layoutAndSpacing: "Diseño y espaciado",
     },
     ru: {
         settings: "Настройки",
@@ -295,6 +305,8 @@ export const translations = {
         featureToggles: "Функции KoBar",
         toggleWidthConfig: "Выступ для заметок",
         featureSpacingConfig: "Интервал",
+        uiLayout: "Макет интерфейса",
+        layoutAndSpacing: "Макет и интервалы",
     },
     ar: {
         settings: "الإعدادات",
@@ -340,6 +352,8 @@ export const translations = {
         featureToggles: "ميزات KoBar",
         toggleWidthConfig: "بروز الشق للملاحظات",
         featureSpacingConfig: "تباعد الميزات",
+        uiLayout: "تخطيط واجهة المستخدم",
+        layoutAndSpacing: "التخطيط والتباعد",
     },
     zh: {
         settings: "设置",
@@ -385,6 +399,8 @@ export const translations = {
         featureToggles: "KoBar 功能",
         toggleWidthConfig: "笔记槽宽度",
         featureSpacingConfig: "功能间距",
+        uiLayout: "UI 布局",
+        layoutAndSpacing: "布局与间距",
     },
     ja: {
         settings: "設定",
@@ -430,6 +446,8 @@ export const translations = {
         featureToggles: "KoBar の機能",
         toggleWidthConfig: "ノートノッチの突出量",
         featureSpacingConfig: "機能の間隔",
+        uiLayout: "UI レイアウト",
+        layoutAndSpacing: "レイアウトと間隔",
     },
     hi: {
         settings: "सेटिंग्स",
@@ -475,6 +493,8 @@ export const translations = {
         featureToggles: "KoBar सुविधाएँ",
         toggleWidthConfig: "नोट नॉच चौड़ाई",
         featureSpacingConfig: "फ़ीचर स्पेसिंग",
+        uiLayout: "UI लेआउट",
+        layoutAndSpacing: "लेआउट और स्पेसिंग",
     },
 } as const;
 

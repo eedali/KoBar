@@ -281,9 +281,9 @@ const SettingsPanel: React.FC = () => {
 
                 {/* --- MIDDLE SECTION: Application UI Configuration --- */}
                 <div>
-                    <h3 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2">UI Layout</h3>
+                    <h3 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4 px-2">{t('uiLayout')}</h3>
                     <div className="space-y-4">
-                        <Accordion title="Layout & Spacing" icon="grid_view" defaultOpen={true}>
+                        <Accordion title={t('layoutAndSpacing')} icon="grid_view" defaultOpen={true}>
                             <div className="flex flex-col gap-6">
                                 <div className="flex flex-col gap-3">
                                     <div className="flex justify-between items-center">

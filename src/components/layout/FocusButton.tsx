@@ -235,7 +235,7 @@ const FocusButton: React.FC = () => {
                                         if (isNaN(val)) val = 0;
                                         setLocalMin(Math.min(120, Math.max(0, val)));
                                     }}
-                                    className="flex-1 w-full text-center text-slate-200 text-sm py-1 tabular-nums bg-transparent outline-none focus:bg-primary/10 transition-colors disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="flex-1 w-full text-center text-slate-200 text-sm py-1 tabular-nums bg-transparent outline-none focus:bg-primary/10 transition-colors disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none no-drag-region"
                                 />
                                 <button
                                     type="button"
@@ -267,7 +267,7 @@ const FocusButton: React.FC = () => {
                                         if (isNaN(val)) val = 0;
                                         setLocalSec(Math.min(59, Math.max(0, val)));
                                     }}
-                                    className="flex-1 w-full text-center text-slate-200 text-sm py-1 tabular-nums bg-transparent outline-none focus:bg-primary/10 transition-colors disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="flex-1 w-full text-center text-slate-200 text-sm py-1 tabular-nums bg-transparent outline-none focus:bg-primary/10 transition-colors disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none no-drag-region"
                                 />
                                 <button
                                     type="button"
@@ -337,7 +337,7 @@ const FocusButton: React.FC = () => {
                         <button
                             onClick={() => !isFocusActive && setLocalLoop(!localLoop)}
                             disabled={isFocusActive}
-                            className={`w-11 h-6 rounded-full transition-colors relative flex items-center border border-black/20 disabled:opacity-50 ${localLoop ? 'bg-primary' : 'bg-slate-600'}`}
+                            className={`w-11 h-6 rounded-full transition-colors relative flex items-center border border-black/20 disabled:opacity-50 no-drag-region ${localLoop ? 'bg-primary' : 'bg-slate-600'}`}
                         >
                             <div className={`w-4 h-4 rounded-full bg-white shadow-sm absolute transition-transform ${localLoop ? 'translate-x-[22px]' : 'translate-x-[4px]'}`} />
                         </button>

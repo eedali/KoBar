@@ -25,7 +25,7 @@ const App: React.FC = () => {
   // Focus Tracker Interval
   useEffect(() => {
     const interval = setInterval(() => {
-        useAppStore.getState().tickFocusTracker();
+      useAppStore.getState().tickFocusTracker();
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -33,12 +33,12 @@ const App: React.FC = () => {
   // License Check
   useEffect(() => {
     if (IS_STORE_BUILD) {
-        setLicensed(true);
-        return;
+      setLicensed(true);
+      return;
     }
     const storedKey = localStorage.getItem('kobar_license_key');
     if (storedKey) {
-        setLicensed(true);
+      setLicensed(true);
     }
   }, [setLicensed]);
 
@@ -82,8 +82,8 @@ const App: React.FC = () => {
   return (
     <>
       <div className="relative w-full h-full pointer-events-none flex items-start justify-center pt-[20px]">
-        <div className={`relative h-fit pointer-events-auto shrink-0 transition-opacity duration-300 ${isMiniMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} 
-             style={{ width: '80px', zIndex: 30 }}>
+        <div className={`relative h-fit pointer-events-auto shrink-0 transition-opacity duration-300 ${isMiniMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+          style={{ width: '80px', zIndex: 30 }}>
           {!isMiniMode && (
             <>
               <Sidebar />

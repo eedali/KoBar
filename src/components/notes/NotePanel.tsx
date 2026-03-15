@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useAppStore } from '../../store/useAppStore';
 import NoteEditor from './NoteEditor';
 import SettingsPanel from './SettingsPanel';
@@ -9,7 +10,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 const NotePanel: React.FC = () => {
     const {
         isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight, setNotePanelWidth,
-        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t, openSettingsTab,
+        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t, openSettingsTab, edgePosition,
     } = useAppStore();
 
     const activeNote = notes.find(n => n.id === activeNoteId);
@@ -233,10 +234,15 @@ const NotePanel: React.FC = () => {
                 </button>
 
                 {/* Emoji Picker Popover */}
-                {emojiPickerTabId !== null && (
+                {emojiPickerTabId !== null && createPortal(
                     <div
                         ref={emojiPickerRef}
-                        className="absolute top-full left-4 mt-2 z-50 no-drag-region shadow-2xl rounded-xl overflow-hidden"
+                        className="fixed z-[100] no-drag-region shadow-2xl rounded-xl overflow-hidden pointer-events-auto"
+                        style={{
+                            top: '80px', // Roughly below the tabs
+                            left: edgePosition === 'left' ? '120px' : 'auto',
+                            right: edgePosition === 'right' ? '120px' : 'auto',
+                        }}
                     >
                         <EmojiPicker
                             onEmojiClick={handleEmojiSelect}
@@ -246,14 +252,15 @@ const NotePanel: React.FC = () => {
                             searchPlaceholder="Search emoji..."
                             lazyLoadEmojis
                         />
-                    </div>
+                    </div>,
+                    document.body
                 )}
 
                 {/* Delete Confirm Popup */}
-                {deleteConfirm !== null && (
+                {deleteConfirm !== null && createPortal(
                     <div
                         ref={deleteConfirmRef}
-                        className="fixed z-[100] border rounded-lg shadow-2xl flex flex-col p-4 pointer-events-auto"
+                        className="fixed z-[110] border rounded-lg shadow-2xl flex flex-col p-4 pointer-events-auto"
                         style={{
                             top: `${deleteConfirm.y + 10}px`,
                             left: `${deleteConfirm.x - 60}px`,
@@ -277,7 +284,8 @@ const NotePanel: React.FC = () => {
                                 {t('deleteTitle')}
                             </button>
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
             </div>
 

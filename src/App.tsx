@@ -16,7 +16,10 @@ export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
 export const IS_STORE_BUILD = true;
 
 const App: React.FC = () => {
-  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme, isLicensed, setLicensed, isCalculatorOpen } = useAppStore();
+  const { 
+    edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme, isLicensed, setLicensed, 
+    isCalculatorOpen 
+  } = useAppStore();
 
   // Apply persisted theme on mount
   useEffect(() => {

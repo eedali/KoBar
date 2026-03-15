@@ -74,7 +74,7 @@ export const translations = {
         layoutAndSpacing: "Layout & Spacing",
         calculator: "Calculator",
         hideOnScreenshot: "Hide KoBar during Screenshot",
-        hideOnScreenshotDesc: "Temporarily hides the app so it doesn't interfere with the screen capture area.",
+        hideOnScreenshotDesc: "Hide KoBar during Screenshot. Use Ctrl+Shift+S or PrintScreen to hide and snip.",
     },
     tr: {
         settings: "Ayarlar",
@@ -124,7 +124,7 @@ export const translations = {
         layoutAndSpacing: "Düzen ve Boşluklar",
         calculator: "Hesap Makinesi",
         hideOnScreenshot: "Ekran Görüntüsü Alırken Gizle",
-        hideOnScreenshotDesc: "Ekran alıntısı yaparken çakışmayı önlemek için uygulamayı geçici olarak gizler.",
+        hideOnScreenshotDesc: "Ekran Görüntüsü Alırken Gizle. Gizleyip kesmek için Ctrl+Shift+S veya PrintScreen kullanın.",
     },
     de: {
         settings: "Einstellungen",
@@ -174,7 +174,7 @@ export const translations = {
         layoutAndSpacing: "Layout & Abstände",
         calculator: "Rechner",
         hideOnScreenshot: "KoBar beim Screenshot ausblenden",
-        hideOnScreenshotDesc: "Blendet die App vorübergehend aus, damit sie den Aufnahmebereich nicht stört.",
+        hideOnScreenshotDesc: "KoBar beim Screenshot ausblenden. Verwenden Sie Strg+Umschalt+S oder Drucken zum Ausblenden.",
     },
     fr: {
         settings: "Paramètres",
@@ -224,7 +224,7 @@ export const translations = {
         layoutAndSpacing: "Mise en page et espacement",
         calculator: "Calculatrice",
         hideOnScreenshot: "Masquer KoBar pendant la capture",
-        hideOnScreenshotDesc: "Masque temporairement l'application pour ne pas gêner la zone de capture.",
+        hideOnScreenshotDesc: "Masquer KoBar pendant la capture. Utilisez Ctrl+Maj+S ou Impress.écr pour masquer.",
     },
     es: {
         settings: "Ajustes",
@@ -274,7 +274,7 @@ export const translations = {
         layoutAndSpacing: "Diseño y espaciado",
         calculator: "Calculadora",
         hideOnScreenshot: "Ocultar KoBar durante la captura",
-        hideOnScreenshotDesc: "Oculta temporalmente la aplicación para que no interfiera con el área de captura.",
+        hideOnScreenshotDesc: "Ocultar KoBar durante la captura. Use Ctrl+Mayús+S o Impr Pant para ocultar.",
     },
     ru: {
         settings: "Настройки",
@@ -324,7 +324,7 @@ export const translations = {
         layoutAndSpacing: "Макет и интервалы",
         calculator: "Калькулятор",
         hideOnScreenshot: "Скрывать KoBar во время скриншота",
-        hideOnScreenshotDesc: "Временно скрывает приложение, чтобы оно не мешало области захвата экрана.",
+        hideOnScreenshotDesc: "Скрывать KoBar во время скриншота. Используйте Ctrl+Shift+S или PrintScreen.",
     },
     ar: {
         settings: "الإعدادات",
@@ -374,7 +374,7 @@ export const translations = {
         layoutAndSpacing: "التخطيط والتباعد",
         calculator: "آلة حاسبة",
         hideOnScreenshot: "إخفاء KoBar أثناء لقطة الشاشة",
-        hideOnScreenshotDesc: "يخفي التطبيق مؤقتًا حتى لا يتعارض مع منطقة التقاط الشاشة.",
+        hideOnScreenshotDesc: "إخفاء KoBar أثناء لقطة الشاشة. استخدم Ctrl+Shift+S أو PrintScreen للإخفاء.",
     },
     zh: {
         settings: "设置",
@@ -424,7 +424,7 @@ export const translations = {
         layoutAndSpacing: "布局与间距",
         calculator: "计算器",
         hideOnScreenshot: "截图时隐藏 KoBar",
-        hideOnScreenshotDesc: "临时隐藏应用程序，以免干扰屏幕捕捉区域。",
+        hideOnScreenshotDesc: "截图时隐藏 KoBar。使用 Ctrl+Shift+S 或 PrintScreen 隐藏并截图。",
     },
     ja: {
         settings: "設定",
@@ -474,7 +474,7 @@ export const translations = {
         layoutAndSpacing: "レイアウトと間隔",
         calculator: "電卓",
         hideOnScreenshot: "スクリーンショット時に KoBar を非表示にする",
-        hideOnScreenshotDesc: "キャプチャ領域に干渉しないように、アプリを一時的に非表示にします。",
+        hideOnScreenshotDesc: "スクリーンショット時に KoBar を非表示にする。Ctrl+Shift+S または PrintScreen を使用。",
     },
     hi: {
         settings: "सेटिंग्स",
@@ -524,7 +524,7 @@ export const translations = {
         layoutAndSpacing: "लेआउट और स्पेसिंग",
         calculator: "कैलकुलेटर",
         hideOnScreenshot: "स्क्रीनशॉट के दौरान KoBar छिपाएँ",
-        hideOnScreenshotDesc: "एप्लिकेशन को अस्थायी रूप से छिपा देता है ताकि यह स्क्रीन कैप्चर क्षेत्र में हस्तक्षेप न करे।",
+        hideOnScreenshotDesc: "स्क्रीनशॉट के दौरान KoBar छिपाएँ। छिपाने और काटने के लिए Ctrl+Shift+S या PrintScreen का उपयोग करें।",
     },
 } as const;
 

@@ -126,9 +126,13 @@ function startClipboardPolling() {
             if (currentDataUrl !== lastClipboardImageDataUrl) {
                 lastClipboardImageDataUrl = currentDataUrl;
                 lastClipboardText = '';
-                
-                if (mainWindow && !mainWindow.isVisible()) {
-                    mainWindow.show();
+
+                if (mainWindow) {
+                    if (!mainWindow.isVisible()) {
+                        mainWindow.show();
+                    }
+                    mainWindow.setAlwaysOnTop(true, 'screen-saver');
+                    mainWindow.focus();
                 }
 
                 mainWindow.webContents.send('clipboard-updated', {
@@ -168,7 +172,10 @@ function createTray() {
             label: 'Settings',
             click: () => {
                 if (mainWindow) {
-                    if (!mainWindow.isVisible()) mainWindow.show();
+                    if (!mainWindow.isVisible()) {
+                        mainWindow.show();
+                        mainWindow.setAlwaysOnTop(true, 'screen-saver');
+                    }
                     mainWindow.webContents.send('open-settings');
                 }
             }
@@ -187,7 +194,12 @@ function createTray() {
 
     tray.on('double-click', () => {
         if (mainWindow) {
-            mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+            if (mainWindow.isVisible()) {
+                mainWindow.hide();
+            } else {
+                mainWindow.show();
+                mainWindow.setAlwaysOnTop(true, 'screen-saver');
+            }
         }
     });
 }

@@ -22,7 +22,11 @@ const Sidebar: React.FC = () => {
     const deleteTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
     React.useEffect(() => {
-        const handleDocClick = () => setDeletingId(null);
+        const handleDocClick = (e: MouseEvent) => {
+            if (!(e.target as HTMLElement).closest('.shortcut-item')) {
+                setDeletingId(null);
+            }
+        };
         document.addEventListener('mousedown', handleDocClick);
         return () => document.removeEventListener('mousedown', handleDocClick);
     }, []);
@@ -128,7 +132,7 @@ const Sidebar: React.FC = () => {
                                                 const appInitials = app.name ? app.name.substring(0, 2).toUpperCase() : '??';
 
                                                 return (
-                                                    <div key={app.id} className="relative w-12 h-12 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                    <div key={app.id} className="shortcut-item relative w-12 h-12 animate-in fade-in slide-in-from-top-2 duration-300">
                                                         <TooltipButton
                                                             label={app.name}
                                                             className="w-full h-full rounded-xl border flex items-center justify-center overflow-hidden transition-all hover:scale-110 active:scale-95 shadow-lg bg-[#1e1b17]"
@@ -152,6 +156,7 @@ const Sidebar: React.FC = () => {
 
                                                         {deletingId === app.id && (
                                                             <button
+                                                                onMouseDown={(e) => e.stopPropagation()}
                                                                 onClick={(e) => { e.stopPropagation(); unpinApp(app.id); setDeletingId(null); }}
                                                                 className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
                                                             >

@@ -4,6 +4,7 @@ import { useAppStore } from './store/useAppStore';
 import Sidebar from './components/layout/Sidebar';
 import NotePanel from './components/notes/NotePanel';
 import FloatingEye from './components/layout/FloatingEye';
+import CalculatorPopup from './components/layout/CalculatorPopup';
 import LicenseActivationModal from './components/license/LicenseActivationModal';
 
 // Global flag: when true, the ghost-window logic won't steal focus
@@ -15,7 +16,7 @@ export function setIsResizingGlobal(v: boolean) { isResizingGlobal = v; }
 export const IS_STORE_BUILD = true;
 
 const App: React.FC = () => {
-  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme, isLicensed, setLicensed } = useAppStore();
+  const { edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme, isLicensed, setLicensed, isCalculatorOpen } = useAppStore();
 
   // Apply persisted theme on mount
   useEffect(() => {
@@ -103,6 +104,8 @@ const App: React.FC = () => {
       </div>
 
       {isMiniMode && <FloatingEye />}
+
+      {isCalculatorOpen && isLicensed && !isMiniMode && <CalculatorPopup />}
 
       {!IS_STORE_BUILD && !isLicensed && (
         <LicenseActivationModal onSuccess={() => setLicensed(true)} />

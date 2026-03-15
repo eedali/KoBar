@@ -107,6 +107,12 @@ interface AppState {
     stopFocusMode: () => void;
     tickFocusTracker: () => void;
 
+    // Calculator Popup State
+    isCalculatorOpen: boolean;
+    setIsCalculatorOpen: (val: boolean) => void;
+    calculatorAnchorRect: { top: number, left: number, bottom: number, right: number, width: number, height: number } | null;
+    setCalculatorAnchorRect: (rect: { top: number, left: number, bottom: number, right: number, width: number, height: number } | null) => void;
+
     // License
     isLicensed: boolean;
     setLicensed: (val: boolean) => void;
@@ -317,6 +323,12 @@ export const useAppStore = create<AppState>()(
                     nextNoteId: nextId,
                 };
             }),
+
+            // Calculator Popup State
+            isCalculatorOpen: false,
+            setIsCalculatorOpen: (val) => set({ isCalculatorOpen: val }),
+            calculatorAnchorRect: null,
+            setCalculatorAnchorRect: (rect) => set({ calculatorAnchorRect: rect }),
 
             // License
             isLicensed: false,

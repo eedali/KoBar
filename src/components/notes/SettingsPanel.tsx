@@ -58,6 +58,7 @@ const SettingsPanel: React.FC = () => {
         isCopyPasteEnabled, setIsCopyPasteEnabled,
         isScreenshotEnabled, setIsScreenshotEnabled,
         isFocusModeEnabled, setIsFocusModeEnabled,
+        isCalculatorEnabled, setIsCalculatorEnabled,
         featureOrder, setFeatureOrder,
         toggleWidth, setToggleWidth,
         featureSpacing, setFeatureSpacing
@@ -228,7 +229,21 @@ const SettingsPanel: React.FC = () => {
                         masterToggle={{ isOn: isFocusModeEnabled, onToggle: () => setIsFocusModeEnabled(!isFocusModeEnabled) }}
                     >
                         <div className="text-sm text-slate-400">
-                             {/* Can add Focus specific overrides here later if needed */}
+                             {/* Focus Mode specific settings */}
+                        </div>
+                    </Accordion>
+                );
+                break;
+            case 'calculator':
+                content = (
+                    <Accordion 
+                        title={t('calculator')} 
+                        icon="calculate" 
+                        defaultOpen={false}
+                        masterToggle={{ isOn: isCalculatorEnabled, onToggle: () => setIsCalculatorEnabled(!isCalculatorEnabled) }}
+                    >
+                        <div className="text-sm text-slate-400">
+                             {/* Calculator specific settings */}
                         </div>
                     </Accordion>
                 );

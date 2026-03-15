@@ -3,13 +3,14 @@ import ClipboardSlots from '../clipboard/ClipboardSlots';
 import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
 import FocusButton from './FocusButton';
+import CalculatorButton from './CalculatorButton';
 import TooltipButton from './TooltipButton';
 
 const Sidebar: React.FC = () => {
     const { 
         toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, 
         pinnedApps, pinApp, unpinApp, t,
-        isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, maxShortcuts,
+        isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, isCalculatorEnabled, maxShortcuts,
         toggleWidth, featureOrder, featureSpacing
     } = useAppStore();
     
@@ -191,6 +192,12 @@ const Sidebar: React.FC = () => {
                                 return isFocusModeEnabled ? (
                                     <div key="focusmode" className="w-full flex justify-center no-drag-region">
                                         <FocusButton />
+                                    </div>
+                                ) : null;
+                            case 'calculator':
+                                return isCalculatorEnabled ? (
+                                    <div key="calculator" className="w-full flex justify-center no-drag-region">
+                                        <CalculatorButton />
                                     </div>
                                 ) : null;
                             default:

@@ -72,6 +72,7 @@ export const translations = {
         featureSpacingConfig: "Feature Spacing",
         uiLayout: "UI Layout",
         layoutAndSpacing: "Layout & Spacing",
+        calculator: "Calculator",
     },
     tr: {
         settings: "Ayarlar",
@@ -119,6 +120,7 @@ export const translations = {
         featureSpacingConfig: "Aralık Boşluğu",
         uiLayout: "UI Düzeni",
         layoutAndSpacing: "Düzen ve Boşluklar",
+        calculator: "Hesap Makinesi",
     },
     de: {
         settings: "Einstellungen",
@@ -166,6 +168,7 @@ export const translations = {
         featureSpacingConfig: "Abstand der Funktionen",
         uiLayout: "UI-Layout",
         layoutAndSpacing: "Layout & Abstände",
+        calculator: "Rechner",
     },
     fr: {
         settings: "Paramètres",
@@ -213,6 +216,7 @@ export const translations = {
         featureSpacingConfig: "Espacement",
         uiLayout: "Mise en page UI",
         layoutAndSpacing: "Mise en page et espacement",
+        calculator: "Calculatrice",
     },
     es: {
         settings: "Ajustes",
@@ -260,6 +264,7 @@ export const translations = {
         featureSpacingConfig: "Espaciado de funciones",
         uiLayout: "Diseño de UI",
         layoutAndSpacing: "Diseño y espaciado",
+        calculator: "Calculadora",
     },
     ru: {
         settings: "Настройки",
@@ -307,6 +312,7 @@ export const translations = {
         featureSpacingConfig: "Интервал",
         uiLayout: "Макет интерфейса",
         layoutAndSpacing: "Макет и интервалы",
+        calculator: "Калькулятор",
     },
     ar: {
         settings: "الإعدادات",
@@ -354,6 +360,7 @@ export const translations = {
         featureSpacingConfig: "تباعد الميزات",
         uiLayout: "تخطيط واجهة المستخدم",
         layoutAndSpacing: "التخطيط والتباعد",
+        calculator: "آلة حاسبة",
     },
     zh: {
         settings: "设置",
@@ -401,6 +408,7 @@ export const translations = {
         featureSpacingConfig: "功能间距",
         uiLayout: "UI 布局",
         layoutAndSpacing: "布局与间距",
+        calculator: "计算器",
     },
     ja: {
         settings: "設定",
@@ -448,6 +456,7 @@ export const translations = {
         featureSpacingConfig: "機能の間隔",
         uiLayout: "UI レイアウト",
         layoutAndSpacing: "レイアウトと間隔",
+        calculator: "電卓",
     },
     hi: {
         settings: "सेटिंग्स",
@@ -495,6 +504,7 @@ export const translations = {
         featureSpacingConfig: "फ़ीचर स्पेसिंग",
         uiLayout: "UI लेआउट",
         layoutAndSpacing: "लेआउट और स्पेसिंग",
+        calculator: "कैलकुलेटर",
     },
 } as const;
 

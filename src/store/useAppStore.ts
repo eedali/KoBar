@@ -78,6 +78,9 @@ interface AppState {
     isFocusModeEnabled: boolean;
     setIsFocusModeEnabled: (val: boolean) => void;
 
+    isCalculatorEnabled: boolean;
+    setIsCalculatorEnabled: (val: boolean) => void;
+
     featureOrder: string[];
     setFeatureOrder: (order: string[]) => void;
     
@@ -191,9 +194,12 @@ export const useAppStore = create<AppState>()(
             setIsScreenshotEnabled: (val) => set({ isScreenshotEnabled: val }),
             
             isFocusModeEnabled: true,
-            setIsFocusModeEnabled: (val) => set({ isFocusModeEnabled: val }),
+            setIsFocusModeEnabled: (val: boolean) => set({ isFocusModeEnabled: val }),
 
-            featureOrder: ['shortcuts', 'copypaste', 'screenshot', 'focusmode'],
+            isCalculatorEnabled: true,
+            setIsCalculatorEnabled: (val: boolean) => set({ isCalculatorEnabled: val }),
+
+            featureOrder: ['shortcuts', 'copypaste', 'screenshot', 'focusmode', 'calculator'],
             setFeatureOrder: (order) => set({ featureOrder: order }),
             
             // UI Spacing & Sizing (defaults)
@@ -318,6 +324,20 @@ export const useAppStore = create<AppState>()(
         }),
         {
             name: 'kobar-storage',
+            version: 1,
+            migrate: (persistedState: any, version: number) => {
+                if (version === 0) {
+                    // Ensure 'calculator' is in the order if it's missing
+                    if (persistedState.featureOrder && !persistedState.featureOrder.includes('calculator')) {
+                        persistedState.featureOrder = [...persistedState.featureOrder, 'calculator'];
+                    }
+                    // Ensure it's enabled by default if not set
+                    if (persistedState.isCalculatorEnabled === undefined) {
+                        persistedState.isCalculatorEnabled = true;
+                    }
+                }
+                return persistedState;
+            },
             partialize: (state) => ({
                 notes: state.notes,
                 activeNoteId: state.activeNoteId,
@@ -335,6 +355,7 @@ export const useAppStore = create<AppState>()(
                 isCopyPasteEnabled: state.isCopyPasteEnabled,
                 isScreenshotEnabled: state.isScreenshotEnabled,
                 isFocusModeEnabled: state.isFocusModeEnabled,
+                isCalculatorEnabled: state.isCalculatorEnabled,
                 featureOrder: state.featureOrder,
             }),
         }

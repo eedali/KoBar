@@ -67,7 +67,7 @@ const NotePanel: React.FC = () => {
             const target = e.target as HTMLElement;
             // Don't close if they clicked the trigger icon itself or the picker
             if (target.closest('.emoji-trigger')) return;
-            
+
             if (emojiPickerRef.current && !emojiPickerRef.current.contains(target)) {
                 setEmojiPickerTabId(null);
             }
@@ -162,8 +162,8 @@ const NotePanel: React.FC = () => {
             style={{
                 width: `${localWidth}px`,
                 height: `${localHeight}px`,
-                backgroundColor: design === 'style2' 
-                    ? `color-mix(in srgb, var(--theme-bg-base) ${glassOpacity}%, transparent)` 
+                backgroundColor: design === 'style2'
+                    ? `color-mix(in srgb, var(--theme-bg-base) ${glassOpacity}%, transparent)`
                     : 'var(--theme-bg-base)',
                 borderColor: design === 'style2' ? 'rgba(255, 255, 255, 0.1)' : 'var(--theme-border)',
                 backdropFilter: design === 'style2' ? 'blur(32px)' : 'none',
@@ -256,8 +256,8 @@ const NotePanel: React.FC = () => {
                         style={{
                             top: `${deleteConfirm.y + 10}px`,
                             left: `${deleteConfirm.x - 60}px`,
-                            backgroundColor: design === 'style2' 
-                                ? `color-mix(in srgb, var(--theme-bg-dark) 80%, transparent)` 
+                            backgroundColor: design === 'style2'
+                                ? `color-mix(in srgb, var(--theme-bg-dark) 80%, transparent)`
                                 : 'var(--theme-bg-dark)',
                             borderColor: design === 'style2' ? 'rgba(255,255,255,0.1)' : 'var(--theme-border)',
                             backdropFilter: design === 'style2' ? 'blur(16px)' : 'none',
@@ -290,7 +290,7 @@ const NotePanel: React.FC = () => {
                     ref={emojiPickerRef}
                     className="absolute z-[100] no-drag-region shadow-2xl rounded-xl overflow-hidden pointer-events-auto"
                     style={{
-                        top: '80px', 
+                        top: '80px',
                         left: edgePosition === 'left' ? '20px' : 'auto',
                         right: edgePosition === 'right' ? '20px' : 'auto',
                         backgroundColor: 'var(--theme-bg-dark)',
@@ -319,4 +319,3 @@ const NotePanel: React.FC = () => {
 };
 
 export default NotePanel;
-

@@ -10,7 +10,7 @@ const Sidebar: React.FC = () => {
         toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, 
         pinnedApps, pinApp, unpinApp, t,
         isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, maxShortcuts,
-        toggleWidth, openSettingsTab, featureOrder, featureSpacing
+        toggleWidth, featureOrder, featureSpacing
     } = useAppStore();
     
     const [isDragging, setIsDragging] = React.useState(false);
@@ -207,14 +207,6 @@ const Sidebar: React.FC = () => {
 
                 {/* 1c. Bottom Static Utilities (Always Bottom) */}
                 <div className="flex flex-col items-center gap-4 no-drag-region shrink-0 px-2 pb-2">
-                    <TooltipButton
-                        label={t('settings')}
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all hover:bg-white/5"
-                        onClick={openSettingsTab}
-                    >
-                        <span className="material-symbols-outlined text-[24px]">settings</span>
-                    </TooltipButton>
-
                     <TooltipButton
                         label={t('miniMode')}
                         buttonRef={eyeButtonRef}

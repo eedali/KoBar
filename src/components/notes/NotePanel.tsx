@@ -9,7 +9,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 const NotePanel: React.FC = () => {
     const {
         isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight, setNotePanelWidth,
-        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t,
+        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t, openSettingsTab,
     } = useAppStore();
 
     const activeNote = notes.find(n => n.id === activeNoteId);
@@ -175,7 +175,7 @@ const NotePanel: React.FC = () => {
                     onMouseLeave={handleTabsMouseLeave}
                     onMouseUp={handleTabsMouseUp}
                     onMouseMove={handleTabsMouseMove}
-                    className={`flex gap-2 overflow-x-auto scrollbar-hide snap-x select-none ${isDraggingTabs ? 'cursor-grabbing' : 'cursor-grab'}`}
+                    className={`flex-1 flex gap-2 overflow-x-auto scrollbar-hide snap-x select-none ${isDraggingTabs ? 'cursor-grabbing' : 'cursor-grab'}`}
                 >
                     {notes.map((note) => (
                         <button
@@ -222,6 +222,15 @@ const NotePanel: React.FC = () => {
                         <span className="material-symbols-outlined text-[18px]">add</span>
                     </button>
                 </div>
+
+                {/* Settings Button (Fixed in Top Right) */}
+                <button
+                    onClick={openSettingsTab}
+                    className="mb-2 p-1.5 text-slate-500 hover:text-primary transition-all rounded-lg hover:bg-white/5 flex items-center justify-center pointer-events-auto"
+                    title={t('settings')}
+                >
+                    <span className="material-symbols-outlined text-[22px]">settings</span>
+                </button>
 
                 {/* Emoji Picker Popover */}
                 {emojiPickerTabId !== null && (

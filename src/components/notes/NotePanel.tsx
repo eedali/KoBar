@@ -44,6 +44,7 @@ const NotePanel: React.FC = () => {
     }, []);
 
     const [emojiPickerTabId, setEmojiPickerTabId] = useState<number | null>(null);
+    const [emojiPickerX, setEmojiPickerX] = useState<number>(0);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<{ id: number, x: number, y: number } | null>(null);
     const deleteConfirmRef = useRef<HTMLDivElement>(null);
@@ -107,8 +108,28 @@ const NotePanel: React.FC = () => {
 
     const toggleEmojiPicker = (e: React.MouseEvent, tabId: number) => {
         e.stopPropagation();
-        console.log(`[DEBUG] Toggling emoji picker for tab: ${tabId}`);
-        setEmojiPickerTabId(prev => prev === tabId ? null : tabId);
+        
+        if (emojiPickerTabId === tabId) {
+            setEmojiPickerTabId(null);
+            return;
+        }
+
+        // Calculate position relative to the container
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const parentRect = (e.currentTarget as HTMLElement).closest('.relative')?.getBoundingClientRect();
+        
+        if (parentRect) {
+            let leftPos = (rect.left - parentRect.left) + (rect.width / 2) - 150; // 150 is half of picker width (300)
+            
+            // Constrain within the panel (don't go off left/right edges)
+            const minPadding = 20;
+            const maxLeft = localWidth - 320; // picker width (300) + padding
+            leftPos = Math.max(minPadding, Math.min(leftPos, maxLeft));
+            
+            setEmojiPickerX(leftPos);
+        }
+        
+        setEmojiPickerTabId(tabId);
     };
 
     const tabsRef = useRef<HTMLDivElement>(null);
@@ -290,9 +311,8 @@ const NotePanel: React.FC = () => {
                     ref={emojiPickerRef}
                     className="absolute z-[100] no-drag-region shadow-2xl rounded-xl overflow-hidden pointer-events-auto"
                     style={{
-                        top: '80px',
-                        left: edgePosition === 'left' ? '20px' : 'auto',
-                        right: edgePosition === 'right' ? '20px' : 'auto',
+                        top: '80px', 
+                        left: `${emojiPickerX}px`,
                         backgroundColor: 'var(--theme-bg-dark)',
                         border: '1px solid rgba(255,255,255,0.1)'
                     }}

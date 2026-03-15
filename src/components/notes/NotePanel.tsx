@@ -64,7 +64,11 @@ const NotePanel: React.FC = () => {
     // Close emoji picker on outside click
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target as Node)) {
+            const target = e.target as HTMLElement;
+            // Don't close if they clicked the trigger icon itself or the picker
+            if (target.closest('.emoji-trigger')) return;
+            
+            if (emojiPickerRef.current && !emojiPickerRef.current.contains(target)) {
                 setEmojiPickerTabId(null);
             }
         };
@@ -103,6 +107,7 @@ const NotePanel: React.FC = () => {
 
     const toggleEmojiPicker = (e: React.MouseEvent, tabId: number) => {
         e.stopPropagation();
+        console.log(`[DEBUG] Toggling emoji picker for tab: ${tabId}`);
         setEmojiPickerTabId(prev => prev === tabId ? null : tabId);
     };
 
@@ -184,12 +189,13 @@ const NotePanel: React.FC = () => {
                     className={`flex-1 flex gap-2 overflow-x-auto scrollbar-hide snap-x select-none ${isDraggingTabs ? 'cursor-grabbing' : 'cursor-grab'}`}
                 >
                     {notes.map((note) => (
-                        <button
+                        <div
                             key={note.id}
+                            role="button"
                             onClick={() => handleTabClick(note.id)}
-                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 snap-start ${note.id === activeNoteId
+                            className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 snap-start no-drag-region ${note.id === activeNoteId
                                 ? 'text-slate-200 border border-b-0 relative top-[1px]'
-                                : 'text-slate-400 hover:text-slate-200'
+                                : 'text-slate-400 hover:text-slate-200 cursor-pointer'
                                 }`}
                             style={note.id === activeNoteId ? {
                                 backgroundColor: design === 'style2' ? 'transparent' : 'var(--theme-bg-base)',
@@ -202,13 +208,14 @@ const NotePanel: React.FC = () => {
                                     if (note.isSettings) return;
                                     toggleEmojiPicker(e, note.id);
                                 }}
-                                className={`${note.isSettings ? '' : 'cursor-pointer hover:scale-110 transition-transform'}`}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                className={`emoji-trigger ${note.isSettings ? '' : 'cursor-pointer hover:scale-110 transition-transform'}`}
                                 title={note.isSettings ? '' : t('changeIcon')}
                             >
                                 {note.emoji ? (
-                                    <span className="text-[18px]">{note.emoji}</span>
+                                    <span className="text-[18px] pointer-events-none">{note.emoji}</span>
                                 ) : (
-                                    <span className="material-symbols-outlined text-[18px]">{note.icon}</span>
+                                    <span className="material-symbols-outlined text-[18px] pointer-events-none">{note.icon}</span>
                                 )}
                             </span>
                             {note.isSettings ? t('settings') : note.title}
@@ -221,7 +228,7 @@ const NotePanel: React.FC = () => {
                                     close
                                 </span>
                             )}
-                        </button>
+                        </div>
                     ))}
                     <button
                         onClick={() => addNote()}
@@ -240,29 +247,6 @@ const NotePanel: React.FC = () => {
                 >
                     <span className="material-symbols-outlined text-[22px]">settings</span>
                 </button>
-
-                {/* Emoji Picker Popover */}
-                {emojiPickerTabId !== null && createPortal(
-                    <div
-                        ref={emojiPickerRef}
-                        className="fixed z-[100] no-drag-region shadow-2xl rounded-xl overflow-hidden pointer-events-auto"
-                        style={{
-                            top: '80px', // Roughly below the tabs
-                            left: edgePosition === 'left' ? '120px' : 'auto',
-                            right: edgePosition === 'right' ? '120px' : 'auto',
-                        }}
-                    >
-                        <EmojiPicker
-                            onEmojiClick={handleEmojiSelect}
-                            theme={Theme.DARK}
-                            width={320}
-                            height={400}
-                            searchPlaceholder="Search emoji..."
-                            lazyLoadEmojis
-                        />
-                    </div>,
-                    document.body
-                )}
 
                 {/* Delete Confirm Popup */}
                 {deleteConfirm !== null && createPortal(
@@ -299,6 +283,30 @@ const NotePanel: React.FC = () => {
                     document.body
                 )}
             </div>
+
+            {/* Emoji Picker Popover - Absolutely positioned within NotePanel */}
+            {emojiPickerTabId !== null && (
+                <div
+                    ref={emojiPickerRef}
+                    className="absolute z-[100] no-drag-region shadow-2xl rounded-xl overflow-hidden pointer-events-auto"
+                    style={{
+                        top: '80px', 
+                        left: edgePosition === 'left' ? '20px' : 'auto',
+                        right: edgePosition === 'right' ? '20px' : 'auto',
+                        backgroundColor: 'var(--theme-bg-dark)',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                    }}
+                >
+                    <EmojiPicker
+                        onEmojiClick={handleEmojiSelect}
+                        theme={Theme.DARK}
+                        width={300}
+                        height={350}
+                        searchPlaceholder="Search emoji..."
+                        lazyLoadEmojis
+                    />
+                </div>
+            )}
 
             {/* Editor or Settings Area */}
             {activeNote?.isSettings ? (

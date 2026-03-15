@@ -3,7 +3,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { setIsResizingGlobal } from '../../App';
 
 const FloatingEye: React.FC = () => {
-    const { setMiniMode, edgePosition, miniModePosition } = useAppStore();
+    const { setMiniMode, edgePosition, miniModePosition, design, glassOpacity } = useAppStore();
 
     // Spawn exactly where the cursor is! Or default to center if missing.
     const defaultX = miniModePosition?.x ?? (edgePosition === 'left' ? (window.innerWidth / 2) - 100 : (window.innerWidth / 2) + 100);
@@ -71,8 +71,16 @@ const FloatingEye: React.FC = () => {
             onMouseDown={handleMouseDown}
             onClick={handleClick}
         >
-            <button className="w-12 h-12 rounded-full bg-[#14110e] border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_20px_rgba(244,161,37,0.4)] transition-transform hover:scale-105 active:scale-95 cursor-grab active:cursor-grabbing hover:bg-[#1a1612]">
-                <span className="material-symbols-outlined text-[24px]">visibility</span>
+            <button 
+                className={`w-12 h-12 rounded-full border-2 border-primary text-primary flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-grab active:cursor-grabbing group
+                    ${design === 'style2' ? 'backdrop-blur-xl shadow-[0_0_20px_rgba(255,255,255,0.05)]' : 'shadow-[0_0_20px_rgba(244,161,37,0.4)]'}`}
+                style={{
+                    backgroundColor: design === 'style2' 
+                        ? `color-mix(in srgb, var(--theme-bg-dark) ${glassOpacity}%, transparent)` 
+                        : 'var(--theme-bg-dark)'
+                }}
+            >
+                <span className="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">visibility</span>
             </button>
         </div>
     );

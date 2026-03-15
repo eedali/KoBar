@@ -7,7 +7,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { useAppStore } from '../../store/useAppStore';
 
 const NoteEditor: React.FC = () => {
-    const { activeNoteId, updateNoteContent, updateNoteTitle, t } = useAppStore();
+    const { activeNoteId, updateNoteContent, updateNoteTitle, t, design } = useAppStore();
     const activeNote = useAppStore((state) => state.notes.find(n => n.id === activeNoteId));
     const fileInputRef = useRef<HTMLInputElement>(null);
     const isUpdatingFromStore = useRef(false);
@@ -120,7 +120,7 @@ const NoteEditor: React.FC = () => {
     if (!editor || !activeNote) return null;
 
     return (
-        <div className="flex-1 p-8 flex flex-col overflow-y-auto w-full max-w-full">
+        <div className={`flex-1 p-8 flex flex-col overflow-y-auto w-full max-w-full ${design === 'style2' ? 'bg-transparent' : ''}`}>
             {/* Hidden file input for image selection */}
             <input
                 ref={fileInputRef}

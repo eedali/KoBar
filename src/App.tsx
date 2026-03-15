@@ -18,13 +18,14 @@ export const IS_STORE_BUILD = true;
 const App: React.FC = () => {
   const { 
     edgePosition, setEdgePosition, isNotePanelOpen, isMiniMode, theme, isLicensed, setLicensed, 
-    isCalculatorOpen 
+    isCalculatorOpen, design 
   } = useAppStore();
 
-  // Apply persisted theme on mount
+  // Apply persisted theme/design on mount
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    document.documentElement.setAttribute('data-design', design);
+  }, [theme, design]);
 
   // Focus Tracker Interval
   useEffect(() => {

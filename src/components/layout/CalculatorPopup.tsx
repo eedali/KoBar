@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 
 const CalculatorPopup: React.FC = () => {
-    const { t, edgePosition, calculatorAnchorRect, setIsCalculatorOpen } = useAppStore();
+    const { t, edgePosition, calculatorAnchorRect, setIsCalculatorOpen, design, glassOpacity } = useAppStore();
     const [display, setDisplay] = useState('0');
     const [prevValue, setPrevValue] = useState<number | null>(null);
     const [operator, setOperator] = useState<string | null>(null);
@@ -19,8 +19,11 @@ const CalculatorPopup: React.FC = () => {
             position: 'fixed',
             top: Math.max(10, rect.top), 
             zIndex: 99999,
-            backgroundColor: 'var(--theme-surface)',
-            borderColor: 'var(--theme-border)',
+            backgroundColor: design === 'style2' 
+                ? `color-mix(in srgb, var(--theme-surface) ${glassOpacity}%, transparent)` 
+                : 'var(--theme-surface)',
+            borderColor: design === 'style2' ? 'rgba(255, 255, 255, 0.1)' : 'var(--theme-border)',
+            backdropFilter: design === 'style2' ? 'blur(24px)' : 'none',
         };
 
         if (edgePosition === 'left') {
@@ -139,7 +142,8 @@ const CalculatorPopup: React.FC = () => {
     return (
         <div
             ref={popupRef}
-            className="w-64 rounded-xl border p-4 shadow-2xl pointer-events-auto animate-in fade-in zoom-in duration-200"
+            className={`w-64 border p-4 shadow-2xl pointer-events-auto animate-in fade-in zoom-in duration-200 transition-all duration-500
+                ${design === 'style2' ? 'rounded-[2rem]' : 'rounded-xl'}`}
             style={getPopupStyle()}
         >
             {/* Header with Close Button */}

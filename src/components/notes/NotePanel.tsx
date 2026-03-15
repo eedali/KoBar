@@ -10,7 +10,7 @@ import type { EmojiClickData } from 'emoji-picker-react';
 const NotePanel: React.FC = () => {
     const {
         isNotePanelOpen, notePanelWidth, notePanelHeight, setNotePanelHeight, setNotePanelWidth,
-        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t, openSettingsTab, edgePosition,
+        notes, activeNoteId, setActiveNoteId, addNote, deleteNote, updateNoteEmoji, t, openSettingsTab, edgePosition, design, glassOpacity
     } = useAppStore();
 
     const activeNote = notes.find(n => n.id === activeNoteId);
@@ -152,12 +152,16 @@ const NotePanel: React.FC = () => {
 
     return (
         <div
-            className={`relative flex flex-col border z-30 shadow-2xl shrink-0 pointer-events-auto ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}`}
+            className={`relative flex flex-col border z-30 shadow-2xl shrink-0 pointer-events-auto transition-all duration-500 ${isNotePanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0 border-none'}
+                ${design === 'style2' ? 'rounded-[2.5rem]' : ''}`}
             style={{
                 width: `${localWidth}px`,
                 height: `${localHeight}px`,
-                backgroundColor: 'var(--theme-bg-base)',
-                borderColor: 'var(--theme-border)',
+                backgroundColor: design === 'style2' 
+                    ? `color-mix(in srgb, var(--theme-bg-base) ${glassOpacity}%, transparent)` 
+                    : 'var(--theme-bg-base)',
+                borderColor: design === 'style2' ? 'rgba(255, 255, 255, 0.1)' : 'var(--theme-border)',
+                backdropFilter: design === 'style2' ? 'blur(32px)' : 'none',
             }}
         >
             {/* Side Resizer */}
@@ -168,7 +172,8 @@ const NotePanel: React.FC = () => {
             <ResizerHandle direction="corner" onResizeTemp={handleResizeTemp} />
 
             {/* Tabs Header */}
-            <div className="flex items-end border-b pt-4 px-4 gap-6 no-drag-region shrink-0 relative" style={{ borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg-dark)' }}>
+            <div className={`flex items-end border-b pt-4 px-4 gap-6 no-drag-region shrink-0 relative transition-all duration-500
+                ${design === 'style2' ? 'bg-transparent border-white/5' : 'bg-[var(--theme-bg-dark)] border-[var(--theme-border)]'}`}>
                 <div
                     ref={tabsRef}
                     onWheel={handleWheel}
@@ -184,9 +189,12 @@ const NotePanel: React.FC = () => {
                             onClick={() => handleTabClick(note.id)}
                             className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 snap-start ${note.id === activeNoteId
                                 ? 'text-slate-200 border border-b-0 relative top-[1px]'
-                                + ' bg-[var(--theme-bg-base)] border-[var(--theme-border)]'
                                 : 'text-slate-400 hover:text-slate-200'
                                 }`}
+                            style={note.id === activeNoteId ? {
+                                backgroundColor: design === 'style2' ? 'transparent' : 'var(--theme-bg-base)',
+                                borderColor: design === 'style2' ? 'rgba(255,255,255,0.05)' : 'var(--theme-border)'
+                            } : {}}
                         >
                             {/* Icon: emoji or Material icon */}
                             <span
@@ -264,8 +272,11 @@ const NotePanel: React.FC = () => {
                         style={{
                             top: `${deleteConfirm.y + 10}px`,
                             left: `${deleteConfirm.x - 60}px`,
-                            backgroundColor: 'var(--theme-bg-dark)',
-                            borderColor: 'var(--theme-border)',
+                            backgroundColor: design === 'style2' 
+                                ? `color-mix(in srgb, var(--theme-bg-dark) 80%, transparent)` 
+                                : 'var(--theme-bg-dark)',
+                            borderColor: design === 'style2' ? 'rgba(255,255,255,0.1)' : 'var(--theme-border)',
+                            backdropFilter: design === 'style2' ? 'blur(16px)' : 'none',
                         }}
                     >
                         <span className="text-slate-200 text-sm mb-4">{t('deleteConfirmMsg')}</span>
@@ -273,7 +284,7 @@ const NotePanel: React.FC = () => {
                             <button
                                 onClick={(e) => { e.stopPropagation(); cancelDelete(); }}
                                 className="px-4 py-1.5 text-xs font-medium text-slate-300 hover:text-white transition-colors rounded-md"
-                                style={{ backgroundColor: 'var(--theme-bg-base)' }}
+                                style={{ backgroundColor: design === 'style2' ? 'rgba(255,255,255,0.05)' : 'var(--theme-bg-base)' }}
                             >
                                 {t('cancel')}
                             </button>

@@ -59,6 +59,11 @@ interface AppState {
     // Theme
     theme: ThemeName;
     setTheme: (theme: ThemeName) => void;
+    // Design System
+    design: 'style1' | 'style2';
+    setDesign: (design: 'style1' | 'style2') => void;
+    glassOpacity: number;
+    setGlassOpacity: (val: number) => void;
     // Settings
     showTooltips: boolean;
     setShowTooltips: (val: boolean) => void;
@@ -184,6 +189,15 @@ export const useAppStore = create<AppState>()(
                 document.documentElement.setAttribute('data-theme', theme);
                 set({ theme });
             },
+
+            // Design System
+            design: 'style1',
+            setDesign: (design) => {
+                document.documentElement.setAttribute('data-design', design);
+                set({ design });
+            },
+            glassOpacity: 60,
+            setGlassOpacity: (val) => set({ glassOpacity: val }),
 
             // Settings
             showTooltips: true,
@@ -374,6 +388,8 @@ export const useAppStore = create<AppState>()(
                 isFocusModeEnabled: state.isFocusModeEnabled,
                 isCalculatorEnabled: state.isCalculatorEnabled,
                 featureOrder: state.featureOrder,
+                design: state.design,
+                glassOpacity: state.glassOpacity,
             }),
         }
     )

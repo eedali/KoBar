@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
         toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, 
         pinnedApps, pinApp, unpinApp, t,
         isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, isCalculatorEnabled, maxShortcuts,
-        toggleWidth, featureOrder, featureSpacing, hideOnScreenshot
+        toggleWidth, featureOrder, featureSpacing, hideOnScreenshot, design, glassOpacity
     } = useAppStore();
     
     const [isDragging, setIsDragging] = React.useState(false);
@@ -84,11 +84,17 @@ const Sidebar: React.FC = () => {
         <div className="relative z-50 h-fit w-20 pointer-events-none">
             {/* 1. Main Floating Sidebar (Scrollable) */}
             <div 
-                className="flex flex-col items-center py-4 w-full h-fit max-h-[90vh] bg-[#1a1612] rounded-3xl shadow-2xl border border-[#3f362b] overflow-y-auto overflow-x-hidden custom-scrollbar pointer-events-auto"
+                className={`flex flex-col items-center py-4 w-full h-fit max-h-[90vh] overflow-y-auto overflow-x-hidden custom-scrollbar pointer-events-auto transition-all duration-500
+                    ${design === 'style2' 
+                        ? 'backdrop-blur-2xl rounded-[2.5rem] shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-white/10' 
+                        : 'bg-[var(--theme-bg-dark)] rounded-3xl shadow-2xl border border-[var(--theme-border)]'}`}
                 style={{ 
-                    borderLeft: edgePosition === 'right' ? '1px solid #3f362b' : '1px solid #3f362b', 
-                    borderRight: edgePosition === 'left' ? '1px solid #3f362b' : '1px solid #3f362b',
-                    gap: `${featureSpacing}px`
+                    borderLeft: edgePosition === 'right' ? (design === 'style2' ? '1px solid rgba(255,255,255,0.1)' : '1px solid var(--theme-border)') : '', 
+                    borderRight: edgePosition === 'left' ? (design === 'style2' ? '1px solid rgba(255,255,255,0.1)' : '1px solid var(--theme-border)') : '',
+                    gap: `${featureSpacing}px`,
+                    backgroundColor: design === 'style2' 
+                        ? `color-mix(in srgb, var(--theme-bg-dark) ${glassOpacity}%, transparent)` 
+                        : 'var(--theme-bg-dark)'
                 }}
             >
                 {/* 1a. Top Drag Region & Branding (Always Top) */}
@@ -136,8 +142,9 @@ const Sidebar: React.FC = () => {
                                                     <div key={app.id} className="shortcut-item relative w-12 h-12 animate-in fade-in slide-in-from-top-2 duration-300">
                                                         <TooltipButton
                                                             label={app.name}
-                                                            className="w-full h-full rounded-xl border flex items-center justify-center overflow-hidden transition-all hover:scale-110 active:scale-95 shadow-lg bg-[#1e1b17]"
-                                                            style={{ borderColor: 'var(--theme-border)' }}
+                                                            className={`w-full h-full rounded-xl border flex items-center justify-center overflow-hidden transition-all hover:scale-110 active:scale-95 shadow-lg
+                                                                ${design === 'style2' ? 'bg-transparent' : 'bg-[#1e1b17]'}`}
+                                                            style={{ borderColor: design === 'style2' ? 'rgba(255,255,255,0.1)' : 'var(--theme-border)' }}
                                                             onMouseDown={() => {
                                                                 deleteTimeoutRef.current = setTimeout(() => setDeletingId(app.id), 600);
                                                             }}
@@ -224,7 +231,8 @@ const Sidebar: React.FC = () => {
                         buttonRef={eyeButtonRef}
                         onMouseDown={handleEyeMouseDown}
                         onClick={handleEyeClick}
-                        className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_20px_rgba(244,161,37,0.2)] transition-all hover:bg-primary/40 cursor-grab active:cursor-grabbing group mt-2"
+                        className={`w-12 h-12 rounded-full border-2 border-primary text-primary flex items-center justify-center transition-all hover:bg-primary/40 cursor-grab active:cursor-grabbing group mt-2
+                            ${design === 'style2' ? 'bg-primary/5 backdrop-blur-md' : 'bg-primary/20 shadow-[0_0_20px_rgba(244,161,37,0.2)]'}`}
                     >
                         <span className="material-symbols-outlined text-[28px] group-hover:scale-110 transition-transform">visibility</span>
                     </TooltipButton>
@@ -236,12 +244,15 @@ const Sidebar: React.FC = () => {
                 label={t('toggleNotes')}
                 className="absolute top-1/2 -translate-y-1/2 h-12 border flex items-center justify-center text-slate-400 hover:text-primary hover:bg-white/5 transition-all shadow-2xl z-[60] pointer-events-auto"
                 style={{ 
-                    backgroundColor: '#1a1612', 
-                    borderColor: '#3f362b',
+                    backgroundColor: design === 'style2' 
+                        ? `color-mix(in srgb, var(--theme-bg-dark) ${glassOpacity}%, transparent)` 
+                        : 'var(--theme-bg-dark)', 
+                    borderColor: design === 'style2' ? 'rgba(255,255,255,0.1)' : 'var(--theme-border)',
                     width: `${toggleWidth}px`,
+                    ...(design === 'style2' ? { backdropFilter: 'blur(16px)' } : {}),
                     ...(edgePosition === 'left' 
-                        ? { right: `-${toggleWidth}px`, borderLeft: 'none', borderTopRightRadius: '10px', borderBottomRightRadius: '10px' }
-                        : { left: `-${toggleWidth}px`, borderRight: 'none', borderTopLeftRadius: '10px', borderBottomLeftRadius: '10px' })
+                        ? { right: `-${toggleWidth}px`, borderLeft: 'none', borderTopRightRadius: design === 'style2' ? '15px' : '10px', borderBottomRightRadius: design === 'style2' ? '15px' : '10px' }
+                        : { left: `-${toggleWidth}px`, borderRight: 'none', borderTopLeftRadius: design === 'style2' ? '15px' : '10px', borderBottomLeftRadius: design === 'style2' ? '15px' : '10px' })
                 }}
                 onClick={toggleNotePanel}
             >

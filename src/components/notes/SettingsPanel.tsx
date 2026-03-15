@@ -12,8 +12,14 @@ const Accordion: React.FC<{
 }> = ({ title, icon, defaultOpen = true, children, masterToggle }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
+    const design = useAppStore(state => state.design);
     return (
-        <div className="rounded-xl shadow-inner border overflow-hidden" style={{ backgroundColor: 'var(--theme-bg-dark)', borderColor: 'var(--theme-border)' }}>
+        <div className="rounded-xl shadow-inner border overflow-hidden" 
+            style={{ 
+                backgroundColor: design === 'style2' ? 'rgba(255,255,255,0.03)' : 'var(--theme-bg-dark)', 
+                borderColor: design === 'style2' ? 'rgba(255,255,255,0.05)' : 'var(--theme-border)' 
+            }}
+        >
             <div className="w-full flex items-center justify-between p-6">
                 <button
                     className="flex-1 flex items-center gap-2 cursor-pointer hover:bg-black/10 transition-colors text-left"
@@ -62,7 +68,8 @@ const SettingsPanel: React.FC = () => {
         featureOrder, setFeatureOrder,
         toggleWidth, setToggleWidth,
         featureSpacing, setFeatureSpacing,
-        hideOnScreenshot, setHideOnScreenshot
+        hideOnScreenshot, setHideOnScreenshot,
+        design, setDesign, glassOpacity, setGlassOpacity
     } = useAppStore();
 
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -169,7 +176,7 @@ const SettingsPanel: React.FC = () => {
                                 onTouchStart={(e) => e.stopPropagation()}
                                 onDragStart={(e) => e.stopPropagation()}
                                 draggable={false}
-                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
+                                className={`w-full h-2 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region ${design === 'style2' ? 'bg-white/10' : 'bg-slate-700'}`}
                                 style={{ accentColor: 'var(--theme-primary)' }}
                             />
                         </div>
@@ -199,7 +206,7 @@ const SettingsPanel: React.FC = () => {
                                 onTouchStart={(e) => e.stopPropagation()}
                                 onDragStart={(e) => e.stopPropagation()}
                                 draggable={false}
-                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
+                                className={`w-full h-2 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region ${design === 'style2' ? 'bg-white/10' : 'bg-slate-700'}`}
                                 style={{ accentColor: 'var(--theme-primary)' }}
                             />
                             <p className="text-xs text-slate-500 mt-2">{t('slotsMinMaxInfo')}</p>
@@ -294,7 +301,9 @@ const SettingsPanel: React.FC = () => {
     const localizedLanguages = getLanguageOptions(language);
 
     return (
-        <div className="flex-1 overflow-y-auto p-8 pl-10 custom-scrollbar relative" style={{ backgroundColor: 'var(--theme-bg-base)' }}>
+        <div className="flex-1 overflow-y-auto p-8 pl-10 custom-scrollbar relative" 
+            style={{ backgroundColor: design === 'style2' ? 'transparent' : 'var(--theme-bg-base)' }}
+        >
             <h2 className="text-2xl font-semibold text-slate-200 mb-8">{t('settings')}</h2>
 
             <div className="space-y-10">
@@ -329,7 +338,7 @@ const SettingsPanel: React.FC = () => {
                                         onTouchStart={(e) => e.stopPropagation()}
                                         onDragStart={(e) => e.stopPropagation()}
                                         draggable={false}
-                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
+                                        className={`w-full h-2 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region ${design === 'style2' ? 'bg-white/10' : 'bg-slate-700'}`}
                                         style={{ accentColor: 'var(--theme-primary)' }}
                                     />
                                 </div>
@@ -349,7 +358,7 @@ const SettingsPanel: React.FC = () => {
                                         onTouchStart={(e) => e.stopPropagation()}
                                         onDragStart={(e) => e.stopPropagation()}
                                         draggable={false}
-                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
+                                        className={`w-full h-2 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region ${design === 'style2' ? 'bg-white/10' : 'bg-slate-700'}`}
                                         style={{ accentColor: 'var(--theme-primary)' }}
                                     />
                                 </div>
@@ -378,7 +387,7 @@ const SettingsPanel: React.FC = () => {
                                         onClick={() => setLanguage(lang.code)}
                                         className={`px-3 py-2 text-left text-sm rounded-lg transition-colors border no-drag-region ${language === lang.code
                                             ? 'bg-primary/20 border-primary text-primary font-medium'
-                                            : 'border-transparent text-slate-300 hover:bg-[#2a241c] hover:text-slate-200'
+                                            : `border-transparent text-slate-300 hover:text-slate-200 ${design === 'style2' ? 'hover:bg-white/5' : 'hover:bg-[#2a241c]'}`
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
@@ -391,6 +400,52 @@ const SettingsPanel: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+
+                        <div className="w-full h-px" style={{ backgroundColor: 'var(--theme-border)' }}></div>
+
+                        {/* Design Selection */}
+                        <div className="flex flex-col gap-3">
+                            <label className="text-sm text-slate-400 font-medium">{t('designMode')}</label>
+                            <div className="flex bg-black/20 p-1 rounded-xl border border-white/5 no-drag-region">
+                                <button
+                                    onClick={() => setDesign('style1')}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${design === 'style1'
+                                        ? 'bg-primary text-slate-900 shadow-lg'
+                                        : 'text-slate-400 hover:text-slate-200'
+                                        }`}
+                                >
+                                    {t('designStyle1')}
+                                </button>
+                                <button
+                                    onClick={() => setDesign('style2')}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${design === 'style2'
+                                        ? 'bg-primary text-slate-900 shadow-lg'
+                                        : 'text-slate-400 hover:text-slate-200'
+                                        }`}
+                                >
+                                    {t('designStyle2')}
+                                </button>
+                            </div>
+                        </div>
+
+                        {design === 'style2' && (
+                            <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-sm text-slate-400 font-medium">{t('glassOpacity')}</label>
+                                    <span className="text-base font-bold text-primary">{glassOpacity}%</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="10"
+                                    max="90"
+                                    value={glassOpacity}
+                                    onChange={(e) => setGlassOpacity(parseInt(e.target.value))}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    className={`w-full h-2 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region ${design === 'style2' ? 'bg-white/10' : 'bg-slate-700'}`}
+                                    style={{ accentColor: 'var(--theme-primary)' }}
+                                />
+                            </div>
+                        )}
 
                         <div className="w-full h-px" style={{ backgroundColor: 'var(--theme-border)' }}></div>
 

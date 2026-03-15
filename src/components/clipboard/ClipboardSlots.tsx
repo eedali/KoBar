@@ -4,7 +4,7 @@ import type { SlotState } from '../../store/useClipboardStore';
 import { useAppStore } from '../../store/useAppStore';
 import TooltipButton from '../layout/TooltipButton';
 
-function getSlotColorClass(state: SlotState): string {
+function getSlotColorClass(state: SlotState, design: string): string {
     switch (state) {
         case 'empty':
             return 'radio-grey';
@@ -13,7 +13,7 @@ function getSlotColorClass(state: SlotState): string {
         case 'filled':
             return 'radio-green';
         case 'selected':
-            return 'radio-green ring-2 ring-red-500 ring-offset-1 ring-offset-[#14110e]';
+            return `radio-green ring-2 ring-primary ring-offset-1 ${design === 'style2' ? 'ring-offset-transparent' : 'ring-offset-[var(--theme-bg-dark)]'}`;
         default:
             return 'radio-grey';
     }
@@ -33,7 +33,7 @@ const ClipboardSlots: React.FC = () => {
         setListeningSlot,
         setSelectedSlot,
     } = useClipboardStore();
-    const { t } = useAppStore();
+    const { t, design } = useAppStore();
 
     // Listen for clipboard updates from Electron backend
     useEffect(() => {
@@ -129,7 +129,7 @@ const ClipboardSlots: React.FC = () => {
                         <input
                             readOnly
                             checked={slot.state !== 'empty'}
-                            className={`custom-radio ${getSlotColorClass(slot.state)} pointer-events-none`}
+                            className={`custom-radio ${getSlotColorClass(slot.state, design)} pointer-events-none`}
                             type="radio"
                             name={`slot_${index}`}
                         />

@@ -42,6 +42,7 @@ const electron_updater_1 = require("electron-updater");
 // Dosyanın uygun bir yerinde (örneğin app.whenReady() içinde) test için yazdır:
 console.log("BU BİLGİSAYARIN HWID KODU:", licenseManager_cjs_1.LicenseManager.getDeviceHWID());
 electron_1.app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+electron_1.app.disableHardwareAcceleration();
 const windowStatePath = path.join(electron_1.app.getPath('userData'), 'window-state.json');
 let mainWindow = null;
 let tray = null;
@@ -55,33 +56,13 @@ let isGlobalPasteModeActive = false;
 const IS_STORE_BUILD = true;
 const isDev = !electron_1.app.isPackaged;
 function createWindow() {
-    const { bounds, workArea } = electron_1.screen.getPrimaryDisplay();
-    // We make horizontal window MASSIVE to avoid Note panel crops (6000 ensures dual 4K monitor compatibility)
-    // We bind height perfectly to workArea to prevent covering the Windows taskbar at the bottom!
-    const winW = 7000;
-    const winH = workArea.height;
-    // Center window over primary display exactly!
-    const startX = Math.round(bounds.x + (workArea.width / 2) - (winW / 2));
-    const startY = workArea.y; // Pin exactly to workArea top so taskbar limits are respected
-    let savedX = startX;
-    let savedY = startY;
-    let savedState = { x: undefined, y: undefined };
-    try {
-        if (fs.existsSync(windowStatePath))
-            savedState = JSON.parse(fs.readFileSync(windowStatePath, 'utf8'));
-    }
-    catch (e) { }
     mainWindow = new electron_1.BrowserWindow({
-        x: savedState.x !== undefined ? savedState.x : savedX,
-        y: savedState.y !== undefined ? savedState.y : savedY,
-        width: winW,
-        height: winH,
-        minWidth: winW,
-        minHeight: winH,
+        width: 3400,
+        height: 2200,
+        minWidth: 3400,
+        minHeight: 2200,
         frame: false,
         transparent: true,
-        backgroundColor: '#00000000',
-        opacity: 0.999, // CRITICAL: This bypasses Windows DWM 'MPO' (Multi-Plane Overlay) occlusion bug, fixing black YouTube screens!
         alwaysOnTop: true,
         skipTaskbar: true,
         resizable: true,
@@ -90,46 +71,25 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs')
-        },
-        icon: path.join(__dirname, '../Assets/Logos/256.png'),
-        show: false // Don't show until ready-to-show fires
+        }
     });
-    currentEdge = 'right'; // Set default edge
-    mainWindow.setMinimumSize(4000, 200);
-    mainWindow.setMaximumSize(12000, 12000);
-    // Lock window parameters early
+    mainWindow.setMinimumSize(3400, 2200);
+    mainWindow.setMaximumSize(10000, 10000);
+    mainWindow.setSize(3400, 2200);
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setIgnoreMouseEvents(true, { forward: true });
-    // Forcefully keep window above all OS elements (including Windows Taskbar)
-    // Windows frequently demotes always-on-top windows when the Taskbar is clicked.
-    setInterval(() => {
-        if (mainWindow) {
-            mainWindow.setAlwaysOnTop(true, 'screen-saver');
-        }
-    }, 1500);
-    // Re-assert alwaysOnTop on focus/show just to be instant
-    mainWindow.on('focus', () => {
-        mainWindow?.setAlwaysOnTop(true, 'screen-saver');
-    });
-    mainWindow.on('show', () => {
-        mainWindow?.setAlwaysOnTop(true, 'screen-saver');
-    });
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173').catch(err => console.error("Failed to load window:", err));
-        mainWindow.webContents.openDevTools({ mode: 'detach' });
+        mainWindow.loadURL('http://localhost:5173');
     }
     else {
-        const prodPath = path.join(__dirname, '../dist/index.html');
-        console.log("Loading production URL from:", prodPath);
-        mainWindow.loadFile(prodPath).catch(err => {
-            electron_1.dialog.showErrorBox('UI Load Error', err.message);
-        });
+        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
     }
+    // Edge detection — fires during drag for smooth real-time updates
+    mainWindow.on('move', () => handleWindowMove());
     mainWindow.once('ready-to-show', () => {
         if (mainWindow) {
             mainWindow.show();
             mainWindow.setAlwaysOnTop(true, 'screen-saver');
-            // Force an initial edge check to ensure Sidebar and NotePanel open on the correct side
             handleWindowMove(true);
         }
     });
@@ -143,8 +103,6 @@ function createWindow() {
             fs.writeFileSync(windowStatePath, JSON.stringify({ x, y }));
         }, 500);
     });
-    // Edge detection — fires during drag for smooth real-time updates
-    mainWindow.on('move', () => handleWindowMove());
 }
 function handleWindowMove(force = false) {
     if (!mainWindow)
@@ -157,6 +115,7 @@ function handleWindowMove(force = false) {
     if (force || newEdge !== currentEdge) {
         currentEdge = newEdge;
         mainWindow.webContents.send('edge-changed', newEdge);
+        console.log(`Edge changed to: ${newEdge}`);
     }
 }
 // --- Clipboard Polling ---
@@ -204,9 +163,7 @@ function stopClipboardPolling() {
     lastClipboardImageDataUrl = '';
 }
 function createTray() {
-    // Use the 25px logo for the tray
-    const iconPath = path.join(__dirname, '../Assets/Logos/25.png');
-    const icon = electron_1.nativeImage.createFromPath(iconPath);
+    const icon = electron_1.nativeImage.createFromBuffer(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjbQg61aAAAADUlEQVQoU2NgYGD4DwABBAEAcCBlCwAAAABJRU5ErkJggg==', 'base64'));
     tray = new electron_1.Tray(icon);
     const contextMenu = electron_1.Menu.buildFromTemplate([
         {

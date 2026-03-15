@@ -8,10 +8,11 @@ import TooltipButton from './TooltipButton';
 const Sidebar: React.FC = () => {
     const { 
         toggleNotePanel, edgePosition, isNotePanelOpen, setMiniMode, 
-        pinnedApps, pinApp, unpinApp, t, isLicensed,
-        featureOrder, isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, maxShortcuts,
-        toggleWidth, featureSpacing
+        pinnedApps, pinApp, unpinApp, t,
+        isShortcutsEnabled, isCopyPasteEnabled, isScreenshotEnabled, isFocusModeEnabled, maxShortcuts,
+        toggleWidth, openSettingsTab
     } = useAppStore();
+    
     const [isDragging, setIsDragging] = React.useState(false);
     const dragRef = React.useRef({ startX: 0, startY: 0, dragged: false });
     const eyeButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -30,15 +31,11 @@ const Sidebar: React.FC = () => {
     React.useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isDragging) return;
-
-            // Movement deltas between events
             const dx = e.movementX;
             const dy = e.movementY;
-
             if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
                 dragRef.current.dragged = true;
             }
-
             if (window.api?.moveWindow && (dx !== 0 || dy !== 0)) {
                 window.api.moveWindow(dx, dy);
             }
@@ -79,194 +76,148 @@ const Sidebar: React.FC = () => {
     };
 
     return (
-        <div className="w-16 flex flex-col items-center py-3 relative z-20 overflow-y-auto overflow-x-hidden border-x pointer-events-auto" style={{ backgroundColor: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}>
+        <div 
+            className="flex flex-col items-center py-4 gap-4 w-full h-fit max-h-[90vh] bg-[#1a1612] rounded-3xl shadow-2xl border border-[#3f362b] overflow-y-auto custom-scrollbar pointer-events-auto relative z-50"
+            style={{ 
+                borderLeft: edgePosition === 'right' ? '1px solid #3f362b' : '1px solid #3f362b', 
+                borderRight: edgePosition === 'left' ? '1px solid #3f362b' : '1px solid #3f362b' 
+            }}
+        >
+            {/* Top Drag Region & Branding */}
+            <div className="h-6 drag-region w-full shrink-0 flex items-center justify-center">
+                <div className="w-8 h-1 bg-white/10 rounded-full mt-1"></div>
+            </div>
 
+            {/* 1. Shortcuts Zone */}
+            {isShortcutsEnabled && (
+                <div className="w-full flex flex-col items-center gap-3 no-drag-region px-2">
+                    <TooltipButton
+                        as="div"
+                        label={t('dragDropApp')}
+                        className="w-12 h-12 rounded-xl border-2 border-dashed flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary transition-all cursor-pointer group"
+                        style={{ borderColor: 'var(--theme-border)' }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={async (e: React.DragEvent) => {
+                            e.preventDefault();
+                            if (pinnedApps.length >= maxShortcuts) return;
+                            const file = e.dataTransfer.files[0];
+                            if (!file) return;
+                            const filePath = window.api?.getFilePath(file) || (file as any).path as string;
+                            if (!filePath) return;
+                            
+                            const iconDataUrl = await window.api?.getFileIcon(filePath);
+                            const name = file.name.replace(/\.[^/.]+$/, "");
+                            pinApp({ id: Date.now().toString(), name, path: filePath, icon: iconDataUrl || '' });
+                        }}
+                    >
+                        <span className="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">add_to_home_screen</span>
+                    </TooltipButton>
 
-            <div className={`flex-grow drag-region w-full ${!isLicensed ? '' : ''}`}></div>
+                    <div className="flex flex-col items-center gap-2.5 w-full">
+                        {pinnedApps.slice(0, maxShortcuts).map(app => {
+                            const isGenericOrEmpty = !app.icon || app.icon === '' || app.icon.length < 3000;
+                            const appInitials = app.name ? app.name.substring(0, 2).toUpperCase() : '??';
 
-            {/* Lockable content — disabled when unlicensed */}
-            <div className={`w-full ${!isLicensed ? 'pointer-events-none opacity-40 select-none' : ''}`}>
-
-            {featureOrder.map((featureId, index) => {
-                let content = null;
-
-                if (featureId === 'shortcuts' && isShortcutsEnabled) {
-                    content = (
-                        <div key="shortcuts" className="flex flex-col items-center gap-2 no-drag-region w-full px-2 py-1">
-                            <TooltipButton
-                                as="div"
-                                label={t('dragDropApp')}
-                                className="w-10 h-10 rounded-xl border-2 border-dashed flex items-center justify-center text-slate-500 hover:text-primary transition-colors cursor-pointer"
-                                style={{ borderColor: 'var(--theme-border)' }}
-                                onDragOver={(e) => e.preventDefault()}
-                                onDrop={async (e: React.DragEvent) => {
-                                    e.preventDefault();
-                                    if (pinnedApps.length >= maxShortcuts) return;
-                                    const file = e.dataTransfer.files[0];
-                                    if (!file) return;
-                                    const filePath = window.api?.getFilePath(file) || (file as any).path as string;
-                                    if (!filePath) {
-                                        console.error('Cannot resolve file path for dropped file.', file);
-                                        return;
-                                    }
-                                    const iconDataUrl = await window.api?.getFileIcon(filePath);
-                                    const name = file.name.replace(/\.[^/.]+$/, "");
-                                    pinApp({ id: Date.now().toString(), name, path: filePath, icon: iconDataUrl || '' });
-                                }}
-                            >
-                                <span className="material-symbols-outlined text-[20px]">add_to_home_screen</span>
-                            </TooltipButton>
-
-                            {/* Pinned Apps List - Restricted by maxShortcuts */}
-                            {pinnedApps.slice(0, maxShortcuts).map(app => {
-                                const appInitials = app.name ? app.name.substring(0, 2).toUpperCase() : 'APP';
-                                const isGenericOrEmpty = !app.icon || app.icon === '' || app.icon.length < 3000;
-
-                                return (
-                                    <div key={app.id} className="relative w-10 h-10 group mt-1 flex justify-center items-center">
-                                        <TooltipButton
-                                            label={app.name}
-                                            className="w-10 h-10 rounded-xl border flex items-center justify-center overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-sm"
-                                            style={{ backgroundColor: 'var(--theme-bg-base)', borderColor: 'var(--theme-border)' }}
-                                            onMouseDown={() => {
-                                                deleteTimeoutRef.current = setTimeout(() => {
-                                                    setDeletingId(app.id);
-                                                }, 600);
-                                            }}
-                                            onMouseUp={() => {
-                                                if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-                                            }}
-                                            onMouseLeave={() => {
-                                                if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (deletingId !== app.id) {
-                                                    if (app.path) {
-                                                        window.api?.launchFile(app.path);
-                                                    } else {
-                                                        console.error('Cannot launch: app.path is missing!', app);
-                                                    }
-                                                }
-                                            }}
-                                        >
-                                            {isGenericOrEmpty ? (
-                                                <div className="w-full h-full rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm tracking-widest">
-                                                    {appInitials}
-                                                </div>
-                                            ) : (
-                                                <img src={app.icon} className="w-full h-full object-contain p-1.5 drop-shadow-md" alt={app.name} draggable={false} />
-                                            )}
-                                        </TooltipButton>
-
-                                        {/* Delete Badge */}
-                                        {deletingId === app.id && (
-                                            <button
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    unpinApp(app.id);
-                                                    setDeletingId(null);
-                                                }}
-                                                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors border border-black/20 z-10 animate-in fade-in zoom-in duration-200"
-                                            >
-                                                <span className="material-symbols-outlined text-[14px] font-bold">close</span>
-                                            </button>
+                            return (
+                                <div key={app.id} className="relative w-12 h-12 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <TooltipButton
+                                        label={app.name}
+                                        className="w-full h-full rounded-xl border flex items-center justify-center overflow-hidden transition-all hover:scale-110 active:scale-95 shadow-lg bg-[#1e1b17]"
+                                        style={{ borderColor: 'var(--theme-border)' }}
+                                        onMouseDown={() => {
+                                            deleteTimeoutRef.current = setTimeout(() => setDeletingId(app.id), 600);
+                                        }}
+                                        onMouseUp={() => { if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current); }}
+                                        onMouseLeave={() => { if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current); }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (deletingId !== app.id && app.path) window.api?.launchFile(app.path);
+                                        }}
+                                    >
+                                        {isGenericOrEmpty ? (
+                                            <div className="w-full h-full flex items-center justify-center font-bold text-[10px] text-primary/70">{appInitials}</div>
+                                        ) : (
+                                            <img src={app.icon} className="w-full h-full object-contain p-2" alt={app.name} draggable={false} />
                                         )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    );
-                }
+                                    </TooltipButton>
 
-                if (featureId === 'copypaste' && isCopyPasteEnabled) {
-                    content = (
-                        <div key="copypaste" className="w-full py-1">
-                            <ClipboardSlots />
-                        </div>
-                    );
-                }
+                                    {deletingId === app.id && (
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); unpinApp(app.id); setDeletingId(null); }}
+                                            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
+                                        >
+                                            <span className="material-symbols-outlined text-[12px]">close</span>
+                                        </button>
+                                        )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
-                if (featureId === 'screenshot' && isScreenshotEnabled) {
-                    content = (
-                        <div key="screenshot" className="flex flex-col items-center no-drag-region py-1">
-                            <TooltipButton
-                                label={t('screenshot')}
-                                className="p-1.5 text-slate-400 hover:text-slate-200 transition-colors"
-                                onClick={() => window.api?.triggerScreenshot()}
-                            >
-                                <span className="material-symbols-outlined text-[20px]">photo_camera</span>
-                            </TooltipButton>
-                        </div>
-                    );
-                }
+            {/* 2. Clipboard Zone */}
+            {isCopyPasteEnabled && (
+                <div className="w-full py-2 border-y border-white/5 no-drag-region">
+                    <ClipboardSlots />
+                </div>
+            )}
 
-                if (featureId === 'focusmode' && isFocusModeEnabled) {
-                    content = (
-                        <div key="focusmode" className="flex flex-col items-center no-drag-region py-1">
-                            <FocusButton />
-                        </div>
-                    );
-                }
+            {/* Bottom Utilities Zone */}
+            <div className="flex flex-col items-center gap-4 no-drag-region shrink-0 px-2 pb-2">
+                {/* Screenshot */}
+                {isScreenshotEnabled && (
+                    <TooltipButton
+                        label={t('screenshot')}
+                        className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all hover:bg-white/5"
+                        onClick={() => window.api?.triggerScreenshot()}
+                    >
+                        <span className="material-symbols-outlined text-[24px]">photo_camera</span>
+                    </TooltipButton>
+                )}
 
-                if (!content) return null;
+                {/* Focus Mode */}
+                {isFocusModeEnabled && <FocusButton />}
 
-                // Determine if we are the last visible feature
-                const visibleFeaturesBehind = featureOrder.slice(index + 1).filter(id => {
-                    if (id === 'shortcuts') return isShortcutsEnabled;
-                    if (id === 'copypaste') return isCopyPasteEnabled;
-                    if (id === 'screenshot') return isScreenshotEnabled;
-                    if (id === 'focusmode') return isFocusModeEnabled;
-                    return false;
-                });
-
-                return (
-                    <React.Fragment key={featureId}>
-                        {content}
-                        {visibleFeaturesBehind.length > 0 && (
-                            <div className="w-8 h-px mx-auto shrink-0 transition-all duration-300" style={{ backgroundColor: 'var(--theme-border)', marginTop: `${featureSpacing}px`, marginBottom: `${featureSpacing}px` }}></div>
-                        )}
-                    </React.Fragment>
-                );
-            })}
-            
-            </div>{/* end lockable content */}
-
-            {/* Hide/Eye Button and Note Toggle Container */}
-            <div className="mt-auto relative flex justify-center w-full pb-2 mb-1 no-drag-region">
-                
-                {/* Toggle Note Panel Button - Absolute Hook dynamically positioned based on toggleWidth */}
+                {/* Settings */}
                 <TooltipButton
-                    label={t('toggleNotes')}
-                    className="absolute top-1/2 -translate-y-1/2 h-10 border rounded-sm flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all z-10 shadow-lg group"
-                    style={{ 
-                        backgroundColor: 'var(--theme-surface)', 
-                        borderColor: 'var(--theme-border)',
-                        width: `${toggleWidth}px`,
-                        [edgePosition === 'left' ? 'right' : 'left']: `-${toggleWidth / 2}px`
-                    }}
-                    onClick={toggleNotePanel}
+                    label={t('settings')}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all hover:bg-white/5"
+                    onClick={openSettingsTab}
                 >
-                    <span className="material-symbols-outlined text-[18px] transition-transform group-active:scale-95">
-                        {edgePosition === 'left'
-                            ? (isNotePanelOpen ? 'chevron_left' : 'chevron_right')
-                            : (isNotePanelOpen ? 'chevron_right' : 'chevron_left')
-                        }
-                    </span>
+                    <span className="material-symbols-outlined text-[24px]">settings</span>
                 </TooltipButton>
 
-                {/* Hide/Eye Button */}
+                {/* Visibility/Drag Eye */}
                 <TooltipButton
                     label={t('miniMode')}
                     buttonRef={eyeButtonRef}
                     onMouseDown={handleEyeMouseDown}
                     onClick={handleEyeClick}
-                    className="w-10 h-10 relative z-20 rounded-full bg-primary/20 border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_15px_rgba(244,161,37,0.3)] transition-all hover:bg-primary/30 cursor-grab active:cursor-grabbing"
+                    className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_20px_rgba(244,161,37,0.2)] transition-all hover:bg-primary/40 cursor-grab active:cursor-grabbing group mt-2"
                 >
-                    <span className="material-symbols-outlined text-[20px]">visibility</span>
+                    <span className="material-symbols-outlined text-[28px] group-hover:scale-110 transition-transform">visibility</span>
                 </TooltipButton>
             </div>
+
+            {/* Toggle Note Panel Notch (Floating with relative/absolute context) */}
+            <TooltipButton
+                label={t('toggleNotes')}
+                className="absolute top-1/2 -translate-y-1/2 h-12 border flex items-center justify-center text-slate-400 hover:text-primary hover:bg-white/5 transition-all shadow-2xl z-[60]"
+                style={{ 
+                    backgroundColor: '#1a1612', 
+                    borderColor: '#3f362b',
+                    width: `${toggleWidth}px`,
+                    ...(edgePosition === 'left' 
+                        ? { right: `-${toggleWidth}px`, borderLeft: 'none', borderTopRightRadius: '10px', borderBottomRightRadius: '10px' }
+                        : { left: `-${toggleWidth}px`, borderRight: 'none', borderTopLeftRadius: '10px', borderBottomLeftRadius: '10px' })
+                }}
+                onClick={toggleNotePanel}
+            >
+                <span className="material-symbols-outlined text-[20px]">
+                    {edgePosition === 'left' ? (isNotePanelOpen ? 'chevron_left' : 'chevron_right') : (isNotePanelOpen ? 'chevron_right' : 'chevron_left')}
+                </span>
+            </TooltipButton>
         </div>
     );
 };

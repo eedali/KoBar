@@ -116,29 +116,29 @@ const defaultNotes: Note[] = [
         icon: 'folder',
         emoji: '📁',
         content: `<ul><li><p><strong>Moving KoBar</strong></p></li></ul>
-<p><img src="file:///D:/Work/Code/KoBar/Assets/DefaultNote/Eye.png"></p>
+<p><img src="/DefaultNote/Eye.png"></p>
 <p>Just click and hold the <strong>"Eye"</strong> icon with your left mouse button to drag KoBar wherever you like.<br>Want it out of the way? A single left click on the <strong>"Eye"</strong> will instantly shrink it! 👁️</p>
 <p>______________________________</p>
 <ul><li><p><strong>Copy &amp; Paste</strong></p></li></ul>
-<p><img src="file:///D:/Work/Code/KoBar/Assets/DefaultNote/Copy.png"></p>
+<p><img src="/DefaultNote/Copy.png"></p>
 <p>Hit the copy button to copy as many items as you want, one after the other. Everything you copy is safely stored in your <strong>"Slots"</strong>.</p>
-<p><img src="file:///D:/Work/Code/KoBar/Assets/DefaultNote/Paste.png"></p>
+<p><img src="/DefaultNote/Paste.png"></p>
 <p>When you're ready, hit the paste button to paste all those separate snippets of text wherever you need them, sequentially. 📋</p>
 <p>______________________________</p>
 <ul><li><p><strong>Shortcuts</strong></p></li></ul>
-<p><img src="file:///D:/Work/Code/KoBar/Assets/DefaultNote/DnD.png"></p>
+<p><img src="/DefaultNote/DnD.png"></p>
 <p>Drag and drop your favorite apps, folders, or games right onto this icon for quick access straight from KoBar.<br>Need to remove one? Just long-press the shortcut with your left mouse button to reveal the delete option. ⚡</p>
 <p>______________________________</p>
 <ul><li><p><strong>Focus Mode</strong></p></li></ul>
-<p><img src="file:///D:/Work/Code/KoBar/Assets/DefaultNote/focus.png"></p>
+<p><img src="/DefaultNote/focus.png"></p>
 <p>Ready for some uninterrupted deep work?<br>Click this button, set your timer, and stay in the zone until the alarm goes off! 🎯</p>
 <p>______________________________</p>
-<ul><li><p><strong>ScreenShot</strong></p></li></ul>
-<p><img src="file:///D:/Work/Code/KoBar/Assets/DefaultNote/SS.png"></p>
+<ul><li><p><strong>Screenshot</strong></p></li></ul>
+<p><img src="/DefaultNote/SS.png"></p>
 <p>Forget clunky keyboard shortcuts! Just hit this button on KoBar to grab your screenshots instantly. 📸</p>
 <p>______________________________</p>
 <ul><li><p><strong>Settings</strong></p></li></ul>
-<p><img src="file:///D:/Work/Code/KoBar/Assets/DefaultNote/Settings.png"></p>
+<p><img src="/DefaultNote/Settings.png"></p>
 <p>To tweak your language, theme, slot preferences, and more,<br>simply right-click the KoBar tray icon in the bottom-right corner of your screen and select "Settings". ⚙️</p>`
     }
 ];

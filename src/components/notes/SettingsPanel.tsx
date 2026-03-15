@@ -99,6 +99,12 @@ const SettingsPanel: React.FC = () => {
 
     // Drag & Drop Handlers for Feature Order
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+        // Prevent drag when interacting with range sliders or any input
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.closest('input')) {
+            e.preventDefault();
+            return;
+        }
         setDraggedItemIndex(index);
         // Required for Firefox
         e.dataTransfer.effectAllowed = 'move';

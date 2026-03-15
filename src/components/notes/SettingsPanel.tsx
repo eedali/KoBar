@@ -97,22 +97,23 @@ const SettingsPanel: React.FC = () => {
         }
     };
 
-    // Drag & Drop Handlers for Feature Order
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
-        // Prevent drag when interacting with range sliders or any input
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.closest('input')) {
-            e.preventDefault();
-            return;
-        }
         setDraggedItemIndex(index);
+        
+        // Use the entire row as the drag image
+        const row = (e.currentTarget as HTMLElement).closest('.feature-row');
+        if (row && e.dataTransfer.setDragImage) {
+            e.dataTransfer.setDragImage(row, 20, row.clientHeight / 2);
+        }
+
         // Required for Firefox
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', index.toString());
-        // Slight delay to allow drag image generation before applying opacity
+        
+        // Slight delay to apply opacity to the row
         setTimeout(() => {
-            if (e.target instanceof HTMLElement) {
-                e.target.style.opacity = '0.4';
+            if (row instanceof HTMLElement) {
+                row.style.opacity = '0.4';
             }
         }, 0);
     };
@@ -132,8 +133,9 @@ const SettingsPanel: React.FC = () => {
 
     const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
         setDraggedItemIndex(null);
-        if (e.target instanceof HTMLElement) {
-            e.target.style.opacity = '1';
+        const row = (e.currentTarget as HTMLElement).closest('.feature-row');
+        if (row instanceof HTMLElement) {
+            row.style.opacity = '1';
         }
     };
     
@@ -163,7 +165,9 @@ const SettingsPanel: React.FC = () => {
                                 onChange={handleMaxShortcutsChange}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onTouchStart={(e) => e.stopPropagation()}
-                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                onDragStart={(e) => e.stopPropagation()}
+                                draggable={false}
+                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
                                 style={{ accentColor: 'var(--theme-primary)' }}
                             />
                         </div>
@@ -191,7 +195,9 @@ const SettingsPanel: React.FC = () => {
                                 onChange={handleSlotCountChange}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onTouchStart={(e) => e.stopPropagation()}
-                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                onDragStart={(e) => e.stopPropagation()}
+                                draggable={false}
+                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
                                 style={{ accentColor: 'var(--theme-primary)' }}
                             />
                             <p className="text-xs text-slate-500 mt-2">{t('slotsMinMaxInfo')}</p>
@@ -233,21 +239,23 @@ const SettingsPanel: React.FC = () => {
         return (
             <div 
                 key={id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
                 onDragEnter={(e) => handleDragEnter(e, index)}
                 onDragEnd={handleDragEnd}
                 onDragOver={(e) => e.preventDefault()}
-                className="cursor-move transition-transform"
+                className="transition-transform feature-row"
                 style={{ 
                     transform: draggedItemIndex === index ? 'scale(1.02)' : 'none',
                     zIndex: draggedItemIndex === index ? 50 : 'auto',
                     position: 'relative'
                 }}
             >
-                {/* Visual drag handle indicator */}
-                <div className="absolute left-[-24px] top-1/2 -translate-y-1/2 opacity-30 hover:opacity-100 flex items-center justify-center p-2">
-                    <span className="material-symbols-outlined text-[18px]">drag_indicator</span>
+                {/* Visual drag handle indicator - NOW THE EXCLUSIVE DRAG TRIGGER */}
+                <div 
+                    draggable
+                    onDragStart={(e: any) => handleDragStart(e, index)}
+                    className="absolute left-[-32px] top-1/2 -translate-y-1/2 opacity-30 hover:opacity-100 flex items-center justify-center p-2 cursor-move no-drag-region"
+                >
+                    <span className="material-symbols-outlined text-[20px]">drag_indicator</span>
                 </div>
                 {content}
             </div>
@@ -290,7 +298,9 @@ const SettingsPanel: React.FC = () => {
                                         onChange={handleToggleWidthChange}
                                         onMouseDown={(e) => e.stopPropagation()}
                                         onTouchStart={(e) => e.stopPropagation()}
-                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                        onDragStart={(e) => e.stopPropagation()}
+                                        draggable={false}
+                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
                                         style={{ accentColor: 'var(--theme-primary)' }}
                                     />
                                 </div>
@@ -308,7 +318,9 @@ const SettingsPanel: React.FC = () => {
                                         onChange={handleFeatureSpacingChange}
                                         onMouseDown={(e) => e.stopPropagation()}
                                         onTouchStart={(e) => e.stopPropagation()}
-                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1"
+                                        onDragStart={(e) => e.stopPropagation()}
+                                        draggable={false}
+                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer mt-1 no-drag-region"
                                         style={{ accentColor: 'var(--theme-primary)' }}
                                     />
                                 </div>
@@ -335,7 +347,7 @@ const SettingsPanel: React.FC = () => {
                                     <button
                                         key={lang.code}
                                         onClick={() => setLanguage(lang.code)}
-                                        className={`px-3 py-2 text-left text-sm rounded-lg transition-colors border ${language === lang.code
+                                        className={`px-3 py-2 text-left text-sm rounded-lg transition-colors border no-drag-region ${language === lang.code
                                             ? 'bg-primary/20 border-primary text-primary font-medium'
                                             : 'border-transparent text-slate-300 hover:bg-[#2a241c] hover:text-slate-200'
                                             }`}

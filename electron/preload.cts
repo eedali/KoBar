@@ -99,6 +99,9 @@ contextBridge.exposeInMainWorld('api', {
         return () => ipcRenderer.removeAllListeners('llm-stream-error');
     },
 
+    // Notes
+    saveNoteAsText: (title: string, content: string) => ipcRenderer.invoke('save-note-as-text', { title, content }),
+
     // Pin Injector
     enterPinTargetingMode: () => ipcRenderer.send('enter-pin-targeting'),
     unpinCurrentWindow: () => ipcRenderer.send('unpin-current-window'),

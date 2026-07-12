@@ -107,6 +107,10 @@ declare global {
             onLlmStreamChunk: (callback: (data: { chatId: string, messageId: string, chunk: string }) => void) => () => void;
             onLlmStreamEnd: (callback: (data: { chatId: string, messageId: string }) => void) => () => void;
             onLlmStreamError: (callback: (data: { chatId: string, messageId: string, error: string }) => void) => () => void;
+            
+            // Notes
+            saveNoteAsText: (title: string, content: string) => Promise<{ success: boolean; path?: string; reason?: string }>;
+
             // Auto Updater
             onUpdateAvailable: (callback: (version: string) => void) => (() => void);
             onUpdateDownloadProgress: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => (() => void);

@@ -162,6 +162,34 @@ const NoteEditor: React.FC = React.memo(() => {
         e.target.value = '';
     }, [editor]);
 
+    // Handle Ctrl+S / Cmd+S to save as text
+    useEffect(() => {
+        const handleKeyDown = async (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                if (!editor || !activeNote) return;
+                
+                try {
+                    const textContent = editor.getText();
+                    const result = await window.api.saveNoteAsText(activeNote.title, textContent);
+                    if (result.success) {
+                        window.api.sendNotification('Note Exported', `Successfully saved as ${result.path?.split('\\').pop() || result.path?.split('/').pop()}`);
+                    } else if (result.reason !== 'Canceled') {
+                        console.error('Failed to save note:', result.reason);
+                        window.api.sendNotification('Export Failed', 'Failed to save the note as text.');
+                    }
+                } catch (error) {
+                    console.error('Error saving note:', error);
+                }
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [editor, activeNote]);
+
     const triggerImagePicker = useCallback(() => {
         fileInputRef.current?.click();
     }, []);

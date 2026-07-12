@@ -644,6 +644,34 @@ ipcMain.handle('ask-for-update', async (event, { title, message, yesLabel, noLab
     return result.response === 0;
 });
 
+ipcMain.handle('save-note-as-text', async (event, { title, content }) => {
+    if (!mainWindow) return { success: false, reason: 'No main window' };
+    
+    // Sanitize title for filename
+    const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    
+    try {
+        const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+            title: 'Save Note As Text',
+            defaultPath: `${safeTitle || 'note'}.txt`,
+            filters: [
+                { name: 'Text Files', extensions: ['txt'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (canceled || !filePath) {
+            return { success: false, reason: 'Canceled' };
+        }
+
+        await fs.promises.writeFile(filePath, content, 'utf8');
+        return { success: true, path: filePath };
+    } catch (err: any) {
+        console.error('Failed to save note:', err);
+        return { success: false, reason: err.message || 'Unknown error' };
+    }
+});
+
 ipcMain.on('download-and-install-update', () => {
     autoUpdater.downloadUpdate();
 });

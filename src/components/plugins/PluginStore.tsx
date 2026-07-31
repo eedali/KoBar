@@ -106,7 +106,7 @@ const PluginStore: React.FC = () => {
             } else {
                 setInstallError("Plugin not found at the provided link.");
             }
-        } catch (e) {
+        } catch {
             setInstallError("Failed to check GitHub repository.");
         } finally {
             setIsCheckingRepo(false);
@@ -124,7 +124,7 @@ const PluginStore: React.FC = () => {
             } else {
                 setInstallError(result.reason || "Installation failed.");
             }
-        } catch (e) {
+        } catch {
             setInstallError("An unexpected error occurred during installation.");
         } finally {
             setInstalling(false);

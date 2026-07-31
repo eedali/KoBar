@@ -71,6 +71,7 @@ const PipPlayer: React.FC = () => {
 
     useEffect(() => {
         if (isOverControls) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsHovered(true);
             if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
         } else {
@@ -99,13 +100,16 @@ const PipPlayer: React.FC = () => {
     // Create the iframe element imperatively to avoid React re-rendering issues
     // Using iframe instead of <webview> fixes YouTube Error 153 (automation detection)
     useEffect(() => {
-        if (!containerRef.current || !finalUrl) {
+        const container = containerRef.current;
+        if (!container || !finalUrl) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setError('No video URL provided.');
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoading(false);
             return;
         }
 
-        containerRef.current.textContent = ''; // GUARANTEE ONLY ONE IFRAME EXISTS
+        container.textContent = ''; // GUARANTEE ONLY ONE IFRAME EXISTS
 
         const iframe = document.createElement('iframe');
         iframe.src = finalUrl;
@@ -127,11 +131,11 @@ const PipPlayer: React.FC = () => {
             iframe.contentWindow?.postMessage(JSON.stringify({ event: 'listening' }), '*');
         });
 
-        containerRef.current.appendChild(iframe);
+        container.appendChild(iframe);
 
         return () => {
-            if (containerRef.current?.contains(iframe)) {
-                containerRef.current.removeChild(iframe);
+            if (container?.contains(iframe)) {
+                container.removeChild(iframe);
             }
         };
     }, [finalUrl]);

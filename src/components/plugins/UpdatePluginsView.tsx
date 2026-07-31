@@ -68,7 +68,7 @@ const UpdatePluginsView: React.FC = () => {
                     } else {
                         setUpdateStatus(prev => ({ ...prev, [id]: 'error' }));
                     }
-                } catch (err) {
+                } catch {
                     setUpdateStatus(prev => ({ ...prev, [id]: 'error' }));
                 }
             }

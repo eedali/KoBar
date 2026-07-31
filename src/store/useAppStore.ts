@@ -579,7 +579,6 @@ export const useAppStore = create<AppState>()(
             // Tutorial State
             tutorialState: { version: '1.0.0', status: 'pending' },
             setTutorialState: (updates) => set((state) => {
-                console.log('[Store] Updating tutorial state:', updates);
                 return { tutorialState: { ...state.tutorialState, ...updates } };
             }),
             isManualTutorialTrigger: false,
@@ -1011,7 +1010,6 @@ export const useAppStore = create<AppState>()(
                 edgePosition: state.edgePosition,
             }),
             onRehydrateStorage: () => {
-                console.log('[Store] Hydration starting...');
                 return (fetchedState, error) => {
                     if (error) {
                         console.error('[Store] Hydration failed:', error);
@@ -1027,7 +1025,6 @@ export const useAppStore = create<AppState>()(
                                 applyCustomThemeCSS(finalColor);
                             }
                         }
-                        console.log('[Store] Hydration complete. Theme:', fetchedState.theme);
                     }
                 };
             },

@@ -46,7 +46,6 @@ export const useSpeechToText = ({ onTranscript, language }: UseSpeechToTextProps
         recognition.lang = languageMap[language] || 'en-US';
 
         recognition.onstart = () => {
-            console.log('Speech recognition started');
             setIsListening(true);
             setError(null);
         };
@@ -59,7 +58,6 @@ export const useSpeechToText = ({ onTranscript, language }: UseSpeechToTextProps
                 }
             }
             if (transcript) {
-                console.log('Transcript received:', transcript);
                 onTranscriptRef.current(transcript);
             }
         };
@@ -75,7 +73,6 @@ export const useSpeechToText = ({ onTranscript, language }: UseSpeechToTextProps
         };
 
         recognition.onend = () => {
-            console.log('Speech recognition ended');
             setIsListening(false);
         };
 

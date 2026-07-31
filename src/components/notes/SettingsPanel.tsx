@@ -37,7 +37,8 @@ function hexToHsv(hex: string): [number, number, number] {
     if (isNaN(b)) b = 0;
 
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h = 0, s = 0, v = max;
+    let h = 0, s = 0;
+    const v = max;
     const d = max - min;
     s = max === 0 ? 0 : d / max;
 

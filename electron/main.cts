@@ -281,7 +281,6 @@ function handleWindowMove(force = false) {
     if (force || newEdge !== currentEdge) {
         currentEdge = newEdge;
         mainWindow.webContents.send('edge-changed', newEdge, bounds);
-        console.log(`Edge changed to: ${newEdge}`);
     }
 
     if (sidebarRect.width > 0) {
@@ -823,8 +822,6 @@ function startWindowTracking(hwnd: number) {
                         const logicalH = Math.round(physHeight / sf);
 
                         // Surgical logging for verification
-                        console.log(`[TRK] HWND:${pinnedHwnd} | L:${logicalX} T:${logicalY} W:${logicalW} H:${logicalH}`);
-
                         borderWindow.setBounds({
                             x: logicalX,
                             y: logicalY,
@@ -1205,7 +1202,7 @@ ipcMain.handle('llm-request', async (event, data: { chatId: string, messageId: s
 
     } catch (e: any) {
         if (e.name === 'AbortError') {
-            console.log('LLM Request aborted');
+            // LLM Request aborted
         } else {
             if (mainWindow) {
                 const errorMessage = e instanceof Error ? e.message : (typeof e === 'object' ? JSON.stringify(e) : String(e));
@@ -1225,7 +1222,6 @@ ipcMain.handle('get-auto-launch', () => {
 
 ipcMain.on('set-auto-launch', (_event, enabled: boolean) => {
     if (isDev) {
-        console.log(`Bypassing auto-launch setting in DEV mode (would set to: ${enabled})`);
         return;
     }
 

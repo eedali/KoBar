@@ -94,9 +94,10 @@ const TutorialManager: React.FC = () => {
         };
 
         checkTutorial();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isHydrated, tutorialState.status, tutorialState.snoozeUntil, isManualTutorialTrigger]);
 
-    const showFarewell = (mode: 'complete' | 'snooze') => {
+    function showFarewell(mode: 'complete' | 'snooze') {
         clearTimers();
         setIsHighlightingToggleNotes(false);
         setIsHighlightingSettingsBtn(false);
@@ -130,7 +131,7 @@ const TutorialManager: React.FC = () => {
         }, 15000);
     };
 
-    const startStep0 = () => {
+    function startStep0() {
         setStep(0);
         showEyeNotification({
             message: (t as any)('tutorialStep0Message'),
@@ -142,7 +143,7 @@ const TutorialManager: React.FC = () => {
         });
     };
 
-    const startStep1 = () => {
+    function startStep1() {
         setStep(1);
         clearTimers();
         
@@ -162,7 +163,7 @@ const TutorialManager: React.FC = () => {
         setIsHighlightingToggleNotes(true);
     };
 
-    const handleStep1Action = (action: 'tamam' | 'atla') => {
+    function handleStep1Action(action: 'tamam' | 'atla') {
         hideEyeNotification();
         
         if (action === 'atla') {
@@ -183,6 +184,7 @@ const TutorialManager: React.FC = () => {
     };
 
     // Watch for manual notch click during step 1 wait
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (step === 1 && isNotePanelOpen) {
             // User opened it manually!
@@ -191,11 +193,11 @@ const TutorialManager: React.FC = () => {
         }
     }, [isNotePanelOpen, step]);
 
-    const forceOpenNotePanel = () => {
+    function forceOpenNotePanel() {
         setNotePanelOpen(true);
     };
 
-    const startStep2 = () => {
+    function startStep2() {
         setStep(2);
         clearTimers();
         setIsHighlightingToggleNotes(false);
@@ -227,7 +229,7 @@ const TutorialManager: React.FC = () => {
         }, 7000);
     };
 
-    const startStep3 = () => {
+    function startStep3() {
         setStep(3);
         clearTimers();
         
@@ -258,6 +260,7 @@ const TutorialManager: React.FC = () => {
         }, 10000);
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (step === 3 && activeNote?.isSettings) {
             clearTimers();
@@ -265,7 +268,7 @@ const TutorialManager: React.FC = () => {
         }
     }, [activeNote?.isSettings, step]);
 
-    const startStep4 = () => {
+    function startStep4() {
         setStep(4);
         clearTimers();
         setIsHighlightingSettingsBtn(false);
@@ -283,7 +286,7 @@ const TutorialManager: React.FC = () => {
         }, 7000);
     };
 
-    const startStep5 = () => {
+    function startStep5() {
         setStep(5);
         clearTimers();
         
@@ -312,6 +315,7 @@ const TutorialManager: React.FC = () => {
         }, 10000);
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (step === 5 && activeNote?.isPlugins) {
             clearTimers();
@@ -319,7 +323,7 @@ const TutorialManager: React.FC = () => {
         }
     }, [activeNote?.isPlugins, step]);
 
-    const startStep6 = () => {
+    function startStep6() {
         setStep(6);
         clearTimers();
         setIsHighlightingPluginsBtn(false);

@@ -52,6 +52,7 @@ const FloatingEye: React.FC = () => {
     // If teleport is triggered while already in Mini Mode, update pos to the new cursor center
     useEffect(() => {
         if (miniModePosition) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setPos({ x: miniModePosition.x, y: miniModePosition.y });
             posRef.current = { x: miniModePosition.x, y: miniModePosition.y };
         }
@@ -189,7 +190,7 @@ const FloatingEye: React.FC = () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging]);
+    }, [isDragging, isMac]);
 
     // Eye icon cursor tracking
     useEffect(() => {

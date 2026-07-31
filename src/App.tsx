@@ -5,18 +5,8 @@ import { useAppStore } from './store/useAppStore';
 import Sidebar from './components/layout/Sidebar';
 import NotePanel from './components/notes/NotePanel';
 import FloatingEye from './components/layout/FloatingEye';
-
-
-
-
-
-
 import LicenseActivationModal from './components/license/LicenseActivationModal';
 import TutorialManager from './components/tutorial/TutorialManager';
-
-
-
-
 import { useExtensionRegistry } from './components/extensions/extensionRegistry';
 
 // Global flag: when true, the ghost-window logic won't steal focus
@@ -37,14 +27,6 @@ const App: React.FC = () => {
   const theme = useAppStore(state => state.theme);
   const isLicensed = useAppStore(state => state.isLicensed);
   const setLicensed = useAppStore(state => state.setLicensed);
-
-
-
-
-
-
-
-
   const setIsTargetingMode = useAppStore(state => state.setIsTargetingMode);
   const design = useAppStore(state => state.design);
   const sidebarWidth = useAppStore(state => state.sidebarWidth);
@@ -264,7 +246,7 @@ const App: React.FC = () => {
     return () => {
       unsubs.forEach(unsub => unsub());
     };
-  }, [setEdgePosition]);
+  }, [setEdgePosition, setPinnedWindowHwnd, setIsTargetingMode]);
 
   // Persist tracking across any possible re-renders without falling out of scope
   const lastIgnoreState = useRef<boolean | null>(null);
@@ -368,14 +350,6 @@ const App: React.FC = () => {
               )}
 
               {/* Context-bound Popups */}
-
-
-
-
-
-
-
-
               
               {/* Dynamic Extensions Popups */}
               {activeExtensionPanelId && isLicensed && (() => {

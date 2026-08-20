@@ -187,7 +187,9 @@ const PluginStore: React.FC = () => {
             plugin.onToggle();
         } else {
             if (plugin.installed && window.api?.toggleExtensionEnabled) {
-                await window.api.toggleExtensionEnabled(plugin.id, !plugin.active);
+                const newState = !plugin.active;
+                useAppStore.getState().setExtensionEnabledInWorkspace(plugin.id, newState);
+                await window.api.toggleExtensionEnabled(plugin.id, newState);
                 triggerExtensionReload();
             }
         }

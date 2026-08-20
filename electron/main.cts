@@ -2404,6 +2404,19 @@ ipcMain.handle('toggle-extension-enabled', async (_event, id: string, enabled: b
     }
 });
 
+ipcMain.handle('set-extensions-config', async (_event, config: Record<string, boolean>) => {
+    try {
+        if (config && typeof config === 'object') {
+            saveExtensionsConfig(config);
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error(`Failed to set extensions config:`, e);
+        return false;
+    }
+});
+
 // Shared helper: installs an extension from a ZIP file path
 async function installExtensionFromZipPath(zipPath: string, sourceRepo?: string, versionOverride?: string): Promise<{ success: boolean; reason?: string }> {
     const zip = new AdmZip(zipPath);

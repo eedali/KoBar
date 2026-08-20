@@ -19,6 +19,7 @@ const Sidebar: React.FC = () => {
 
     const isMac = useAppStore(state => state.isMac);
     
+    const activeWorkspaceId = useAppStore(state => state.activeWorkspaceId);
 
 
 
@@ -630,7 +631,7 @@ const Sidebar: React.FC = () => {
                             const isDragOver = dragOverId === id;
                             
                             return (
-                                <React.Fragment key={id}>
+                                <React.Fragment key={`${id}-${activeWorkspaceId}`}>
                                     <div 
                                         draggable={reorderMode}
                                         onDragStart={(e) => onPluginDragStart(e, id)}

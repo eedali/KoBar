@@ -108,6 +108,10 @@ const App: React.FC = () => {
       (window.KoBarExtensions as any)?.suspendNotifications?.();
       
       window.api.getInstalledExtensions().then(exts => {
+        const configMap: Record<string, boolean> = {};
+        exts.forEach(e => { configMap[e.id] = e.enabled; });
+        useAppStore.getState().setCurrentExtensionsConfig(configMap);
+
         // Clear old extensions state right before injecting new ones
         window.KoBarExtensions?.clear();
         const oldScripts = document.querySelectorAll('script[data-extension-id]');
@@ -308,7 +312,7 @@ const App: React.FC = () => {
       >
         <div 
           id="kobar-sidebar-wrapper"
-          className={`relative pointer-events-auto shrink-0 transition-opacity duration-300 ${isMiniMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+          className={`relative pointer-events-auto shrink-0 transition-opacity duration-300 ${isMiniMode ? 'opacity-0 pointer-events-none invisible' : 'opacity-100 visible'}`}
           style={{ 
             width: orientation === 'horizontal' ? 'fit-content' : `${sidebarWidth}px`, 
             height: orientation === 'horizontal' ? `${sidebarWidth}px` : 'fit-content',
@@ -355,10 +359,15 @@ const App: React.FC = () => {
               {activeExtensionPanelId && isLicensed && (() => {
                 const panel = extensionsRegistry.getPanel(activeExtensionPanelId);
                 if (!panel) return null;
-                return panel.render({
-                  onClose: () => useAppStore.setState({ activeExtensionPanelId: null }),
-                  anchorRect: activeExtensionAnchorRect
-                });
+                const currentWorkspaceId = useAppStore.getState().activeWorkspaceId;
+                return (
+                  <React.Fragment key={`${activeExtensionPanelId}-${currentWorkspaceId}`}>
+                    {panel.render({
+                      onClose: () => useAppStore.setState({ activeExtensionPanelId: null }),
+                      anchorRect: activeExtensionAnchorRect
+                    })}
+                  </React.Fragment>
+                );
               })()}
 
             </>

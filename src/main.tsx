@@ -7,10 +7,13 @@ import App from './App.tsx'
 import PipPlayer from './components/layout/PipPlayer.tsx'
 import { useAppStore } from './store/useAppStore'
 import './components/extensions/extensionRegistry'
+import { setupLocalStorageIsolation } from './utils/localStorageIsolation'
 
 window.React = React;
 window.ReactDOM = ReactDOM;
 window.useAppStore = useAppStore;
+
+setupLocalStorageIsolation();
 
 const urlParams = new URLSearchParams(window.location.search);
 const isPipMode = urlParams.get('pip') === 'true';

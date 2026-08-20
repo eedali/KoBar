@@ -99,6 +99,20 @@ class ExtensionRegistry {
         this.notify();
     }
 
+    getData<T = any>(pluginId: string, defaultValue?: T): T {
+        if (typeof window !== 'undefined' && window.useAppStore) {
+            return window.useAppStore.getState().getPluginData(pluginId, defaultValue);
+        }
+        return defaultValue as T;
+    }
+
+    setData(pluginId: string, data: any) {
+        if (typeof window !== 'undefined' && window.useAppStore) {
+            window.useAppStore.getState().setPluginData(pluginId, data);
+            this.notify();
+        }
+    }
+
     clear() {
         this.buttons = [];
         this.panels.clear();
@@ -128,6 +142,63 @@ export function useExtensionRegistry() {
         });
     }, []);
     return registry;
+}
+
+/**
+ * Custom React hook for plugin authors to seamlessly access and mutate workspace-isolated or global data.
+ */
+export function usePluginData<T = any>(pluginId: string, defaultValue?: T): [T, (data: T | ((prev: T) => T)) => void] {
+    const getStore = () => (typeof window !== 'undefined' && window.useAppStore ? window.useAppStore.getState() : null);
+    
+    // Subscribe to workspace switches and plugin data changes
+    const [data, setDataState] = React.useState<T>(() => {
+        const store = getStore();
+        return store ? store.getPluginData(pluginId, defaultValue) : defaultValue;
+    });
+
+    React.useEffect(() => {
+        if (typeof window === 'undefined' || !window.useAppStore) return;
+
+        const handleWsChange = () => {
+            const currentStore = getStore();
+            if (currentStore) {
+                setDataState(currentStore.getPluginData(pluginId, defaultValue));
+            }
+        };
+        window.addEventListener('kobar:workspace-changed', handleWsChange);
+
+        const unsubscribe = window.useAppStore.subscribe((state: any, prevState: any) => {
+            // If active workspace changed or workspace isolation updated or plugin data updated
+            if (
+                state.activeWorkspaceId !== prevState?.activeWorkspaceId ||
+                state.workspaces !== prevState?.workspaces ||
+                state.globalPluginData !== prevState?.globalPluginData
+            ) {
+                const current = state.getPluginData(pluginId, defaultValue);
+                setDataState(current);
+            }
+        });
+
+        return () => {
+            window.removeEventListener('kobar:workspace-changed', handleWsChange);
+            unsubscribe();
+        };
+    }, [pluginId, defaultValue]);
+
+    const setPluginData = React.useCallback((nextValueOrUpdater: T | ((prev: T) => T)) => {
+        const store = getStore();
+        if (!store) return;
+
+        const current = store.getPluginData(pluginId, defaultValue);
+        const resolvedValue = typeof nextValueOrUpdater === 'function'
+            ? (nextValueOrUpdater as (prev: T) => T)(current)
+            : nextValueOrUpdater;
+
+        store.setPluginData(pluginId, resolvedValue);
+        setDataState(resolvedValue);
+    }, [pluginId, defaultValue]);
+
+    return [data, setPluginData];
 }
 
 export default registry;

@@ -3,27 +3,45 @@ import { useAppStore } from '../../store/useAppStore';
 
 const InstalledPlugins: React.FC = () => {
     const t = useAppStore(state => state.t);
-    // We mock the state from the previous Extensions Manager here for now to avoid breaking App.tsx dependencies.
-    // In Phase 4, we will hook this up to the real window.KoBarExtensions API properly.
+    const triggerExtensionReload = useAppStore(state => state.triggerExtensionReload);
+    const setExtensionEnabledInWorkspace = useAppStore(state => state.setExtensionEnabledInWorkspace);
     const [installedExtensions, setInstalledExtensions] = useState<any[]>([]);
     const [extsLoading, setExtsLoading] = useState(true);
 
-    useEffect(() => {
-        // Mock loading from window.api
-        const load = async () => {
-            try {
-                if (window.api && window.api.getInstalledExtensions) {
-                    const exts = await window.api.getInstalledExtensions();
-                    setInstalledExtensions(exts);
-                }
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setExtsLoading(false);
+    const loadInstalled = async () => {
+        try {
+            if (window.api && window.api.getInstalledExtensions) {
+                const exts = await window.api.getInstalledExtensions();
+                setInstalledExtensions(exts);
             }
-        };
-        load();
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setExtsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadInstalled();
     }, []);
+
+    const handleToggle = async (ext: any) => {
+        const newState = !ext.enabled;
+        setExtensionEnabledInWorkspace(ext.id, newState);
+        if (window.api?.toggleExtensionEnabled) {
+            await window.api.toggleExtensionEnabled(ext.id, newState);
+            triggerExtensionReload();
+            setInstalledExtensions(prev => prev.map(p => p.id === ext.id ? { ...p, enabled: newState } : p));
+        }
+    };
+
+    const handleUninstall = async (id: string) => {
+        if (window.api?.uninstallExtension) {
+            await window.api.uninstallExtension(id);
+            triggerExtensionReload();
+            setInstalledExtensions(prev => prev.filter(p => p.id !== id));
+        }
+    };
 
     return (
         <div className="flex flex-col h-full space-y-6">
@@ -65,13 +83,15 @@ const InstalledPlugins: React.FC = () => {
                         <div className="flex items-center gap-3 shrink-0">
                             {/* Enable/Disable Toggle */}
                             <button
-                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${ext.enabled ? 'bg-green-500' : 'bg-slate-600'}`}
+                                onClick={() => handleToggle(ext)}
+                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${ext.enabled ? 'bg-primary' : 'bg-slate-600'}`}
                             >
                                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${ext.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                             </button>
 
                             {/* Uninstall Button */}
                             <button
+                                onClick={() => handleUninstall(ext.id)}
                                 className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-colors"
                                 title="Uninstall"
                             >

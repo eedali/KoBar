@@ -93,16 +93,22 @@ export interface TutorialState {
 }
 
 
+export interface WorkspaceIsolatedData {
+    notes?: Note[];
+    activeNoteId?: number;
+    nextNoteId?: number;
+    pluginData?: Record<string, any>;
+}
+
 export interface WorkspaceConfig {
     id: string;
     name: string;
-
-
+    isIsolated: boolean;
+    isolatedData?: WorkspaceIsolatedData;
+    enabledExtensions?: Record<string, boolean>;
 
     isPinInjectorEnabled: boolean;
     isKoBoxEnabled: boolean;
-
-
 
     koBoxCleanupMode: '24h' | 'quit';
 
@@ -300,10 +306,22 @@ interface AppState {
     setPluginsSearchQuery: (query: string) => void;
     pluginsSelectedTags: string[];
     setPluginsSelectedTags: (tags: string[]) => void;
+    currentExtensionsConfig: Record<string, boolean>;
+    setCurrentExtensionsConfig: (config: Record<string, boolean>) => void;
+    setExtensionEnabledInWorkspace: (extensionId: string, enabled: boolean) => void;
+
+    // Workspace & Data Isolation
+    activeWorkspaceId: string | null;
+    setActiveWorkspaceId: (id: string | null) => void;
+    globalNotes: Note[];
+    globalPluginData: Record<string, any>;
+    toggleWorkspaceIsolation: (id: string) => void;
+    getPluginData: <T = any>(pluginId: string, defaultValue?: T) => T;
+    setPluginData: (pluginId: string, data: any) => void;
 
     // Workspaces
     workspaces: WorkspaceConfig[];
-    saveCurrentAsWorkspace: (name: string) => void;
+    saveCurrentAsWorkspace: (name: string, isIsolated?: boolean) => void;
     loadWorkspace: (id: string) => void;
     deleteWorkspace: (id: string) => void;
     updateWorkspaceName: (id: string, newName: string) => void;
@@ -377,12 +395,48 @@ export const useAppStore = create<AppState>()(
             setPluginsSearchQuery: (query) => set({ pluginsSearchQuery: query }),
             pluginsSelectedTags: [],
             setPluginsSelectedTags: (tags) => set({ pluginsSelectedTags: tags }),
+            currentExtensionsConfig: {},
+            setCurrentExtensionsConfig: (config) => set({ currentExtensionsConfig: config }),
+            setExtensionEnabledInWorkspace: (extensionId, enabled) => set((state) => {
+                const nextConfig = { ...state.currentExtensionsConfig, [extensionId]: enabled };
+                let updatedWorkspaces = state.workspaces;
+                if (state.activeWorkspaceId) {
+                    updatedWorkspaces = state.workspaces.map(w => {
+                        if (w.id === state.activeWorkspaceId) {
+                            return {
+                                ...w,
+                                enabledExtensions: {
+                                    ...(w.enabledExtensions || {}),
+                                    [extensionId]: enabled
+                                }
+                            };
+                        }
+                        return w;
+                    });
+                }
+                return {
+                    currentExtensionsConfig: nextConfig,
+                    workspaces: updatedWorkspaces
+                };
+            }),
             edgePosition: 'right',
-            setEdgePosition: (edge) => set({ edgePosition: edge }),
+            setEdgePosition: (edge) => set((state) => ({
+                edgePosition: edge,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, edgePosition: edge } : w)
+                    : state.workspaces
+            })),
             orientation: 'vertical',
             setOrientation: (orientation) => {
                 const defaultEdge = orientation === 'horizontal' ? 'bottom' : 'right';
-                set({ orientation, edgePosition: defaultEdge, sidebarPosition: null });
+                set((state) => ({
+                    orientation,
+                    edgePosition: defaultEdge,
+                    sidebarPosition: null,
+                    workspaces: state.activeWorkspaceId
+                        ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, orientation, edgePosition: defaultEdge } : w)
+                        : state.workspaces
+                }));
             },
             isNotePanelOpen: false,
             setNotePanelOpen: (isOpen) => set({ isNotePanelOpen: isOpen }),
@@ -400,6 +454,7 @@ export const useAppStore = create<AppState>()(
 
 
 
+            // Helper to sync active workspace config
             // Theme
             theme: 'midnight',
             customThemeColor: '#f4a125',
@@ -411,7 +466,12 @@ export const useAppStore = create<AppState>()(
                     clearCustomThemeCSS();
                     document.documentElement.setAttribute('data-theme', theme);
                 }
-                set({ theme });
+                set((state) => ({
+                    theme,
+                    workspaces: state.activeWorkspaceId
+                        ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, theme } : w)
+                        : state.workspaces
+                }));
             },
             setCustomThemeColor: (color: string) => {
                 const hex = color.startsWith('#') ? color : `#${color}`;
@@ -420,32 +480,60 @@ export const useAppStore = create<AppState>()(
 
                 document.documentElement.setAttribute('data-theme', 'custom');
                 applyCustomThemeCSS(hex);
-                set({
+                set((state) => ({
                     customThemeColor: hex,
-                    theme: 'custom'
-                });
+                    theme: 'custom',
+                    workspaces: state.activeWorkspaceId
+                        ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, customThemeColor: hex, theme: 'custom' } : w)
+                        : state.workspaces
+                }));
             },
 
             // Design System
             design: 'style1',
             setDesign: (design) => {
                 document.documentElement.setAttribute('data-design', design);
-                set({ design });
+                set((state) => ({
+                    design,
+                    workspaces: state.activeWorkspaceId
+                        ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, design } : w)
+                        : state.workspaces
+                }));
             },
             glassOpacity: 60,
-            setGlassOpacity: (val) => set({ glassOpacity: val }),
+            setGlassOpacity: (val) => set((state) => ({
+                glassOpacity: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, glassOpacity: val } : w)
+                    : state.workspaces
+            })),
 
             // Settings
             showTooltips: true,
-            setShowTooltips: (val) => set({ showTooltips: val }),
+            setShowTooltips: (val) => set((state) => ({
+                showTooltips: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, showTooltips: val } : w)
+                    : state.workspaces
+            })),
             sidebarWidth: 46,
-            setSidebarWidth: (val) => set({ sidebarWidth: val }),
+            setSidebarWidth: (val) => set((state) => ({
+                sidebarWidth: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, sidebarWidth: val } : w)
+                    : state.workspaces
+            })),
             lastSidebarHeight: 800,
             setLastSidebarHeight: (val) => set({ lastSidebarHeight: val }),
             lastSidebarWidth: 200,
             setLastSidebarWidth: (val) => set({ lastSidebarWidth: val }),
             iconScale: 0.8,
-            setIconScale: (val) => set({ iconScale: val }),
+            setIconScale: (val) => set((state) => ({
+                iconScale: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, iconScale: val } : w)
+                    : state.workspaces
+            })),
 
             isDraggingGlobal: false,
             setIsDraggingGlobal: (val) => set({ isDraggingGlobal: val }),
@@ -464,7 +552,12 @@ export const useAppStore = create<AppState>()(
             // Feature Toggles (Initial State)
 
             isPinInjectorEnabled: false,
-            setIsPinInjectorEnabled: (val: boolean) => set({ isPinInjectorEnabled: val }),
+            setIsPinInjectorEnabled: (val: boolean) => set((state) => ({
+                isPinInjectorEnabled: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, isPinInjectorEnabled: val } : w)
+                    : state.workspaces
+            })),
 
             isTargetingMode: false,
             setIsTargetingMode: (val: boolean) => set({ isTargetingMode: val }),
@@ -472,24 +565,35 @@ export const useAppStore = create<AppState>()(
             setPinnedWindowHwnd: (hwnd: number | null) => set({ pinnedWindowHwnd: hwnd }),
 
             isKoBoxEnabled: false,
-            setIsKoBoxEnabled: (val: boolean) => set({ isKoBoxEnabled: val }),
+            setIsKoBoxEnabled: (val: boolean) => set((state) => ({
+                isKoBoxEnabled: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, isKoBoxEnabled: val } : w)
+                    : state.workspaces
+            })),
             koBoxCleanupMode: '24h',
-            setKoBoxCleanupMode: (val: '24h' | 'quit') => set({ koBoxCleanupMode: val }),
-
-
-
-
-
-
-
+            setKoBoxCleanupMode: (val: '24h' | 'quit') => set((state) => ({
+                koBoxCleanupMode: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, koBoxCleanupMode: val } : w)
+                    : state.workspaces
+            })),
 
             isPopupSmartPositioning: false,
-            setIsPopupSmartPositioning: (val: boolean) => set({ isPopupSmartPositioning: val }),
-
-
+            setIsPopupSmartPositioning: (val: boolean) => set((state) => ({
+                isPopupSmartPositioning: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, isPopupSmartPositioning: val } : w)
+                    : state.workspaces
+            })),
 
             featureOrder: ['com.kobar.aihub.btn', 'ko-calender-plugin-btn', 'todolist-plugin-btn', 'snippetvault-plugin-btn', 'pininjector', 'kobox', 'kobar-colorpicker-plugin-btn', 'calculator'],
-            setFeatureOrder: (order) => set({ featureOrder: order }),
+            setFeatureOrder: (order) => set((state) => ({
+                featureOrder: order,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, featureOrder: [...order] } : w)
+                    : state.workspaces
+            })),
 
             settingsFeatureViewMode: 'cards',
             setSettingsFeatureViewMode: (mode) => set({ settingsFeatureViewMode: mode }),
@@ -498,9 +602,19 @@ export const useAppStore = create<AppState>()(
 
             // UI Spacing & Sizing (defaults)
             toggleWidth: 22, // Note Notch Protrusion
-            setToggleWidth: (val) => set({ toggleWidth: val }),
+            setToggleWidth: (val) => set((state) => ({
+                toggleWidth: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, toggleWidth: val } : w)
+                    : state.workspaces
+            })),
             featureSpacing: 8, // Feature Spacing
-            setFeatureSpacing: (val) => set({ featureSpacing: val }),
+            setFeatureSpacing: (val) => set((state) => ({
+                featureSpacing: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, featureSpacing: val } : w)
+                    : state.workspaces
+            })),
 
             // Launch at Startup
             launchAtStartup: true,
@@ -509,7 +623,12 @@ export const useAppStore = create<AppState>()(
                 window.api?.setAutoLaunch?.(val);
             },
             enableEyeAnimation: true,
-            setEnableEyeAnimation: (val) => set({ enableEyeAnimation: val }),
+            setEnableEyeAnimation: (val) => set((state) => ({
+                enableEyeAnimation: val,
+                workspaces: state.activeWorkspaceId
+                    ? state.workspaces.map(w => w.id === state.activeWorkspaceId ? { ...w, enableEyeAnimation: val } : w)
+                    : state.workspaces
+            })),
 
             // Language
             language: 'en',
@@ -574,7 +693,56 @@ export const useAppStore = create<AppState>()(
             notes: defaultNotes,
             activeNoteId: 1,
             nextNoteId: 2,
-            setActiveNoteId: (id) => set({ activeNoteId: id }),
+            activeWorkspaceId: null,
+            setActiveWorkspaceId: (id) => set({ activeWorkspaceId: id }),
+            globalNotes: defaultNotes,
+            globalPluginData: {},
+
+            getPluginData: <T = any>(pluginId: string, defaultValue?: T): T => {
+                const state = get();
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    return (activeWs.isolatedData?.pluginData?.[pluginId] ?? defaultValue) as T;
+                }
+                return (state.globalPluginData?.[pluginId] ?? defaultValue) as T;
+            },
+
+            setPluginData: (pluginId: string, data: any) => set((state) => {
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const currentIsolated = activeWs.isolatedData || {};
+                    const currentPluginData = currentIsolated.pluginData || {};
+                    const updatedWorkspaces = state.workspaces.map(w => {
+                        if (w.id === activeWs.id) {
+                            return {
+                                ...w,
+                                isolatedData: {
+                                    ...currentIsolated,
+                                    pluginData: { ...currentPluginData, [pluginId]: data }
+                                }
+                            };
+                        }
+                        return w;
+                    });
+                    return { workspaces: updatedWorkspaces };
+                } else {
+                    return { globalPluginData: { ...(state.globalPluginData || {}), [pluginId]: data } };
+                }
+            }),
+            setActiveNoteId: (id) => set((state) => {
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            activeNoteId: id
+                        }
+                    } : w);
+                    return { activeNoteId: id, workspaces: updatedWorkspaces };
+                }
+                return { activeNoteId: id };
+            }),
 
             // Tutorial State
             tutorialState: { version: '1.0.0', status: 'pending' },
@@ -596,6 +764,7 @@ export const useAppStore = create<AppState>()(
             hideEyeNotification: () => set((state) => ({ 
                 eyeNotification: state.eyeNotification ? { ...state.eyeNotification, isVisible: false } : null 
             })),
+
             addNote: () => set((state) => {
                 const newNote: Note = {
                     id: state.nextNoteId,
@@ -604,10 +773,34 @@ export const useAppStore = create<AppState>()(
                     emoji: null,
                     content: '',
                 };
+                const nextNotes = [...state.notes, newNote];
+                const nextActiveId = newNote.id;
+                const nextId = state.nextNoteId + 1;
+
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            notes: nextNotes,
+                            activeNoteId: nextActiveId,
+                            nextNoteId: nextId
+                        }
+                    } : w);
+                    return {
+                        notes: nextNotes,
+                        activeNoteId: nextActiveId,
+                        nextNoteId: nextId,
+                        workspaces: updatedWorkspaces
+                    };
+                }
+
                 return {
-                    notes: [...state.notes, newNote],
-                    activeNoteId: newNote.id,
-                    nextNoteId: state.nextNoteId + 1,
+                    notes: nextNotes,
+                    activeNoteId: nextActiveId,
+                    nextNoteId: nextId,
+                    globalNotes: nextNotes,
                 };
             }),
             deleteNote: (id) => set((state) => {
@@ -616,17 +809,67 @@ export const useAppStore = create<AppState>()(
                 const newActiveId = state.activeNoteId === id
                     ? filtered[0].id
                     : state.activeNoteId;
-                return { notes: filtered, activeNoteId: newActiveId };
+
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            notes: filtered,
+                            activeNoteId: newActiveId,
+                        }
+                    } : w);
+                    return { notes: filtered, activeNoteId: newActiveId, workspaces: updatedWorkspaces };
+                }
+
+                return { notes: filtered, activeNoteId: newActiveId, globalNotes: filtered };
             }),
-            updateNoteContent: (id, content) => set((state) => ({
-                notes: state.notes.map(n => n.id === id ? { ...n, content } : n),
-            })),
-            updateNoteTitle: (id, title) => set((state) => ({
-                notes: state.notes.map(n => n.id === id ? { ...n, title } : n),
-            })),
-            updateNoteEmoji: (id, emoji) => set((state) => ({
-                notes: state.notes.map(n => n.id === id ? { ...n, emoji } : n),
-            })),
+            updateNoteContent: (id, content) => set((state) => {
+                const nextNotes = state.notes.map(n => n.id === id ? { ...n, content } : n);
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            notes: nextNotes,
+                        }
+                    } : w);
+                    return { notes: nextNotes, workspaces: updatedWorkspaces };
+                }
+                return { notes: nextNotes, globalNotes: nextNotes };
+            }),
+            updateNoteTitle: (id, title) => set((state) => {
+                const nextNotes = state.notes.map(n => n.id === id ? { ...n, title } : n);
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            notes: nextNotes,
+                        }
+                    } : w);
+                    return { notes: nextNotes, workspaces: updatedWorkspaces };
+                }
+                return { notes: nextNotes, globalNotes: nextNotes };
+            }),
+            updateNoteEmoji: (id, emoji) => set((state) => {
+                const nextNotes = state.notes.map(n => n.id === id ? { ...n, emoji } : n);
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            notes: nextNotes,
+                        }
+                    } : w);
+                    return { notes: nextNotes, workspaces: updatedWorkspaces };
+                }
+                return { notes: nextNotes, globalNotes: nextNotes };
+            }),
             openSettingsTab: () => set((state) => {
                 let settingsNote = state.notes.find(n => n.isSettings);
                 let nextNotes = state.notes;
@@ -645,11 +888,32 @@ export const useAppStore = create<AppState>()(
                     nextId++;
                 }
 
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            notes: nextNotes,
+                            activeNoteId: settingsNote.id,
+                            nextNoteId: nextId,
+                        }
+                    } : w);
+                    return {
+                        isNotePanelOpen: true,
+                        notes: nextNotes,
+                        activeNoteId: settingsNote.id,
+                        nextNoteId: nextId,
+                        workspaces: updatedWorkspaces
+                    };
+                }
+
                 return {
                     isNotePanelOpen: true,
                     notes: nextNotes,
                     activeNoteId: settingsNote.id,
                     nextNoteId: nextId,
+                    globalNotes: nextNotes,
                 };
             }),
             openPluginsTab: () => set((state) => {
@@ -670,11 +934,32 @@ export const useAppStore = create<AppState>()(
                     nextId++;
                 }
 
+                const activeWs = state.workspaces.find(w => w.id === state.activeWorkspaceId);
+                if (activeWs && activeWs.isIsolated) {
+                    const updatedWorkspaces = state.workspaces.map(w => w.id === activeWs.id ? {
+                        ...w,
+                        isolatedData: {
+                            ...(w.isolatedData || {}),
+                            notes: nextNotes,
+                            activeNoteId: pluginsNote.id,
+                            nextNoteId: nextId,
+                        }
+                    } : w);
+                    return {
+                        isNotePanelOpen: true,
+                        notes: nextNotes,
+                        activeNoteId: pluginsNote.id,
+                        nextNoteId: nextId,
+                        workspaces: updatedWorkspaces
+                    };
+                }
+
                 return {
                     isNotePanelOpen: true,
                     notes: nextNotes,
                     activeNoteId: pluginsNote.id,
                     nextNoteId: nextId,
+                    globalNotes: nextNotes,
                 };
             }),
 
@@ -697,16 +982,24 @@ export const useAppStore = create<AppState>()(
 
             // Workspaces
             workspaces: [],
-            saveCurrentAsWorkspace: (name) => set((state) => {
+            saveCurrentAsWorkspace: (name, isIsolated = false) => set((state) => {
+                const newId = Date.now().toString();
                 const newWorkspace: WorkspaceConfig = {
-                    id: Date.now().toString(),
+                    id: newId,
                     name,
+                    isIsolated,
+                    isolatedData: isIsolated ? {
+                        notes: JSON.parse(JSON.stringify(state.notes)),
+                        activeNoteId: state.activeNoteId,
+                        nextNoteId: state.nextNoteId,
+                        pluginData: JSON.parse(JSON.stringify(
+                            (state.workspaces.find(w => w.id === state.activeWorkspaceId)?.isolatedData?.pluginData) || {}
+                        )),
+                    } : undefined,
+                    enabledExtensions: { ...state.currentExtensionsConfig },
 
                     isPinInjectorEnabled: state.isPinInjectorEnabled,
                     isKoBoxEnabled: state.isKoBoxEnabled,
-
-
-
                     koBoxCleanupMode: state.koBoxCleanupMode,
 
                     toggleWidth: state.toggleWidth,
@@ -724,61 +1017,252 @@ export const useAppStore = create<AppState>()(
                     enableEyeAnimation: state.enableEyeAnimation,
                     orientation: state.orientation
                 };
-                return { workspaces: [...state.workspaces, newWorkspace] };
+
+                setTimeout(() => {
+                    if (typeof window !== 'undefined') {
+                        (window.KoBarExtensions as any)?.notify?.();
+                        window.dispatchEvent(new CustomEvent('kobar:workspace-changed', { detail: { workspaceId: newId } }));
+                    }
+                }, 0);
+
+                return {
+                    workspaces: [...state.workspaces, newWorkspace],
+                    activeWorkspaceId: newId,
+                };
             }),
             loadWorkspace: (id) => set((state) => {
-                const ws = state.workspaces.find(w => w.id === id);
-                if (!ws) return state;
-                document.documentElement.setAttribute('data-theme', ws.theme);
-                document.documentElement.setAttribute('data-design', ws.design);
-                if (ws.theme === 'custom' && ws.customThemeColor) {
-                    applyCustomThemeCSS(ws.customThemeColor);
+                const targetWs = state.workspaces.find(w => w.id === id);
+                if (!targetWs) return state;
+
+                // 1. Snapshot previous active workspace before switching
+                let updatedWorkspaces = [...state.workspaces];
+                let nextGlobalNotes = state.globalNotes;
+                let nextGlobalPluginData = state.globalPluginData;
+
+                const prevActiveWs = updatedWorkspaces.find(w => w.id === state.activeWorkspaceId);
+                if (prevActiveWs) {
+                    updatedWorkspaces = updatedWorkspaces.map(w => {
+                        if (w.id === prevActiveWs.id) {
+                            return {
+                                ...w,
+                                enabledExtensions: { ...state.currentExtensionsConfig },
+                                isPinInjectorEnabled: state.isPinInjectorEnabled,
+                                isKoBoxEnabled: state.isKoBoxEnabled,
+                                koBoxCleanupMode: state.koBoxCleanupMode,
+                                toggleWidth: state.toggleWidth,
+                                sidebarWidth: state.sidebarWidth,
+                                iconScale: state.iconScale,
+                                featureSpacing: state.featureSpacing,
+                                showTooltips: state.showTooltips,
+                                theme: state.theme,
+                                customThemeColor: state.customThemeColor,
+                                design: state.design,
+                                glassOpacity: state.glassOpacity,
+                                featureOrder: [...state.featureOrder],
+                                edgePosition: state.edgePosition,
+                                isPopupSmartPositioning: state.isPopupSmartPositioning,
+                                enableEyeAnimation: state.enableEyeAnimation,
+                                orientation: state.orientation,
+                                isolatedData: w.isIsolated ? {
+                                    ...(w.isolatedData || {}),
+                                    notes: JSON.parse(JSON.stringify(state.notes)),
+                                    activeNoteId: state.activeNoteId,
+                                    nextNoteId: state.nextNoteId,
+                                    pluginData: JSON.parse(JSON.stringify(w.isolatedData?.pluginData || {})),
+                                } : w.isolatedData
+                            };
+                        }
+                        return w;
+                    });
+
+                    if (!prevActiveWs.isIsolated) {
+                        nextGlobalNotes = JSON.parse(JSON.stringify(state.notes));
+                    }
+                } else {
+                    nextGlobalNotes = JSON.parse(JSON.stringify(state.notes));
+                }
+
+                // 2. Fetch fresh target workspace from updated workspaces
+                const freshTargetWs = updatedWorkspaces.find(w => w.id === id) || targetWs;
+
+                // 3. Apply DOM Attributes and Themes
+                const targetTheme = freshTargetWs.theme || 'midnight';
+                const targetDesign = freshTargetWs.design || 'style1';
+                const targetCustomColor = freshTargetWs.customThemeColor || '#f4a125';
+
+                document.documentElement.setAttribute('data-theme', targetTheme);
+                document.documentElement.setAttribute('data-design', targetDesign);
+
+                if (targetTheme === 'custom') {
+                    localStorage.setItem('kobar_force_theme_color', targetCustomColor);
+                    applyCustomThemeCSS(targetCustomColor);
                 } else {
                     clearCustomThemeCSS();
                 }
+
+                // 4. Resolve Notes & Active IDs for Target Workspace
+                let nextNotes: Note[];
+                let nextActiveId: number;
+                let nextId: number;
+
+                if (freshTargetWs.isIsolated) {
+                    const isoData = freshTargetWs.isolatedData;
+                    if (isoData && Array.isArray(isoData.notes) && isoData.notes.length > 0) {
+                        nextNotes = JSON.parse(JSON.stringify(isoData.notes));
+                        nextActiveId = isoData.activeNoteId ?? nextNotes[0].id;
+                        nextId = isoData.nextNoteId ?? (Math.max(...nextNotes.map(n => n.id), 0) + 1);
+                    } else {
+                        nextNotes = JSON.parse(JSON.stringify(defaultNotes));
+                        nextActiveId = 1;
+                        nextId = 2;
+                    }
+                } else {
+                    nextNotes = nextGlobalNotes && nextGlobalNotes.length > 0
+                        ? JSON.parse(JSON.stringify(nextGlobalNotes))
+                        : JSON.parse(JSON.stringify(defaultNotes));
+                    nextActiveId = nextNotes[0]?.id ?? 1;
+                    nextId = Math.max(...nextNotes.map(n => n.id), 0) + 1;
+                }
+
+                // 5. Apply extensions configuration for target workspace
+                const targetExtConfig = freshTargetWs.enabledExtensions || state.currentExtensionsConfig;
+                if (freshTargetWs.enabledExtensions && window.api?.setExtensionsConfig) {
+                    window.api.setExtensionsConfig(freshTargetWs.enabledExtensions).then(() => {
+                        state.triggerExtensionReload();
+                    });
+                } else {
+                    state.triggerExtensionReload();
+                }
+
+                // 6. Notify extensions / plugins
+                setTimeout(() => {
+                    if (typeof window !== 'undefined') {
+                        (window.KoBarExtensions as any)?.notify?.();
+                        window.dispatchEvent(new CustomEvent('kobar:workspace-changed', { detail: { workspaceId: id } }));
+                    }
+                }, 0);
+
+                const safeFeatureOrder = Array.isArray(freshTargetWs.featureOrder) && freshTargetWs.featureOrder.length > 0
+                    ? [...freshTargetWs.featureOrder]
+                    : ['com.kobar.aihub.btn', 'ko-calender-plugin-btn', 'todolist-plugin-btn', 'snippetvault-plugin-btn', 'pininjector', 'kobox', 'kobar-colorpicker-plugin-btn', 'calculator'];
+
                 return {
+                    workspaces: updatedWorkspaces,
+                    activeWorkspaceId: id,
+                    currentExtensionsConfig: targetExtConfig,
+                    globalNotes: nextGlobalNotes,
+                    globalPluginData: nextGlobalPluginData,
+                    notes: nextNotes,
+                    activeNoteId: nextActiveId,
+                    nextNoteId: nextId,
 
-                    isPinInjectorEnabled: ws.isPinInjectorEnabled,
-                    isKoBoxEnabled: ws.isKoBoxEnabled,
+                    isPinInjectorEnabled: freshTargetWs.isPinInjectorEnabled ?? false,
+                    isKoBoxEnabled: freshTargetWs.isKoBoxEnabled ?? false,
+                    koBoxCleanupMode: freshTargetWs.koBoxCleanupMode ?? '24h',
 
-
-
-                    koBoxCleanupMode: ws.koBoxCleanupMode,
-
-                    toggleWidth: ws.toggleWidth,
-                    sidebarWidth: ws.sidebarWidth,
-                    iconScale: ws.iconScale,
-                    featureSpacing: ws.featureSpacing,
-                    showTooltips: ws.showTooltips,
-                    theme: ws.theme,
-                    customThemeColor: ws.customThemeColor || state.customThemeColor,
-                    design: ws.design,
-                    glassOpacity: ws.glassOpacity,
-                    featureOrder: [...ws.featureOrder],
-                    edgePosition: ws.edgePosition,
-                    isPopupSmartPositioning: ws.isPopupSmartPositioning || false,
-                    enableEyeAnimation: ws.enableEyeAnimation !== undefined ? ws.enableEyeAnimation : true,
-                    orientation: ws.orientation || 'vertical'
+                    toggleWidth: freshTargetWs.toggleWidth ?? 22,
+                    sidebarWidth: freshTargetWs.sidebarWidth ?? 46,
+                    iconScale: freshTargetWs.iconScale ?? 0.8,
+                    featureSpacing: freshTargetWs.featureSpacing ?? 8,
+                    showTooltips: freshTargetWs.showTooltips !== undefined ? freshTargetWs.showTooltips : true,
+                    theme: targetTheme,
+                    customThemeColor: targetCustomColor,
+                    design: targetDesign,
+                    glassOpacity: freshTargetWs.glassOpacity ?? 60,
+                    featureOrder: safeFeatureOrder,
+                    edgePosition: freshTargetWs.edgePosition || 'right',
+                    isPopupSmartPositioning: freshTargetWs.isPopupSmartPositioning ?? false,
+                    enableEyeAnimation: freshTargetWs.enableEyeAnimation !== undefined ? freshTargetWs.enableEyeAnimation : true,
+                    orientation: freshTargetWs.orientation || 'vertical'
                 };
             }),
-            deleteWorkspace: (id) => set((state) => ({
-                workspaces: state.workspaces.filter(w => w.id !== id)
-            })),
+            toggleWorkspaceIsolation: (id) => set((state) => {
+                const targetWs = state.workspaces.find(w => w.id === id);
+                if (!targetWs) return state;
+
+                const willBeIsolated = !targetWs.isIsolated;
+                const isActive = state.activeWorkspaceId === id;
+
+                let updatedWorkspaces = state.workspaces.map(w => {
+                    if (w.id === id) {
+                        const existingIso = w.isolatedData || {
+                            notes: JSON.parse(JSON.stringify(isActive ? state.notes : (state.globalNotes || defaultNotes))),
+                            activeNoteId: state.activeNoteId,
+                            nextNoteId: state.nextNoteId,
+                            pluginData: {}
+                        };
+                        return {
+                            ...w,
+                            isIsolated: willBeIsolated,
+                            isolatedData: existingIso
+                        };
+                    }
+                    return w;
+                });
+
+                setTimeout(() => {
+                    if (typeof window !== 'undefined') {
+                        (window.KoBarExtensions as any)?.notify?.();
+                        window.dispatchEvent(new CustomEvent('kobar:workspace-changed', { detail: { workspaceId: id } }));
+                    }
+                }, 0);
+
+                if (isActive) {
+                    if (willBeIsolated) {
+                        const currentIso = updatedWorkspaces.find(w => w.id === id)?.isolatedData;
+                        const isoNotes = currentIso?.notes && currentIso.notes.length > 0
+                            ? currentIso.notes
+                            : JSON.parse(JSON.stringify(state.notes));
+                        return {
+                            workspaces: updatedWorkspaces,
+                            globalNotes: JSON.parse(JSON.stringify(state.notes)),
+                            notes: isoNotes,
+                            activeNoteId: currentIso?.activeNoteId ?? isoNotes[0]?.id ?? 1,
+                            nextNoteId: currentIso?.nextNoteId ?? (Math.max(...isoNotes.map((n: { id: number }) => n.id), 0) + 1),
+                        };
+                    } else {
+                        const fallbackNotes = state.globalNotes && state.globalNotes.length > 0
+                            ? state.globalNotes
+                            : JSON.parse(JSON.stringify(defaultNotes));
+                        return {
+                            workspaces: updatedWorkspaces,
+                            notes: fallbackNotes,
+                            activeNoteId: fallbackNotes[0]?.id ?? 1,
+                            nextNoteId: Math.max(...fallbackNotes.map((n: { id: number }) => n.id), 0) + 1,
+                        };
+                    }
+                }
+
+                return { workspaces: updatedWorkspaces };
+            }),
+            deleteWorkspace: (id) => set((state) => {
+                const wasActive = state.activeWorkspaceId === id;
+                const remaining = state.workspaces.filter(w => w.id !== id);
+                if (wasActive) {
+                    const fallbackNotes = state.globalNotes && state.globalNotes.length > 0
+                        ? state.globalNotes
+                        : JSON.parse(JSON.stringify(defaultNotes));
+                    return {
+                        workspaces: remaining,
+                        activeWorkspaceId: null,
+                        notes: fallbackNotes,
+                        activeNoteId: fallbackNotes[0]?.id ?? 1,
+                        nextNoteId: Math.max(...fallbackNotes.map((n: { id: number }) => n.id), 0) + 1,
+                    };
+                }
+                return { workspaces: remaining };
+            }),
             updateWorkspaceName: (id, newName) => set((state) => ({
                 workspaces: state.workspaces.map(w => w.id === id ? { ...w, name: newName } : w)
             })),
             updateWorkspaceSettings: (id) => set((state) => ({
                 workspaces: state.workspaces.map(w => w.id === id ? {
                     ...w,
-
+                    enabledExtensions: { ...state.currentExtensionsConfig },
                     isPinInjectorEnabled: state.isPinInjectorEnabled,
                     isKoBoxEnabled: state.isKoBoxEnabled,
-
-
                     isPopupSmartPositioning: state.isPopupSmartPositioning,
-
                     koBoxCleanupMode: state.koBoxCleanupMode,
-
                     toggleWidth: state.toggleWidth,
                     sidebarWidth: state.sidebarWidth,
                     iconScale: state.iconScale,
@@ -791,14 +1275,39 @@ export const useAppStore = create<AppState>()(
                     featureOrder: [...state.featureOrder],
                     edgePosition: state.edgePosition,
                     enableEyeAnimation: state.enableEyeAnimation,
-                    orientation: state.orientation
+                    orientation: state.orientation,
+                    isolatedData: w.isIsolated ? {
+                        ...(w.isolatedData || {}),
+                        notes: JSON.parse(JSON.stringify(state.notes)),
+                        activeNoteId: state.activeNoteId,
+                        nextNoteId: state.nextNoteId,
+                        pluginData: JSON.parse(JSON.stringify(w.isolatedData?.pluginData || {})),
+                    } : w.isolatedData,
                 } : w)
             })),
         }),
         {
             name: 'kobar-storage',
-            version: 20,
+            version: 21,
             migrate: (persistedState: any, version: number) => {
+                if (version <= 20) {
+                    if (persistedState.globalNotes === undefined) {
+                        persistedState.globalNotes = persistedState.notes ? [...persistedState.notes] : [];
+                    }
+                    if (persistedState.globalPluginData === undefined) {
+                        persistedState.globalPluginData = {};
+                    }
+                    if (persistedState.activeWorkspaceId === undefined) {
+                        persistedState.activeWorkspaceId = null;
+                    }
+                    if (persistedState.workspaces && Array.isArray(persistedState.workspaces)) {
+                        persistedState.workspaces = persistedState.workspaces.map((w: any) => ({
+                            ...w,
+                            isIsolated: w.isIsolated ?? false,
+                            isolatedData: w.isolatedData || undefined,
+                        }));
+                    }
+                }
                 // version 20 migration for tutorial state
                 if (version <= 19) {
                     if (persistedState.tutorialState === undefined) {
@@ -968,6 +1477,10 @@ export const useAppStore = create<AppState>()(
                 notes: state.notes,
                 activeNoteId: state.activeNoteId,
                 nextNoteId: state.nextNoteId,
+                globalNotes: state.globalNotes,
+                globalPluginData: state.globalPluginData,
+                currentExtensionsConfig: state.currentExtensionsConfig,
+                activeWorkspaceId: state.activeWorkspaceId,
                 notePanelWidth: state.notePanelWidth,
                 notePanelHeight: state.notePanelHeight,
                 tutorialState: state.tutorialState,

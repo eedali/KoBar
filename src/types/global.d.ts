@@ -132,6 +132,7 @@ declare global {
             installExtension: (id: string) => Promise<boolean>;
             uninstallExtension: (id: string) => Promise<boolean>;
             toggleExtensionEnabled: (id: string, enabled: boolean) => Promise<boolean>;
+            setExtensionsConfig: (config: Record<string, boolean>) => Promise<boolean>;
             installExtensionFromFile: () => Promise<{ success: boolean; reason?: string }>;
             installExtensionFromPath: (filePath: string) => Promise<{ success: boolean; reason?: string }>;
             installExtensionFromGithub: (id: string, repo: string) => Promise<{ success: boolean; reason?: string }>;

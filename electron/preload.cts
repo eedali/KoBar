@@ -222,6 +222,7 @@ contextBridge.exposeInMainWorld('api', {
     installExtension: (id: string) => ipcRenderer.invoke('install-extension', id),
     uninstallExtension: (id: string) => ipcRenderer.invoke('uninstall-extension', id),
     toggleExtensionEnabled: (id: string, enabled: boolean) => ipcRenderer.invoke('toggle-extension-enabled', id, enabled),
+    setExtensionsConfig: (config: Record<string, boolean>) => ipcRenderer.invoke('set-extensions-config', config),
     installExtensionFromFile: () => ipcRenderer.invoke('install-extension-from-file'),
     installExtensionFromPath: (filePath: string) => ipcRenderer.invoke('install-extension-from-path', filePath),
     installExtensionFromGithub: (id: string, repo: string) => ipcRenderer.invoke('install-extension-from-github', id, repo),

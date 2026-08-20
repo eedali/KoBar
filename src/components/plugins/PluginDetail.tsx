@@ -306,6 +306,7 @@ const PluginDetail: React.FC = () => {
                             onClick={async () => {
                                 const newState = !isLocalActive;
                                 setIsLocalActive(newState);
+                                useAppStore.getState().setExtensionEnabledInWorkspace(plugin.id, newState);
                                 if (window.api?.toggleExtensionEnabled) {
                                     await window.api.toggleExtensionEnabled(plugin.id, newState);
                                     triggerExtensionReload();
